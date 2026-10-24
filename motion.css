@@ -177,4 +177,101 @@
 .god-card.turned{background:linear-gradient(180deg,var(--white),#f8efed)}
 .god-card.turned .bust{filter:saturate(.55) brightness(.94);border-color:#cfb2ae}
 
-@media print{.m-r{opacity:1!important;animation:none!important}.m-scale{display:none}}
+/* 7. A jornada em movimento (seção "Começa nas pequenas cenas"): no lugar dos três cartões,
+   uma demonstração do mapa em três atos; os textos dos cartões ficam ao lado, com o passo atual aceso.
+   Só é montada quando o aparelho aceita animação; senão os cartões continuam como estão.
+   O JS liga, no tempo certo, as classes scene, opts, pick1, pick2, temple, ring, lit, regent, doors e out. */
+.mj{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:56px;align-items:center;margin-top:34px}
+.mj-stage{--cy:44%;--R:138px;--bs:58px;--ry:-28px;--dy:-100px;--dh:190px;position:relative;height:460px;max-width:580px;width:100%;justify-self:center;border-radius:18px;background:linear-gradient(160deg,#fffdf8,#f3f0e6);border:1px solid var(--line);box-shadow:0 24px 60px #3d463414;overflow:hidden;pointer-events:none}
+.mj-layer{position:absolute;inset:0;padding:24px;transition:opacity .6s var(--m-out),transform .6s var(--m-out)}
+.mj-reset,.mj-reset *{transition:none!important;animation:none!important}
+.mj-scene{display:flex;flex-direction:column;justify-content:center}
+/* Ato 1: a cena */
+.mj-prompt{padding:14px 16px;border-radius:8px;background:#465341;border-left:3px solid var(--gold);color:#f6f1e4;opacity:0;transform:translateY(16px);transition:opacity .6s var(--m-out),transform .7s var(--m-out)}
+.mj-prompt span{display:block;font-size:9px;letter-spacing:1.6px;color:var(--gold-soft);margin-bottom:5px}
+.mj-prompt p{margin:0;font:17px/1.4 Georgia,'Times New Roman',serif}
+.mj-opts{display:grid;gap:7px;margin-top:12px}
+.mj-opt{position:relative;padding:9px 46px 9px 13px;border:1px solid #c6c7b9;border-left:3px solid #d8d3c3;border-radius:7px;background:var(--white);font:13.5px/1.4 Georgia,'Times New Roman',serif;color:var(--ink);opacity:0;transform:translateX(20px);transition:opacity .5s var(--m-out),transform .6s var(--m-out),background .35s,border-color .35s}
+.mj-tag{display:block;font:600 9px Arial,sans-serif;letter-spacing:1px;max-height:0;overflow:hidden;transition:max-height .35s var(--m-out),margin .35s}
+.mj-tap{position:absolute;right:12px;top:50%;width:28px;height:28px;margin-top:-14px;border-radius:50%;border:2px solid var(--gold);background:#a1875338;opacity:0}
+.scene .mj-prompt{opacity:1;transform:none}
+.opts .mj-opt{opacity:1;transform:none}
+.opts .mj-opt:nth-child(2){transition-delay:.13s,.13s,0s,0s}
+.opts .mj-opt:nth-child(3){transition-delay:.26s,.26s,0s,0s}
+.opts .mj-opt:nth-child(4){transition-delay:.39s,.39s,0s,0s}
+.pick1 .mj-opt.is1{background:#e5e8dc;border-color:var(--olive)}
+.pick1 .mj-opt.is1 .mj-tag{max-height:14px;margin-bottom:4px;color:var(--olive)}
+.pick2 .mj-opt.is2{background:#f6ecea;border-color:#b98f93;border-left-color:var(--wine)}
+.pick2 .mj-opt.is2 .mj-tag{max-height:14px;margin-bottom:4px;color:var(--wine)}
+.pick2 .mj-opt:not(.is1):not(.is2){opacity:.5}
+.pick1 .is1 .mj-tap,.pick2 .is2 .mj-tap{animation:mj-tap 1s var(--m-out)}
+@keyframes mj-tap{0%{opacity:0;transform:scale(1.7)}30%{opacity:1;transform:scale(.8)}45%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.9)}}
+.temple .mj-scene{opacity:0;transform:translateX(-36px);transition:opacity .45s var(--m-in),transform .5s var(--m-in)}
+/* Ato 1, fim: o templo das 69 respostas */
+.mj-temple{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;opacity:0}
+.mj-temple svg{width:80%;max-width:340px;overflow:visible}
+.mj-col{fill:var(--gold-soft);stroke:var(--gold);stroke-width:1.2;transform-box:fill-box;transform-origin:50% 100%;transform:scaleY(0);transition:transform .7s var(--m-out)}
+.mj-ped{fill:#fbf3df;stroke:var(--gold);stroke-width:1.6;stroke-linejoin:round;transform-box:fill-box;opacity:0;transform:translateY(-14px);transition:opacity .5s,transform .7s var(--m-firm)}
+.mj-base{fill:var(--gold)}
+.mj-temple p{margin:0;font:600 11px Arial,sans-serif;letter-spacing:2px;color:var(--olive);opacity:0;transform:translateY(8px);transition:opacity .5s,transform .6s var(--m-out)}
+.temple .mj-temple{opacity:1}
+.temple .mj-col{transform:none;transition-delay:calc(.25s + var(--k)*.17s)}
+.temple .mj-ped{opacity:1;transform:none;transition-delay:1.55s}
+.temple .mj-temple p{opacity:1;transform:none;transition-delay:1.7s}
+.ring .mj-temple{opacity:0;transform:scale(.94)}
+/* Ato 2: as sete e a regente */
+.mj-ring{opacity:0}
+.ring .mj-ring{opacity:1}
+.mj-b{position:absolute;left:50%;top:var(--cy);width:var(--bs);height:var(--bs);border-radius:50%;object-fit:cover;border:2px solid #e2d6b8;background:radial-gradient(circle at 50% 35%,#fffaf0,#efe6cf);opacity:0;filter:grayscale(1);transform:translate(-50%,-50%) translate(calc(var(--cx)*var(--R)),calc(var(--sy)*var(--R))) scale(.5);transition:transform .85s var(--m-out),opacity .5s,filter .6s,box-shadow .6s,border-color .6s}
+.ring .mj-b{opacity:.5;transform:translate(-50%,-50%) translate(calc(var(--cx)*var(--R)),calc(var(--sy)*var(--R))) scale(1);transition-delay:calc(var(--i)*.08s)}
+.lit .mj-b{opacity:1;filter:none;transition-delay:calc(var(--i)*.16s)}
+.regent .mj-b{opacity:0;transform:translate(-50%,-50%) translate(calc(var(--cx)*var(--R)),calc(var(--sy)*var(--R))) scale(.6);transition-delay:0s}
+.regent .mj-b.is-r{opacity:1;filter:none;transform:translate(-50%,-50%) translate(0,var(--ry)) scale(2);border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-soft),0 0 26px #a1875380}
+.doors .mj-b.is-r{transform:translate(-50%,-50%) translate(0,var(--dy)) scale(1.15)}
+.mj-reg{position:absolute;left:0;right:0;top:calc(var(--cy) + var(--ry) + var(--bs) + 14px);text-align:center;opacity:0;transform:translateY(10px);transition:opacity .5s,transform .6s var(--m-out),top .85s var(--m-out)}
+.mj-reg span{display:block;font:600 10px Arial,sans-serif;letter-spacing:1.8px;color:var(--olive)}
+.mj-reg strong{display:block;font:400 30px/1.2 Georgia,'Times New Roman',serif;color:var(--wine);margin-top:4px;transition:font-size .85s var(--m-out)}
+.mj-reg small{display:block;font-size:13px;color:var(--muted);margin-top:2px;transition:opacity .4s}
+.regent .mj-reg{opacity:1;transform:none;transition-delay:.55s,.55s,0s}
+.doors .mj-reg{top:calc(var(--cy) + var(--dy) + var(--bs)*.58 + 10px);transition-delay:0s}
+.doors .mj-reg strong{font-size:22px}
+.doors .mj-reg small{opacity:0}
+/* Ato 3: as três portas */
+.mj-doors{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;align-content:end;padding-bottom:22px}
+.mj-door{height:var(--dh);padding:20px 8px 16px;border:1px solid var(--gold);border-radius:90px 90px 10px 10px;background:linear-gradient(180deg,#fbf3df,#fffdf8 70%);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:10px;text-align:center;opacity:0;transform:translateY(26px);transition:opacity .5s,transform .7s var(--m-out)}
+.mj-door svg{width:28px;height:28px;fill:none;stroke:var(--gold);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.mj-door strong{font:400 15px/1.3 Georgia,'Times New Roman',serif;color:var(--ink)}
+.doors .mj-door{opacity:1;transform:none}
+.doors .mj-door:nth-child(1){transition-delay:.25s}
+.doors .mj-door:nth-child(2){transition-delay:.5s}
+.doors .mj-door:nth-child(3){transition-delay:.75s}
+/* Fim da volta */
+.out .mj-layer{opacity:0;transition:opacity .9s ease}
+/* Os três passos ao lado */
+.mj-side{min-width:0}
+.mj-steps{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.mj-step{position:relative;padding:14px 18px 14px 24px;border-radius:12px;cursor:pointer;opacity:.5;transition:opacity .4s,background .4s,box-shadow .4s}
+.mj-step::before,.mj-step::after{content:"";position:absolute;left:0;top:14px;bottom:14px;width:3px;border-radius:3px;background:var(--line)}
+.mj-step::after{background:var(--c);transform-origin:top;transform:scaleY(var(--prog,0))}
+.mj-step:nth-child(1){--c:var(--olive)}.mj-step:nth-child(2){--c:var(--wine)}.mj-step:nth-child(3){--c:var(--gold)}
+.mj-step[aria-current=step]{opacity:1;background:var(--white);box-shadow:var(--card-shadow)}
+.mj-step button{border:0;background:none;padding:0;color:inherit;font:inherit;display:flex;align-items:baseline;gap:12px;cursor:pointer}
+.mj-num{font:600 11px Arial,sans-serif;letter-spacing:1px;color:var(--c)}
+.mj-step h3{font-size:24px;margin:4px 0 6px}
+.mj-step p{font-size:14px;line-height:1.6;color:var(--muted);margin:0 0 6px}
+.mj-step small{font-size:11px;color:var(--olive)}
+.mj-play{margin:10px 0 0 24px}
+@media (hover:hover){.mj-step:hover{opacity:.85}}
+@media (max-width:900px){
+  .mj{grid-template-columns:1fr;gap:22px}
+  .mj-stage{--R:112px;--bs:48px;--ry:-24px;--dh:160px;height:440px}
+  .mj-layer{padding:18px}
+  .mj-prompt p{font-size:15px}
+  .mj-opt{font-size:12.5px;padding-right:40px}
+  .mj-door strong{font-size:13px}
+  .mj-reg strong{font-size:26px}
+  .mj-step h3{font-size:21px}
+  .mj-step p{font-size:13px}
+}
+
+@media print{.m-r{opacity:1!important;animation:none!important}.m-scale,.mj-stage,.mj-play{display:none}}

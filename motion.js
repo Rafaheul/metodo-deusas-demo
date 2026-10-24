@@ -6,7 +6,7 @@
  const $=s=>document.querySelector(s);
 
  function reveals(){
-  const groups=[['.section-heading,.journey-duration,.method-layout>div:first-child,.invitation .wrap>*,.faq>*,.m-scale',90],['.page-mecanismo__card,.page-modulo',90],['.god-card',80]];
+  const groups=[['.section-heading,.journey-duration,.method-layout>div:first-child,.invitation .wrap>*,.faq>*,.m-scale',90],['.page-mecanismo__card,.page-modulo,.mj-stage,.mj-side',90],['.god-card',80]];
   const step=new Map();
   for(const [sel,ms] of groups)document.querySelectorAll(`#home-view :is(${sel})`).forEach(el=>{el.classList.add('m-r');step.set(el,ms);});
   // Quem entra na tela no mesmo instante sobe em cascata; quem entra depois (arrastando o carrossel) sobe na hora.
@@ -110,9 +110,61 @@
   document.addEventListener('visibilitychange',schedule);
  }
 
+ // A jornada: no lugar dos três cartões, uma volta de 17 s pelo mapa (responder, descobrir,
+ // aprofundar). A cena é a de aquecimento do próprio site; a regente e as escolhas mudam a cada volta,
+ // para ninguém ler ali que tal resposta leva a tal deusa.
+ function journey(){
+  const deck=$('.page-mecanismo__deck'),scene=$('.warmup-scene'),opts=[...document.querySelectorAll('#warmup-options .option-text')].map(e=>e.textContent);
+  const gods=[...document.querySelectorAll('.god-card')].map(c=>({name:c.querySelector('h3').textContent.trim(),cap:c.querySelector('.light p').textContent.trim(),src:c.querySelector('.bust').getAttribute('src')}));
+  if(!deck||!scene||opts.length!==4||gods.length!==7)return;
+  const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const steps=[...deck.querySelectorAll('.page-mecanismo__card')].map(c=>({eyebrow:c.querySelector('.eyebrow').textContent,title:c.querySelector('h3').textContent,text:c.querySelector('p').textContent,note:c.querySelector('small')?.textContent||''}));
+  const FLAGS=[['scene',0],['opts',900],['pick1',3200],['pick2',4600],['temple',5400],['ring',7500],['lit',7900],['regent',9600],['doors',12000],['out',15600]];
+  const ACTS=[0,7500,12000],LOOP=17000,REG=[6,1,4,2,0,5,3],PICKS=[[1,2],[3,0],[2,1],[0,3],[3,1],[2,0],[1,3]];
+  const ICON={relatorio:'<path d="M7 3h7l4 4v14H7z M14 3v4h4 M10 12h5 M10 16h5"/>',consulta:'<path d="M12 3v9"/><path d="M12 12c-2.5 0-4 2-4 4.2C8 18.4 10 21 12 21s4-2.6 4-4.8C16 14 14.5 12 12 12z"/>',ebook:'<path d="M3 6c3-1.5 6-1.5 9 0v14c-3-1.5-6-1.5-9 0z M21 6c-3-1.5-6-1.5-9 0v14c3-1.5 6-1.5 9 0z"/>'};
+  const door=(icon,label)=>`<div class="mj-door"><svg viewBox="0 0 24 24">${ICON[icon]}</svg><strong>${label}</strong></div>`;
+  const cols=[...Array(7)].map((_,k)=>`<rect class="mj-col" style="--k:${k}" x="${14+k*48}" y="34" width="20" height="62" rx="1"/>`).join('');
+  const box=document.createElement('div');box.className='mj';
+  box.innerHTML=`<div class="mj-stage" aria-hidden="true">
+    <div class="mj-layer mj-scene"><div class="mj-prompt"><span>A SITUAÇÃO</span><p>${esc(scene.textContent)}</p></div>
+     <div class="mj-opts">${opts.map(o=>`<div class="mj-opt"><span class="mj-tag"></span>${esc(o)}<span class="mj-tap"></span></div>`).join('')}</div></div>
+    <div class="mj-layer mj-temple"><svg viewBox="0 0 352 106"><polygon class="mj-ped" points="6,30 176,4 346,30"/>${cols}<rect class="mj-base" x="4" y="96" width="344" height="6" rx="1"/></svg><p>49 CENAS + 20 AFIRMAÇÕES</p></div>
+    <div class="mj-layer mj-ring">${gods.map((g,i)=>{const a=(-90+i*360/7)*Math.PI/180;return `<img class="mj-b" src="${esc(g.src)}" alt="" style="--i:${i};--cx:${Math.cos(a).toFixed(4)};--sy:${Math.sin(a).toFixed(4)}">`;}).join('')}
+     <div class="mj-reg"><span>SUA REGENTE</span><strong></strong><small></small></div></div>
+    <div class="mj-layer mj-doors">${door('relatorio','Relatório completo')}${door('consulta','Consulta com Yasnnajára')}${door('ebook','E-book da sua deusa')}</div>
+   </div>
+   <div class="mj-side"><ol class="mj-steps">${steps.map((s,i)=>`<li class="mj-step"><button type="button" data-act="${i}"><span class="mj-num">0${i+1}</span><span class="eyebrow">${esc(s.eyebrow)}</span></button><h3>${esc(s.title)}</h3><p>${esc(s.text)}</p>${s.note?`<small>${esc(s.note)}</small>`:''}</li>`).join('')}</ol>
+   <button type="button" class="text-button mj-play"></button></div>`;
+  deck.replaceWith(box);
+  const stage=box.querySelector('.mj-stage'),optEls=[...stage.querySelectorAll('.mj-opt')],busts=[...stage.querySelectorAll('.mj-b')],items=[...box.querySelectorAll('.mj-step')],play=box.querySelector('.mj-play');
+  let t=0,lastNow=0,loop=0,running=false,paused=false,visible=false;const on={};
+  function setup(){
+   const [a,b]=PICKS[loop%PICKS.length],g=REG[loop%REG.length];
+   optEls.forEach((el,i)=>{el.classList.toggle('is1',i===a);el.classList.toggle('is2',i===b);el.querySelector('.mj-tag').innerHTML=i===a?'1º · FARIA PRIMEIRO':i===b?'✕ · MENOS FARIA':'';});
+   busts.forEach((el,i)=>el.classList.toggle('is-r',i===g));
+   stage.querySelector('.mj-reg strong').textContent=gods[g].name;stage.querySelector('.mj-reg small').textContent=gods[g].cap;
+  }
+  function reset(){stage.classList.add('mj-reset');FLAGS.forEach(([f])=>{stage.classList.remove(f);on[f]=false;});setup();void stage.offsetWidth;stage.classList.remove('mj-reset');}
+  function apply(){
+   for(const [f,at] of FLAGS){const v=t>=at;if(on[f]!==v){stage.classList.toggle(f,v);on[f]=v;}}
+   const act=t>=ACTS[2]?2:t>=ACTS[1]?1:0,end=act<2?ACTS[act+1]:LOOP;
+   items.forEach((li,i)=>{if(i===act)li.setAttribute('aria-current','step');else li.removeAttribute('aria-current');li.style.setProperty('--prog',i===act?((t-ACTS[act])/(end-ACTS[act])).toFixed(3):0);});
+  }
+  function frame(now){if(!running)return;t+=Math.min(100,now-lastNow);lastNow=now;if(t>=LOOP){loop++;t=0;reset();}apply();requestAnimationFrame(frame);}
+  function sync(){const go=!paused&&visible&&!document.hidden;if(go&&!running){running=true;lastNow=performance.now();requestAnimationFrame(frame);}else if(!go)running=false;}
+  function setPaused(p){paused=p;play.innerHTML=p?'<span aria-hidden="true">▶</span> Continuar':'<span aria-hidden="true">❚❚</span> Pausar';sync();}
+  // No celular os passos ficam embaixo da animação: ao tocar num deles, a página sobe até ela.
+  function jump(n){if(ACTS[n]<t)reset();t=ACTS[n];apply();const r=stage.getBoundingClientRect();if(r.top<0||r.bottom>innerHeight)stage.scrollIntoView({block:'nearest',behavior:'smooth'});}
+  items.forEach((li,i)=>li.addEventListener('click',()=>jump(i)));
+  play.addEventListener('click',()=>setPaused(!paused));
+  reset();apply();setPaused(false);
+  new IntersectionObserver(([e])=>{visible=e.isIntersecting;sync();},{threshold:.35}).observe(stage);
+  document.addEventListener('visibilitychange',sync);
+ }
+
  document.addEventListener('DOMContentLoaded',()=>{
   balance();
   if(calm||!watch)return;
-  reveals();quiz();flips();cover();
+  journey();reveals();quiz();flips();cover();
  });
 })();
