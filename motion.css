@@ -1,0 +1,69 @@
+/* Movimento do site: entrada do título, revelação ao rolar e transições do quiz.
+   Curvas e cascatas seguem as regras da skill motion (entra = easeOutQuint, sai = easeInCubic,
+   50 a 90 ms entre elementos). Quem pede menos movimento no aparelho vê tudo parado. */
+:root{--m-out:cubic-bezier(.22,1,.36,1);--m-in:cubic-bezier(.32,0,.67,0);--m-firm:cubic-bezier(.34,1.36,.64,1)}
+
+/* Linhas do título: cada uma sobe de dentro de uma máscara. */
+.m-line{display:block;overflow:hidden;padding:.06em .1em .12em;margin:-.06em -.1em -.12em}
+.m-line>span{display:inline-block}
+.hero h1 em{position:relative}
+.hero h1 em::after{content:"";position:absolute;left:.04em;right:.18em;bottom:.02em;height:2px;border-radius:2px;background:var(--gold);opacity:.75;transform-origin:left}
+
+@media (prefers-reduced-motion:no-preference){
+  @keyframes m-rise{from{opacity:0;transform:translateY(18px)}}
+  @keyframes m-line{from{transform:translateY(108%)}}
+  @keyframes m-draw{from{transform:scaleX(0)}}
+  @keyframes m-cover{from{opacity:0;transform:translateY(26px) scale(1.05)}}
+  @keyframes m-fade{from{opacity:0}}
+  @keyframes m-bust{from{opacity:0;transform:scale(.72)}}
+  @keyframes m-aura{0%{opacity:0;transform:translateX(-50%) scale(.55)}35%{opacity:.9}100%{opacity:0;transform:translateX(-50%) scale(1.35)}}
+  @keyframes m-next{from{opacity:0;transform:translateX(22px)}}
+  @keyframes m-prev{from{opacity:0;transform:translateX(-22px)}}
+  @keyframes m-leave{to{opacity:0;transform:translateX(-18px)}}
+
+  /* 1. Entrada do título */
+  .hero-copy>*{animation:m-rise .8s var(--m-out) backwards}
+  .hero-copy>.eyebrow{animation-delay:.05s}
+  .hero-copy h1{animation:none}
+  .hero-copy h1 .m-line>span{animation:m-line 1s var(--m-out) backwards}
+  .hero-copy h1 .m-line:nth-child(1)>span{animation-delay:.15s}
+  .hero-copy h1 .m-line:nth-child(2)>span{animation-delay:.23s}
+  .hero-copy h1 .m-line:nth-child(3)>span{animation-delay:.31s}
+  .hero h1 em::after{animation:m-draw .9s var(--m-out) 1.05s backwards}
+  .hero-copy>.lead{animation-delay:.55s}
+  .hero-copy>.method-line{animation-delay:.62s}
+  .hero-copy>.hero-note{animation-delay:.69s}
+  .hero-copy>.primary{animation-delay:.78s}
+  .hero-copy>.micro{animation-delay:.86s}
+  .hero-copy>.hero-scroll{animation-delay:.94s}
+  .cover-art picture{animation:m-cover 1.4s var(--m-out) .2s backwards}
+  .cover-art .orbit-label,.cover-art figcaption{animation:m-fade 1s ease .9s backwards}
+
+  /* 2. Revelação ao rolar (o JS marca .m-r e acende .m-in quando entra na tela) */
+  .m-js .m-r{opacity:0}
+  .m-js .m-r.m-in{opacity:1;animation:m-rise .9s var(--m-out) var(--d,0s) backwards}
+  .m-js .god-card.m-r.m-in{animation-name:m-rise;animation-duration:.8s}
+  .god-card{position:relative;isolation:isolate}
+  .god-card::before{content:"";position:absolute;z-index:-1;left:50%;top:10px;width:110px;height:110px;border-radius:50%;background:radial-gradient(circle,var(--gold-soft) 0,#e9dcbc00 70%);opacity:0;transform:translateX(-50%);pointer-events:none}
+  .m-js .god-card.m-in::before{animation:m-aura 1.5s ease-out calc(var(--d,0s) + .15s) backwards}
+  .m-js .god-card.m-in .bust{animation:m-bust .8s var(--m-firm) calc(var(--d,0s) + .1s) backwards}
+  .m-js .god-card.m-in h3{animation:m-rise .7s var(--m-out) calc(var(--d,0s) + .22s) backwards}
+  .m-js .god-card.m-in .god-face,.m-js .god-card.m-in .god-turn{animation:m-rise .7s var(--m-out) calc(var(--d,0s) + .3s) backwards}
+
+  /* 3. Quiz: cada cena entra em cascata e a anterior sai para o lado */
+  .m-view{animation:m-rise .6s var(--m-out) backwards}
+  fieldset.m-enter .prompt-card{animation:m-rise .55s var(--m-out) backwards}
+  fieldset.m-enter .pick-tracker,fieldset.m-enter .scale-prompt{animation:m-fade .5s ease .15s backwards}
+  fieldset.m-enter #answers>*{animation:m-next .6s var(--m-out) backwards}
+  fieldset.m-enter.m-back #answers>*{animation-name:m-prev}
+  fieldset.m-enter #answers>:nth-child(1){animation-delay:.12s}
+  fieldset.m-enter #answers>:nth-child(2){animation-delay:.19s}
+  fieldset.m-enter #answers>:nth-child(3){animation-delay:.26s}
+  fieldset.m-enter #answers>:nth-child(4){animation-delay:.33s}
+  fieldset.m-enter #answers>:nth-child(5){animation-delay:.4s}
+  fieldset.m-enter #answers>:nth-child(n+6){animation-delay:.47s}
+  fieldset.m-leave{animation:m-leave .26s var(--m-in) .12s forwards;pointer-events:none}
+  .dilemma-option:active{transform:scale(.985)}
+}
+
+@media print{.m-r{opacity:1!important;animation:none!important}}
