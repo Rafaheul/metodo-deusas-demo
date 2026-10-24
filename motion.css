@@ -1,7 +1,8 @@
-/* Movimento do site: entrada do título, revelação ao rolar e transições do quiz.
+/* Movimento do site: entrada do título, revelação ao rolar, transições do quiz, botões,
+   a balança das deusas e a capa viva.
    Curvas e cascatas seguem as regras da skill motion (entra = easeOutQuint, sai = easeInCubic,
    50 a 90 ms entre elementos). Quem pede menos movimento no aparelho vê tudo parado. */
-:root{--m-out:cubic-bezier(.22,1,.36,1);--m-in:cubic-bezier(.32,0,.67,0);--m-firm:cubic-bezier(.34,1.36,.64,1)}
+:root{--m-out:cubic-bezier(.22,1,.36,1);--m-in:cubic-bezier(.32,0,.67,0);--m-firm:cubic-bezier(.34,1.36,.64,1);--m-scarce:#9aa0ad}
 
 /* Linhas do título: cada uma sobe de dentro de uma máscara. */
 .m-line{display:block;overflow:hidden;padding:.06em .1em .12em;margin:-.06em -.1em -.12em}
@@ -9,17 +10,75 @@
 .hero h1 em{position:relative}
 .hero h1 em::after{content:"";position:absolute;left:.04em;right:.18em;bottom:.02em;height:2px;border-radius:2px;background:var(--gold);opacity:.75;transform-origin:left}
 
+/* A balança das deusas (seção "As sete vozes"): a mesma deusa de menos, na medida e demais. */
+.m-scale{max-width:780px;margin:46px auto 0;padding:26px 28px 20px;border:1px solid #d2d6c7;border-radius:14px;background:var(--white);text-align:center;box-shadow:var(--card-shadow)}
+.m-scale-name{font-size:32px;margin:6px 0 0}
+.m-scale-track{position:relative;height:172px;margin:0 calc(100%/6)}
+.m-scale-line{position:absolute;left:0;right:0;bottom:22px;height:4px;border-radius:4px;background:linear-gradient(90deg,var(--m-scarce),var(--gold) 50%,var(--wine))}
+.m-tick{position:absolute;bottom:15px;width:2px;height:18px;border-radius:2px;background:#cfcabb;transform:translateX(-50%)}
+.m-tick.t0{left:0}.m-tick.t1{left:50%}.m-tick.t2{left:100%}
+.m-scale-marker{position:absolute;bottom:32px;left:calc(var(--p,1)*50%);width:96px;height:96px;margin-left:-48px}
+.m-scale-face{position:relative;width:100%;height:100%;transform-origin:50% 100%}
+.m-scale-face .bust{width:100%;height:100%;border:3px solid var(--gold)}
+.m-ring{position:absolute;inset:0;border-radius:50%;border:2px solid var(--wine);opacity:0;pointer-events:none}
+.m-scale.s0 .m-scale-face{transform:scale(.66);filter:grayscale(.85);opacity:.72}
+.m-scale.s0 .m-scale-face .bust{border-color:var(--m-scarce)}
+.m-scale.s1 .m-scale-face .bust{box-shadow:0 0 0 6px var(--gold-soft),0 0 36px #a1875370}
+.m-scale.s2 .m-scale-face{transform:scale(1.3)}
+.m-scale.s2 .m-scale-face .bust{border-color:var(--wine);box-shadow:0 0 0 4px var(--wine-soft)}
+.m-scale-marker.m-out .m-scale-face{opacity:0;transform:scale(.4)}
+.m-scale-states{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.m-scale-states button{border:0;background:none;padding:8px 4px 10px;font:18px Georgia,'Times New Roman',serif;color:var(--muted);border-radius:8px;position:relative}
+.m-scale-states button small{display:block;font:10px Arial,sans-serif;letter-spacing:.6px;margin-top:3px}
+.m-scale-states button::after{content:"";position:absolute;left:30%;right:30%;bottom:2px;height:2px;border-radius:2px;background:currentColor;transform:scaleX(0)}
+.m-scale-states button[aria-pressed=true]::after{transform:none}
+.m-scale.s0 [data-s="0"][aria-pressed=true]{color:#5f6573}
+.m-scale.s1 [data-s="1"][aria-pressed=true]{color:#7d6638}
+.m-scale.s2 [data-s="2"][aria-pressed=true]{color:var(--wine)}
+.m-scale-text{min-height:3.2em;max-width:540px;margin:14px auto 4px;font:19px/1.55 Georgia,'Times New Roman',serif;color:var(--ink)}
+.m-scale.s0 .m-scale-text b{color:#5f6573}.m-scale.s1 .m-scale-text b{color:#7d6638}.m-scale.s2 .m-scale-text b{color:var(--wine)}
+.m-scale-text b{font-weight:400;font-style:italic}
+.m-scale-foot{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px 18px;margin-top:12px;padding-top:14px;border-top:1px solid var(--line)}
+.m-scale-gods{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.m-scale-gods button{padding:0;border:2px solid transparent;border-radius:50%;background:none;line-height:0}
+.m-scale-gods .bust{width:38px;height:38px;border-width:1px}
+.m-scale-gods button[aria-pressed=true]{border-color:var(--gold)}
+.m-scale-play{margin:0}
+@media (max-width:650px){
+  .m-scale{padding:20px 12px 16px;margin-top:30px}
+  .m-scale-name{font-size:26px}
+  .m-scale-track{height:150px}
+  .m-scale-marker{width:72px;height:72px;margin-left:-36px}
+  .m-scale.s2 .m-scale-face{transform:scale(1.22)}
+  .m-scale-states button{font-size:15px}
+  .m-scale-states button small{font-size:9px;letter-spacing:.2px}
+  .m-scale-text{font-size:17px}
+  .m-scale-gods .bust{width:34px;height:34px}
+}
+
+/* A capa: base da luz que passa e do halo (o movimento fica no bloco de baixo). */
+.cover-art{perspective:1100px}
+.cover-art picture{position:relative}
+.cover-art picture::after{content:"";position:absolute;top:-10%;bottom:-10%;left:0;width:42%;background:linear-gradient(90deg,#fff0,#fffaf0a8 50%,#fff0);transform:translateX(-140%) skewX(-16deg);pointer-events:none}
+.cover-art picture::before{content:"";position:absolute;inset:0;z-index:1;background:radial-gradient(circle at var(--gx,50%) var(--gy,30%),#fff8e866,#fff0 55%);opacity:var(--go,0);transition:opacity .5s;pointer-events:none}
+
 @media (prefers-reduced-motion:no-preference){
   @keyframes m-rise{from{opacity:0;transform:translateY(18px)}}
   @keyframes m-line{from{transform:translateY(108%)}}
   @keyframes m-draw{from{transform:scaleX(0)}}
-  @keyframes m-cover{from{opacity:0;transform:translateY(26px) scale(1.05)}}
+  @keyframes m-book{from{opacity:0;transform:translateY(40px) rotateY(-26deg) rotateX(8deg) scale(.94)}}
   @keyframes m-fade{from{opacity:0}}
   @keyframes m-bust{from{opacity:0;transform:scale(.72)}}
   @keyframes m-aura{0%{opacity:0;transform:translateX(-50%) scale(.55)}35%{opacity:.9}100%{opacity:0;transform:translateX(-50%) scale(1.35)}}
   @keyframes m-next{from{opacity:0;transform:translateX(22px)}}
   @keyframes m-prev{from{opacity:0;transform:translateX(-22px)}}
   @keyframes m-leave{to{opacity:0;transform:translateX(-18px)}}
+  @keyframes m-float{from{translate:0 0}to{translate:0 -10px}}
+  @keyframes m-sheen{0%{transform:translateX(-140%) skewX(-16deg)}16%,100%{transform:translateX(330%) skewX(-16deg)}}
+  @keyframes m-halo{from{opacity:.55;transform:scale(.96)}to{opacity:1;transform:scale(1.04)}}
+  @keyframes m-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(4px)}}
+  @keyframes m-coin{from{transform:rotateY(0)}to{transform:rotateY(360deg)}}
+  @keyframes m-ring{from{opacity:.6;transform:scale(1)}to{opacity:0;transform:scale(1.4)}}
 
   /* 1. Entrada do título */
   .hero-copy>*{animation:m-rise .8s var(--m-out) backwards}
@@ -36,13 +95,20 @@
   .hero-copy>.primary{animation-delay:.78s}
   .hero-copy>.micro{animation-delay:.86s}
   .hero-copy>.hero-scroll{animation-delay:.94s}
-  .cover-art picture{animation:m-cover 1.4s var(--m-out) .2s backwards}
+  .hero-scroll>span{display:inline-block;animation:m-bob 2.4s ease-in-out 2s infinite}
+
+  /* 2. A capa viva: chega girando como um livro posto na mesa, flutua, a luz passa por ela
+     de tempos em tempos e, no computador, ela se inclina para o lado do mouse. */
+  .cover-art{animation:m-float 7s ease-in-out 1.8s infinite alternate}
+  .cover-art::before{content:"";position:absolute;z-index:-1;inset:6% -14% 2%;border-radius:50%;background:radial-gradient(closest-side,#e9dcbcd0,#e9dcbc00);animation:m-halo 7s ease-in-out infinite alternate;pointer-events:none}
+  .cover-art picture{transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .8s var(--m-out),box-shadow .8s var(--m-out);box-shadow:calc(var(--tx,0)*-16px) calc(28px + var(--ty,0)*-10px) 70px #5c49322e,0 0 0 8px #fff8eb75;animation:m-book 1.6s var(--m-out) .2s backwards}
+  .cover-art picture::after{animation:m-sheen 9s ease-in-out 1.7s infinite}
   .cover-art .orbit-label,.cover-art figcaption{animation:m-fade 1s ease .9s backwards}
 
-  /* 2. Revelação ao rolar (o JS marca .m-r e acende .m-in quando entra na tela) */
+  /* 3. Revelação ao rolar (o JS marca .m-r e acende .m-in quando entra na tela) */
   .m-js .m-r{opacity:0}
   .m-js .m-r.m-in{opacity:1;animation:m-rise .9s var(--m-out) var(--d,0s) backwards}
-  .m-js .god-card.m-r.m-in{animation-name:m-rise;animation-duration:.8s}
+  .m-js .god-card.m-r.m-in{animation-duration:.8s}
   .god-card{position:relative;isolation:isolate}
   .god-card::before{content:"";position:absolute;z-index:-1;left:50%;top:10px;width:110px;height:110px;border-radius:50%;background:radial-gradient(circle,var(--gold-soft) 0,#e9dcbc00 70%);opacity:0;transform:translateX(-50%);pointer-events:none}
   .m-js .god-card.m-in::before{animation:m-aura 1.5s ease-out calc(var(--d,0s) + .15s) backwards}
@@ -50,7 +116,7 @@
   .m-js .god-card.m-in h3{animation:m-rise .7s var(--m-out) calc(var(--d,0s) + .22s) backwards}
   .m-js .god-card.m-in .god-face,.m-js .god-card.m-in .god-turn{animation:m-rise .7s var(--m-out) calc(var(--d,0s) + .3s) backwards}
 
-  /* 3. Quiz: cada cena entra em cascata e a anterior sai para o lado */
+  /* 4. Quiz: cada cena entra em cascata e a anterior sai para o lado */
   .m-view{animation:m-rise .6s var(--m-out) backwards}
   fieldset.m-enter .prompt-card{animation:m-rise .55s var(--m-out) backwards}
   fieldset.m-enter .pick-tracker,fieldset.m-enter .scale-prompt{animation:m-fade .5s ease .15s backwards}
@@ -63,7 +129,52 @@
   fieldset.m-enter #answers>:nth-child(5){animation-delay:.4s}
   fieldset.m-enter #answers>:nth-child(n+6){animation-delay:.47s}
   fieldset.m-leave{animation:m-leave .26s var(--m-in) .12s forwards;pointer-events:none}
-  .dilemma-option:active{transform:scale(.985)}
+
+  /* 5. Botões e links: respondem ao toque, ao mouse e ao teclado */
+  .primary,.secondary{position:relative;overflow:hidden;transition:transform .35s var(--m-out),box-shadow .35s var(--m-out),background-color .25s,border-color .25s}
+  .primary::after{content:"";position:absolute;top:0;bottom:0;left:0;width:45%;background:linear-gradient(90deg,#fff0,#ffffff70 50%,#fff0);transform:translateX(-130%) skewX(-18deg);pointer-events:none}
+  .primary>span[aria-hidden],.secondary>span[aria-hidden],.channel-link>span[aria-hidden]{display:inline-block;transition:transform .4s var(--m-firm)}
+  .primary:active,.secondary:active,.dilemma-option:active,.m-scale button:active{transform:scale(.97);transition-duration:.08s}
+  .site-header nav>a,.site-header .text-button,.hero-scroll,.footer-channels .text-button{background:linear-gradient(var(--gold),var(--gold)) left bottom/0 1px no-repeat;transition:background-size .45s var(--m-out),color .25s}
+  .god-turn,.invitation .text-button{transition:text-underline-offset .3s var(--m-out),text-decoration-color .3s,color .25s}
+  .brand-mark{display:inline-block;transition:transform 1s var(--m-firm)}
+  .god-card{transition:transform .4s var(--m-out),box-shadow .4s var(--m-out),background .5s}
+  .god-card .bust{transition:filter .5s,border-color .5s}
+  .faq summary{transition:color .25s}
+  .faq details[open]>p{animation:m-rise .45s var(--m-out)}
+  .god-card.m-flip .bust,.m-js .god-card.m-in.m-flip .bust{animation:m-coin .6s var(--m-out)}
+  .god-card.m-flip .god-face:not([hidden]),.m-js .god-card.m-in.m-flip .god-face:not([hidden]){animation:m-rise .45s var(--m-out) .15s backwards}
+  @media (hover:hover){
+    .primary:hover{transform:translateY(-2px);box-shadow:0 10px 24px #5c493233}
+    .primary:hover::after{transform:translateX(330%) skewX(-18deg);transition:transform .9s var(--m-out)}
+    .secondary:hover{transform:translateY(-1px)}
+    .primary:hover>span[aria-hidden],.secondary:hover>span[aria-hidden],.channel-link:hover>span[aria-hidden]{transform:translateX(4px)}
+    .site-header nav>a:hover,.site-header .text-button:hover,.hero-scroll:hover,.footer-channels .text-button:hover{background-size:100% 1px}
+    .hero-scroll:hover{color:var(--ink)}
+    .god-turn:hover,.invitation .text-button:hover{text-underline-offset:7px;text-decoration-color:var(--gold)}
+    .brand:hover .brand-mark{transform:rotate(90deg)}
+    .god-card:hover{transform:translateY(-4px);box-shadow:0 14px 30px #3d463416}
+    .faq summary:hover{color:var(--wine)}
+    .channel-link{transition:background .25s}
+    .channel-link:hover{background:#f6efe0}
+  }
+
+  /* 6. A balança das deusas em movimento */
+  .m-scale-marker{transition:left .95s var(--m-firm)}
+  .m-scale-face{transition:transform .8s var(--m-out),filter .8s,opacity .4s}
+  .m-scale-face .bust{transition:border-color .6s,box-shadow .6s}
+  .m-scale.s2 .m-ring{animation:m-ring 1.8s ease-out infinite}
+  .m-scale.s2 .m-ring.r2{animation-delay:.9s}
+  .m-scale-states button{transition:color .3s}
+  .m-scale-states button::after{transition:transform .45s var(--m-out)}
+  .m-scale-text.m-text{animation:m-rise .5s var(--m-out)}
+  .m-scale-name.m-text{animation:m-rise .5s var(--m-out)}
+  .m-scale-gods button{transition:border-color .3s,transform .3s var(--m-firm)}
+  @media (hover:hover){.m-scale-gods button:hover{transform:translateY(-2px)}.m-scale-states button:hover{color:var(--ink)}}
 }
 
-@media print{.m-r{opacity:1!important;animation:none!important}}
+/* O lado da sombra no cartão da deusa (vale também sem animação). */
+.god-card.turned{background:linear-gradient(180deg,var(--white),#f8efed)}
+.god-card.turned .bust{filter:saturate(.55) brightness(.94);border-color:#cfb2ae}
+
+@media print{.m-r{opacity:1!important;animation:none!important}.m-scale{display:none}}
