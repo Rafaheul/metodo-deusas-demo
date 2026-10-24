@@ -231,6 +231,8 @@ const LOCK='<svg class="lock" viewBox="0 0 24 24" aria-hidden="true"><rect x="5"
 let sevenMode='ranking',openArea=null,revealActs=[],revealAt=0,pageObservers=[],openMods=new Set();
 const isRegent=id=>!!currentResult?.regents.some(r=>r.id===id);
 const plural=(n,one,many)=>`${n} ${n===1?one:many}`;
+// Ordem das sete em todo o mapa: a regente primeiro (ela pode ter vencido no desempate), depois pela força.
+const byForce=list=>[...list].sort((a,b)=>isRegent(b.id)-isRegent(a.id)||(b.value??-1)-(a.value??-1));
 const listJoin=list=>list.length>1?`${list.slice(0,-1).join(', ')} e ${list.at(-1)}`:list.join('');
 function capacityPoints(){
  const r=currentResult,rep=currentReport;
@@ -261,7 +263,7 @@ function renderResult(result,report){
 // Ao lado dela (na luz, no relatório; as mais presentes, no grátis), quem pede cuidado e as sete numa linha.
 function glanceHtml(){
  const r=currentResult,rep=currentReport;
- const byValue=[...r.capacities].sort((a,b)=>(b.value??-1)-(a.value??-1));
+ const byValue=byForce(r.capacities);
  const allies=rep?rep.capacities.filter(c=>rep.allies.includes(c.name)):byValue.filter(c=>c.value!==null&&!isRegent(c.id)).slice(0,2);
  const care=careList();
  const cap=id=>r.capacities.find(c=>c.id===id)?.capacity||'';
@@ -321,7 +323,7 @@ function exportPdf(){
 // ---------- Blocos que abrem ----------
 function resultMods(){
  const r=currentResult,rep=currentReport,p=r.path,mods=[];
- const ranked=[...r.capacities].filter(c=>c.value!==null).sort((a,b)=>b.value-a.value);
+ const ranked=byForce(r.capacities.filter(c=>c.value!==null));
  if(p&&p.method!=='insuficiente')mods.push({id:'caminho',mark:'★',title:'Como chegamos à sua regente',teaser:p.story,body:pathHtml()});
  mods.push({id:'sete',mark:'✦',title:'As sete deusas em você',teaser:ranked.length?`Mais presente: ${ranked[0].name}. Menos presente: ${ranked.at(-1).name}.`:'Quanto cada deusa apareceu nas suas escolhas.',body:sevenHtml()});
  if(!rep){mods.push({id:'relatorio',mark:'◈',title:'Seu relatório completo',teaser:lockedLead().sub,body:lockedHtml()});return mods;}
@@ -368,7 +370,7 @@ function pathHtml(){
  const fin=new Set(p.finalists.map(f=>f.id)),regs=currentResult.regents;
  const mini=(id,nm,cls='')=>`<span class="mini ${cls}">${bust(id)}<small>${escape(nm)}</small></span>`;
  const steps=[`<li class="step"><span class="step-n">1</span><div class="step-body"><strong>As 7 deusas entraram nas suas cenas.</strong><div class="step-row">${p.ranking.map(r=>mini(r.id,r.name,fin.has(r.id)?'in':'out')).join('')}</div></div></li>`];
- if(p.method==='direto')steps.push(`<li class="step"><span class="step-n">2</span><div class="step-body"><strong>${escape(p.finalists[0].name)} ficou à frente com folga.</strong><small>As outras seis apareceram menos quando você escolheu o que faria primeiro.</small></div></li>`);
+ if(p.method==='direto')steps.push(`<li class="step"><span class="step-n">2</span><div class="step-body"><strong>${escape(p.finalists[0].name)} ficou à frente com folga.</strong><small>As outras seis ficaram atrás, somando o que você faria primeiro e descontando o que menos faria.</small></div></li>`);
  else steps.push(`<li class="step"><span class="step-n">2</span><div class="step-body"><strong>${p.finalists.length===2?'Duas':'Três'} terminaram as cenas quase empatadas.</strong><div class="step-row">${p.finalists.map(f=>mini(f.id,f.name,'in')).join('<b class="vs">×</b>')}</div></div></li>`);
  if(p.steps)steps.push(`<li class="step"><span class="step-n">3</span><div class="step-body"><strong>Desempate: ${plural(p.steps,'pergunta rápida','perguntas rápidas')}.</strong><div class="score">${p.finalists.map(f=>`<span class="${regs.some(g=>g.id===f.id)?'win':''}">${escape(f.name)} <b>${f.wins??0}</b></span>`).join('<i>×</i>')}</div></div></li>`);
  steps.push(`<li class="step final"><span class="step-n">★</span><div class="step-body"><strong>${regs.length>1?'Duas regentes, lado a lado.':'Sua regente.'}</strong><div class="step-row">${regs.map(g=>mini(g.id,g.name,'in crown')).join('')}</div></div></li>`);
@@ -388,8 +390,8 @@ function renderSeven(){
  const box=$('#seven-view');
  if(sevenMode==='mandala'){box.innerHTML=`<div class="radar-frame">${radar(points,'capacity',g.id)}</div>`;bindRadar(box,id=>selectCapacity(id));}
  else{
-  const ranked=[...points].sort((a,b)=>(b.value??-1)-(a.value??-1));
-  box.innerHTML=`<ol class="rank-list">${ranked.map(c=>`<li><button type="button" class="rank-row ${c.id===g.id?'active':''} ${isRegent(c.id)?'regent':''}" data-capacity="${c.id}" aria-pressed="${c.id===g.id}">${bust(c.id)}<span class="rank-name"><strong>${isRegent(c.id)?'<b class="lg-regent" aria-label="Regente">★</b> ':''}${escape(c.name)}</strong><small>${escape(c.capacity)}${isRegent(c.id)&&currentResult.path?.method==='desempate'?' · venceu o desempate':''}</small></span><span class="rank-bar" aria-hidden="true"><i data-w="${c.value===null?0:Math.round(c.value/4*100)}"></i></span><span class="rank-level">${c.state?`<b class="state-${c.state}" title="${escape(STATE_TAG[c.state])}" aria-label="${escape(STATE_TAG[c.state])}">${STATE_ICON[c.state]}</b> `:''}${escape(c.level)}</span></button></li>`).join('')}</ol>`;
+  const ranked=byForce(points);
+  box.innerHTML=`<ol class="rank-list">${ranked.map(c=>`<li><button type="button" class="rank-row ${c.id===g.id?'active':''} ${isRegent(c.id)?'regent':''}" data-capacity="${c.id}" aria-pressed="${c.id===g.id}">${bust(c.id)}<span class="rank-name"><strong>${isRegent(c.id)?'<b class="lg-regent" aria-label="Regente">★</b> ':''}${escape(c.name)}</strong><small>${escape(c.capacity)}${isRegent(c.id)&&currentResult.path?.method==='desempate'?' · venceu o desempate':''}${c.nearRegent?' · empatou no topo':''}</small></span><span class="rank-bar" aria-hidden="true"><i data-w="${c.value===null?0:Math.round(c.value/4*100)}"></i></span><span class="rank-level">${c.state?`<b class="state-${c.state}" title="${escape(STATE_TAG[c.state])}" aria-label="${escape(STATE_TAG[c.state])}">${STATE_ICON[c.state]}</b> `:''}${escape(c.level)}</span></button></li>`).join('')}</ol>`;
   box.querySelectorAll('[data-capacity]').forEach(b=>b.addEventListener('click',()=>selectCapacity(b.dataset.capacity,true)));
   box.querySelectorAll('[data-w]').forEach(i=>{i.style.width=`${i.dataset.w}%`;});
  }
