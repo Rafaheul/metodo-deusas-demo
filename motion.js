@@ -73,13 +73,13 @@
   const host=$('.goddesses'),cards=[...document.querySelectorAll('.god-card')];if(!host||!cards.length)return;
   const after=p=>{if(!p)return '';const b=p.querySelector('b');return p.textContent.replace(b?b.textContent:'','').trim();};
   const gods=cards.map(c=>{const sh=c.querySelectorAll('.shadow p');return{name:c.querySelector('h3').textContent.trim(),src:c.querySelector('.bust').getAttribute('src'),texts:[after(sh[1]),c.querySelector('.light p').textContent.trim(),after(sh[0])]};});
-  const LABEL=['De menos.','Na luz.','Demais.'],SEQ=[1,0,2],HOLD=[3400,3900,3900];
+  const LABEL=['Na sombra por escassez.','Na luz.','Na sombra por excesso.'],SEQ=[1,0,2],HOLD=[3400,3900,3900];
   const box=document.createElement('div');box.className='m-scale s1';box.style.setProperty('--p',1);
   box.innerHTML=`<div class="eyebrow">A MESMA DEUSA, TRÊS JEITOS DE APARECER</div><h3 class="m-scale-name"></h3>
    <div class="m-scale-track" aria-hidden="true"><div class="m-scale-line"></div><i class="m-tick t0"></i><i class="m-tick t1"></i><i class="m-tick t2"></i>
     <div class="m-scale-marker"><div class="m-scale-face"><span class="m-ring"></span><span class="m-ring r2"></span><img class="bust" alt="" width="96" height="96"></div></div></div>
    <div class="m-scale-states" role="group" aria-label="Como a deusa aparece">
-    <button type="button" data-s="0">De menos<small>sombra por escassez</small></button><button type="button" data-s="1">Na medida<small>na luz</small></button><button type="button" data-s="2">Demais<small>sombra por excesso</small></button></div>
+    <button type="button" data-s="0">Na sombra<small>por escassez</small></button><button type="button" data-s="1">Na luz<small>na medida</small></button><button type="button" data-s="2">Na sombra<small>por excesso</small></button></div>
    <p class="m-scale-text" aria-live="off"></p>
    <div class="m-scale-foot"><div class="m-scale-gods" role="group" aria-label="Escolher a deusa">${gods.map((g,i)=>`<button type="button" data-g="${i}" aria-label="${g.name}"><img class="bust" src="${g.src}" alt="" width="38" height="38" loading="lazy"></button>`).join('')}</div>
     <button type="button" class="text-button m-scale-play"></button></div>`;

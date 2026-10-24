@@ -372,3 +372,127 @@ blockquote.principle{margin:18px 0;padding:16px 18px;border-radius:12px;backgrou
 @media(max-width:650px){.god-card{flex-basis:72%}.god-card .bust{width:96px;height:96px}.god-face p{font-size:13px}.goddesses article:last-child{grid-column:auto;max-width:none}}
 
 .ebook-offer.no-book{grid-template-columns:1fr}
+
+/* Seu mapa em blocos: o topo com as três respostas e as partes que abrem com um toque. */
+.glance{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:6px 0 40px}
+.glance-card,.glance-seven{padding:20px 22px;border-radius:16px;background:var(--white);border:1px solid var(--line)}
+.glance-seven{grid-column:1/-1}
+.g-row{display:flex;flex-wrap:wrap;gap:12px 22px;margin-top:12px}
+.g-god{display:flex;align-items:center;gap:10px}
+.g-god .bust,.g-care-item .bust{width:50px;height:50px;border:2px solid var(--gold-soft)}
+.g-god strong,.g-care-item strong{display:block;font:400 20px/1.2 Georgia,'Times New Roman',serif}
+.g-god small{display:block;font-size:11px;color:var(--muted);margin-top:2px}
+.g-care{background:#f8f1ec;border-color:#e4d2cc}
+.g-care-item{display:grid;grid-template-columns:50px 1fr;gap:12px;margin-top:12px}
+.g-care-item .bust{border-color:#dcc3be}
+.g-care-item strong{display:inline;margin-right:8px}
+.g-care-item p{margin:6px 0 0;font-size:13px;line-height:1.6;color:var(--muted)}
+.g-none{margin:12px 0 0;font-size:14px;line-height:1.6;color:var(--muted)}
+.glance-seven ol{list-style:none;margin:12px 0 0;padding:0;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.g-seven{width:100%;display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px;border:0;border-radius:12px;background:none;color:inherit;font:inherit;cursor:pointer}
+.g-seven .bust{width:54px;height:54px;border:2px solid #e2d6b8}
+.g-seven.regent .bust{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-soft)}
+.g-seven strong{font:400 14px Georgia,'Times New Roman',serif}
+.g-seven small{font-size:10px;color:var(--muted)}
+.g-bar{display:block;width:78%;height:5px;border-radius:5px;background:#ece7da;overflow:hidden}
+.g-bar i{display:block;width:0;height:100%;border-radius:5px;background:linear-gradient(90deg,var(--gold),var(--olive));transform-origin:left}
+.mods{margin:0 0 34px}
+.mods-top{display:flex;justify-content:space-between;align-items:flex-end;gap:10px 20px;flex-wrap:wrap;margin-bottom:16px}
+.mods-top h2{margin:8px 0 0}
+.mod-count{margin:0;font-size:12px;color:var(--olive)}
+.mod{margin-bottom:10px;border:1px solid var(--line);border-radius:16px;background:var(--white)}
+.mod-h{margin:0;font:inherit;letter-spacing:0}
+.mod-head{width:100%;display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:3px 16px;align-items:center;padding:18px 22px;border:0;border-radius:16px;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.mod-mark{grid-row:span 2;width:44px;height:44px;display:grid;place-items:center;border-radius:50%;background:var(--olive-soft);color:var(--olive);font:600 13px Arial,sans-serif}
+.mod-mark.sym{font-size:19px;font-weight:400}
+.mod-title{font:400 22px/1.25 Georgia,'Times New Roman',serif;color:var(--ink)}
+.mod-teaser{grid-column:2;font-size:13px;line-height:1.55;color:var(--muted)}
+.mod-more{grid-column:3;grid-row:1/span 2;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--wine);white-space:nowrap}
+.mod-arrow{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.mod.open{border-color:#cfc9b8;box-shadow:var(--card-shadow)}
+.mod.open .mod-mark{background:var(--olive);color:#f6f1e4}
+.mod.open .mod-arrow{transform:rotate(180deg)}
+.mod-body{display:grid;grid-template-rows:0fr;visibility:hidden}
+.mod.open .mod-body{grid-template-rows:1fr;visibility:visible}
+.mod-inner{min-height:0;overflow:hidden}
+.mod-inner>section{margin:0;padding:0 22px 26px;border:0;border-radius:0;background:none;box-shadow:none}
+.mod-inner>section>.eyebrow:first-child,.mod-inner .section-top .eyebrow,.mod-inner .locked-report>.lead-small{display:none}
+.mod-inner>section h2{font-size:26px;margin-top:0}
+.mod-head:focus-visible{outline:3px solid var(--wine);outline-offset:-3px}
+@media (hover:hover){.g-seven:hover{background:var(--olive-soft)}.mod:not(.open) .mod-head:hover .mod-title{color:var(--wine)}}
+@media (max-width:760px){
+  .glance{grid-template-columns:1fr;gap:10px;margin-bottom:30px}
+  .glance-card,.glance-seven{padding:16px}
+  .glance-seven ol{grid-template-columns:repeat(4,minmax(0,1fr));row-gap:4px}
+  .g-seven .bust{width:46px;height:46px}
+  .g-seven strong{font-size:13px}
+  .mod-head{grid-template-columns:36px minmax(0,1fr) auto;gap:3px 12px;padding:15px 14px}
+  .mod-mark{width:36px;height:36px;font-size:11px}
+  .mod-title{font-size:19px}
+  .mod-more-text{display:none}
+  .mod-inner>section{padding:0 14px 20px}
+  .mod-inner>section h2{font-size:22px}
+  .regent-hero .hero-arch{min-height:250px;max-width:250px}
+  .regent-hero .hero-arch .figure{height:250px}
+  .regent-hero .hero-arch.duo .figure{height:220px}
+}
+@media print{.mod-body{grid-template-rows:1fr!important;visibility:visible!important}.mod-more{display:none}}
+/* A área principal recebe foco ao trocar de tela (para leitor de tela); não precisa de contorno. */
+#main:focus{outline:none}
+
+/* Destaques pedidos em 24/10: virar a carta, as sete, entender melhor, PDF e e-books. */
+.flip-turn{display:inline-flex;align-items:center;gap:8px;margin-top:12px;padding:11px 20px;border:1px solid var(--gold);border-radius:999px;background:#fbf3df;color:var(--wine);font-size:14px;font-weight:600;text-decoration:none;cursor:pointer;box-shadow:0 6px 16px #a1875326}
+.flip-turn span{display:inline-block;font-size:17px;line-height:1}
+.flip-turn[aria-expanded=true]{background:var(--olive-soft);border-color:var(--olive);color:var(--olive)}
+.g-seven-top{display:flex;justify-content:space-between;align-items:center;gap:8px 16px;flex-wrap:wrap}
+.g-seven-title{margin:0;font:400 24px/1.2 Georgia,'Times New Roman',serif;color:var(--ink)}
+.g-seven-title em{color:var(--wine)}
+.g-hint{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--wine);color:#fff8f2;font-size:12px;font-weight:600}
+.g-hint svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.glance-seven{border-color:#d8cfb8;box-shadow:var(--card-shadow)}
+.mod-more-text{padding:8px 16px;border:1px solid var(--wine);border-radius:999px;background:var(--white);color:var(--wine);font-size:13px;font-weight:600}
+.mod.open .mod-more-text{background:var(--wine);color:#fff8f2}
+@media (hover:hover){.mod-head:hover .mod-more-text{background:var(--wine);color:#fff8f2}}
+.masthead-side{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.pdf-btn{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border:1px solid var(--olive);border-radius:999px;background:var(--white);color:var(--olive);font-size:12px;font-weight:600;cursor:pointer}
+.pdf-btn svg,.g-ebook svg,.shelf-btn svg{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+@media (hover:hover){.pdf-btn:hover{background:var(--olive);color:#f6f1e4}}
+.g-ebook{display:inline-flex;align-items:center;gap:7px;margin-top:10px;padding:8px 14px;border:1px solid var(--wine);border-radius:999px;background:var(--white);color:var(--wine);font-size:12px;font-weight:600;text-decoration:none;cursor:pointer}
+@media (hover:hover){.g-ebook:hover{background:var(--wine);color:#fff8f2}}
+.ebook-shelf{margin:40px 0 10px;padding:30px 28px;border-radius:16px;background:#f0e9da;border:1px solid #d9cbae}
+.ebook-shelf h2{margin:8px 0 8px}
+.shelf{list-style:none;margin:20px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.shelf-item{display:grid;grid-template-columns:52px 1fr;grid-template-rows:1fr auto;gap:8px 12px;padding:14px;border-radius:12px;background:var(--white);border:1px solid var(--line)}
+.shelf-item .bust{width:52px;height:52px;border:2px solid #e2d6b8}
+.shelf-item.pick{border-color:var(--wine);box-shadow:0 0 0 1px var(--wine)}
+.shelf-item.pick .bust{border-color:var(--gold)}
+.shelf-copy strong{display:block;font:400 19px Georgia,'Times New Roman',serif}
+.shelf-copy small{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+.shelf-tag{display:inline-block;margin-bottom:4px;padding:2px 8px;border-radius:999px;background:var(--wine);color:#fff8f2;font-size:10px;font-weight:600;letter-spacing:.4px}
+.shelf-btn{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:7px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:#faf7f0;color:var(--ink);font-size:12px;text-decoration:none;cursor:pointer}
+a.shelf-btn,.shelf-item.pick .shelf-btn{border-color:var(--wine);color:var(--wine);font-weight:600}
+@media (hover:hover){.shelf-btn:hover{background:var(--wine);border-color:var(--wine);color:#fff8f2}}
+.print-only{display:none}
+@media (max-width:760px){
+  .masthead-side{flex-direction:column;align-items:flex-end}
+  .mod-more{grid-column:2;grid-row:3;justify-self:start;margin-top:8px}
+  .mod-more-text{display:inline-block;padding:7px 14px;font-size:12px}
+  .mod-arrow{display:none}
+  .g-seven-title{font-size:21px}
+  .ebook-shelf{padding:22px 14px}
+}
+@media print{
+  .print-only{display:block}
+  .print-head{margin:0 0 10px;font-size:11px;color:var(--muted)}
+  .print-free{margin:24px 0;padding:14px;border:1px solid var(--line);border-radius:10px;font-size:13px}
+  .pdf-btn,.g-hint,.mod-count,.g-ebook,.ebook-shelf,#mod-relatorio,.area-board,.area-close,.mods-top,.offer-bar{display:none!important}
+  .print-areas{display:grid!important;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+  .print-areas .area-detail{display:block!important;break-inside:avoid;margin:0;padding:10px;border:1px solid var(--line);border-radius:10px;font-size:12px}
+  .print-areas .area-detail h3{font-size:17px}
+  .print-areas .role p,.print-areas .area-style p{font-size:11px;line-height:1.45}
+  .print-areas .area-mandala{display:none}
+  .mod-h,.mod-inner>section>h2{break-after:avoid}
+  .glance-card,.glance-seven{break-inside:avoid}
+  .mod{border:0;box-shadow:none}
+  .glance>*,.regent-copy>*,.regent-hero .hero-arch,.g-bar i{animation:none!important}
+}
