@@ -7,7 +7,7 @@ const DRAFT_KEY='deusas-draft-v3';
 const OPTION_IDS=['a','b','c','d'];
 const labels=['Discordo totalmente','Discordo','Nem concordo nem discordo','Concordo','Concordo totalmente'];
 let bank=[],version='',config={},answers={},pending=null,index=0,resultId=null,saving=false,busy=false,duel=[],duelMode=false,duelQ=null,retry=null;
-let advanceTimer=null,questionEpoch=0,currentResult=null,currentReport=null,activeCapacity=null,ebookVisible=false,navigatingRadiosWithArrows=false;
+let advanceTimer=null,questionEpoch=0,currentResult=null,currentReport=null,activeCapacity=null,navigatingRadiosWithArrows=false;
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=n=>n===null||n===undefined?'Sem dados':n.toFixed(1).replace('.',',');
 const price=n=>typeof n==='number'?new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(n):'';
@@ -237,7 +237,7 @@ function capacityPoints(){
  return r.capacities.map(c=>{const s=rep?.capacities.find(x=>x.id===c.id);return {...c,state:s?.state,stateName:s?.stateName,stateText:s?.text};});
 }
 function renderResult(result,report){
- currentResult=result;currentReport=report||null;ebookVisible=false;openArea=null;
+ currentResult=result;currentReport=report||null;openArea=null;
  const ranked=[...result.capacities].sort((a,b)=>(b.value??-1)-(a.value??-1));
  activeCapacity=result.regents[0]?.id||ranked[0].id;
  $('#result-content').innerHTML=`<div class="result-masthead"><div class="eyebrow">MÉTODO DAS DEUSAS / SEU MAPA</div><span class="badge">${report?'Relatório completo':'Mapa inicial gratuito'}</span></div>
@@ -299,7 +299,7 @@ function renderSeven(){
  }
  $('#capacity-detail').innerHTML=`<div class="detail-head">${bust(g.id)}<div><div class="eyebrow">VOCÊ ESTÁ OLHANDO PARA</div><h3>${escape(g.name)}</h3><p class="capacity-title">${escape(g.capacity)}</p></div></div>${g.state?`<span class="state-tag state-${g.state}">${STATE_ICON[g.state]} ${escape(g.stateName)}</span><p>${escape(g.stateText)}</p>`:`<p>${escape(g.description)}</p>`}<p class="detail-reflection">${escape(g.reflection)}</p>`;
 }
-function selectCapacity(id,focusButton=false){activeCapacity=id;renderSeven();if(focusButton)$(`#seven-view [data-capacity="${id}"]`)?.focus({preventScroll:true});if(ebookVisible&&!currentResult.dominant)renderEbook();}
+function selectCapacity(id,focusButton=false){activeCapacity=id;renderSeven();if(focusButton)$(`#seven-view [data-capacity="${id}"]`)?.focus({preventScroll:true});}
 
 // Papéis de uma área: quem rege, quem ajuda e quem pesa (ou o que falta).
 function areaRoles(a){
@@ -412,7 +412,7 @@ function bindResult(){
  root.querySelectorAll('.days input').forEach(box=>box.addEventListener('change',()=>{const done=[...root.querySelectorAll('.days input')].map(i=>i.checked);try{localStorage.setItem(missionKey(),JSON.stringify(done));}catch{}$('#mission-count').textContent=missionCount(done);}));
  root.querySelector('.share-trigger')?.addEventListener('click',shareCard);
  $('#unlock-demo')?.addEventListener('click',unlockDemo);
- $('#prefer-ebook').addEventListener('click',()=>{ebookVisible=true;renderEbook();$('#ebook-offer').hidden=false;$('#ebook-offer').scrollIntoView({block:'start',behavior:calm()?'auto':'smooth'});});
+ $('#prefer-ebook').addEventListener('click',()=>{renderEbook();$('#ebook-offer').hidden=false;$('#ebook-offer').scrollIntoView({block:'start',behavior:calm()?'auto':'smooth'});});
  root.querySelectorAll('.consult-trigger').forEach(b=>b.addEventListener('click',showConsultation));
  const video=root.querySelector('video');if(video){const failed=()=>{const f=root.querySelector('.video-fallback');if(f)f.hidden=false;};video.addEventListener('error',failed);video.querySelector('source')?.addEventListener('error',failed);}
  // Funil: anima uma vez quando entra na tela; sem animação, fica no estado final.
@@ -482,10 +482,13 @@ async function shareCard(){
 }
 
 // ---------- E-book ----------
-function selectedBook(){const g=currentResult.capacities.find(c=>c.id===(currentResult.dominant?.id||activeCapacity));return {id:g.id,name:g.name,symbol:g.symbol,title:`${g.name}: um primeiro encontro`,capacity:g.capacity,excerpt:g.description,practice:currentResult.ebook?.id===g.id?currentResult.ebook.practice:''};}
+// O e-book indicado é o da deusa que apareceu na sombra (escolhida no cálculo do mapa); sem sombra, nenhum.
+function selectedBook(){return currentResult.ebook||null;}
 function renderEbook(){
- const book=selectedBook(),offer=config.ebooks?.[book.id]||{};
- $('#ebook-offer').innerHTML=`<div class="ebook-cover"><small>MÉTODO DAS DEUSAS</small>${bust(book.id,'book-bust')}<h3>${escape(book.name)}</h3><p>Um primeiro encontro<br>com a sua deusa.</p><span class="book-author">YASNNAJÁRA ALVES</span></div><div class="ebook-copy"><div class="eyebrow">UM PASSO MENOR, NO SEU RITMO</div><h2>Comece por <em>${escape(book.name)}.</em></h2><p>Um pequeno e-book para conhecer a sua deusa regente, reconhecer como ela aparece no seu dia a dia e levar uma prática simples para a sua semana.</p>${!currentResult.dominant?'<p class="book-choice-note">Seu mapa não indicou uma única regente. Este e-book acompanha a deusa que você escolheu nas sete deusas.</p>':''}${offer.checkoutUrl?`<a class="primary" href="${escape(offer.checkoutUrl)}" target="_blank" rel="noopener noreferrer">Conhecer o e-book${offer.priceBRL?` · ${price(offer.priceBRL)}`:''} ↗</a>`:'<button class="primary" id="ebook-preview" type="button">Ver a proposta do e-book ↗</button><p class="subtle">Conteúdo em preparação. A venda será aberta depois da aprovação da autora.</p>'}</div>`;
+ const book=selectedBook();$('#ebook-offer').classList.toggle('no-book',!book);
+ if(!book){$('#ebook-offer').innerHTML=`<div class="ebook-copy"><div class="eyebrow">UM PASSO MENOR, NO SEU RITMO</div><h2>Nenhum e-book <em>indicado agora.</em></h2><p>Nas suas respostas, nenhuma deusa apareceu na sombra. Os e-books são feitos para quando uma deusa pede ajuste, então nenhum é indicado para você agora. A consulta faz a leitura completa, se quiser confirmar.</p></div>`;return;}
+ const offer=config.ebooks?.[book.id]||{},where=book.shadow==='escassez'?'apareceu com pouco espaço nas suas escolhas':'apareceu demais nas suas escolhas';
+ $('#ebook-offer').innerHTML=`<div class="ebook-cover"><small>MÉTODO DAS DEUSAS</small>${bust(book.id,'book-bust')}<h3>${escape(book.name)}</h3><p>Para a deusa<br>que pede cuidado.</p><span class="book-author">YASNNAJÁRA ALVES</span></div><div class="ebook-copy"><div class="eyebrow">UM PASSO MENOR, NO SEU RITMO</div><h2>Comece por <em>${escape(book.name)}.</em></h2><p>No seu mapa, ${escape(book.name)} ${where}. Este pequeno e-book mostra como ela aparece quando falta e quando sobra, e traz uma prática simples para a sua semana.</p>${offer.checkoutUrl?`<a class="primary" href="${escape(offer.checkoutUrl)}" target="_blank" rel="noopener noreferrer">Conhecer o e-book${offer.priceBRL?` · ${price(offer.priceBRL)}`:''} ↗</a>`:'<button class="primary" id="ebook-preview" type="button">Ver a proposta do e-book ↗</button><p class="subtle">Conteúdo em preparação. A venda será aberta depois da aprovação da autora.</p>'}</div>`;
  if($('#ebook-preview'))$('#ebook-preview').addEventListener('click',()=>showBook(book));
 }
 

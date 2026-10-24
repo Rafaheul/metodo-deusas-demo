@@ -370,3 +370,5 @@ blockquote.principle{margin:18px 0;padding:16px 18px;border-radius:12px;backgrou
 .god-turn{border:0;background:none;color:var(--wine);font-size:12px;padding:10px 4px;text-decoration:underline;text-underline-offset:4px;min-height:40px}
 @media(max-width:1100px){.god-carousel{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:8px;scrollbar-width:thin}.god-card{flex:0 0 200px;scroll-snap-align:start}}
 @media(max-width:650px){.god-card{flex-basis:72%}.god-card .bust{width:96px;height:96px}.god-face p{font-size:13px}.goddesses article:last-child{grid-column:auto;max-width:none}}
+
+.ebook-offer.no-book{grid-template-columns:1fr}
