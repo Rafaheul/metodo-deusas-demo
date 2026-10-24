@@ -128,7 +128,7 @@
   box.innerHTML=`<div class="mj-stage" aria-hidden="true">
     <div class="mj-layer mj-scene"><div class="mj-prompt"><span>A SITUAÇÃO</span><p>${esc(scene.textContent)}</p></div>
      <div class="mj-opts">${opts.map(o=>`<div class="mj-opt"><span class="mj-tag"></span>${esc(o)}<span class="mj-tap"></span></div>`).join('')}</div></div>
-    <div class="mj-layer mj-temple"><svg viewBox="0 0 352 106"><polygon class="mj-ped" points="6,30 176,4 346,30"/>${cols}<rect class="mj-base" x="4" y="96" width="344" height="6" rx="1"/></svg><p>49 CENAS + 20 AFIRMAÇÕES</p></div>
+    <div class="mj-layer mj-temple"><svg viewBox="0 0 352 106"><polygon class="mj-ped" points="6,30 176,4 346,30"/>${cols}<rect class="mj-base" x="4" y="96" width="344" height="6" rx="1"/></svg><p>49 CENAS DO DIA A DIA</p></div>
     <div class="mj-layer mj-ring">${gods.map((g,i)=>{const a=(-90+i*360/7)*Math.PI/180;return `<img class="mj-b" src="${esc(g.src)}" alt="" style="--i:${i};--cx:${Math.cos(a).toFixed(4)};--sy:${Math.sin(a).toFixed(4)}">`;}).join('')}
      <div class="mj-reg"><span>SUA REGENTE</span><strong></strong><small></small></div></div>
     <div class="mj-layer mj-doors">${door('relatorio','Relatório completo')}${door('consulta','Consulta com Yasnnajára')}${door('ebook','E-book da sua deusa')}</div>

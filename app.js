@@ -1,5 +1,5 @@
 'use strict';
-// v0.3: cenas com duas escolhas ("faria primeiro" e "menos faria") e afirmações de concordância.
+// v0.3: cenas com duas escolhas ("faria primeiro" e "menos faria"). As afirmações (Big Five) saíram em 24/10/2026.
 const $=s=>document.querySelector(s);
 const views=['home','setup','quiz','reveal','result'];
 const calm=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -19,14 +19,17 @@ function view(name){cancelAdvance();for(const v of views)$(`#${v}-view`).hidden=
 $('#main').tabIndex=-1;
 
 // ---------- Respostas e rascunho ----------
-const validTrait=v=>v===null||(Number.isInteger(v)&&v>=0&&v<=4);
 const validDilemma=v=>v&&typeof v==='object'&&((v.first===null&&v.last===null)||(OPTION_IDS.includes(v.first)&&OPTION_IDS.includes(v.last)&&v.first!==v.last));
-function validAnswer(q,v){return q.kind==='trait'?validTrait(v):validDilemma(v);}
+function validAnswer(q,v){return validDilemma(v);}
 function readDraft(){
  try{const d=JSON.parse(localStorage.getItem(DRAFT_KEY));if(!d)return null;
  if(d.version!==version||!Number.isFinite(d.savedAt)||Date.now()-d.savedAt>30*86400000){localStorage.removeItem(DRAFT_KEY);return null;}
  const byId=new Map(bank.map(q=>[q.id,q]));
- if(!d.answers||Array.isArray(d.answers)||Object.entries(d.answers).some(([id,v])=>!byId.has(id)||!validAnswer(byId.get(id),v))){localStorage.removeItem(DRAFT_KEY);return null;}
+ if(!d.answers||Array.isArray(d.answers)){localStorage.removeItem(DRAFT_KEY);return null;}
+ // Respostas de perguntas que saíram do quiz (as afirmações) são deixadas de lado; as das cenas continuam.
+ const kept=Object.entries(d.answers).filter(([id])=>byId.has(id));
+ if(kept.some(([id,v])=>!validAnswer(byId.get(id),v))){localStorage.removeItem(DRAFT_KEY);return null;}
+ if(kept.length!==Object.keys(d.answers).length){d.answers=Object.fromEntries(kept);const next=bank.findIndex(q=>!Object.hasOwn(d.answers,q.id));d.index=next===-1?bank.length-1:next;}
  return d;}catch{return null;}
 }
 function persist(){if(!saving)return;try{localStorage.setItem(DRAFT_KEY,JSON.stringify({version,answers,index,savedAt:Date.now()}));}catch{status('O navegador não permitiu salvar. Mantenha esta aba aberta para continuar.');}}
@@ -81,38 +84,20 @@ function scheduleAdvance(){
 $('#answers').addEventListener('keydown',e=>{navigatingRadiosWithArrows=['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key);});
 $('#answers').addEventListener('keyup',()=>{navigatingRadiosWithArrows=false;});
 $('#answers').addEventListener('pointerdown',()=>{navigatingRadiosWithArrows=false;});
-// Faixa colorida da etapa: a área da cena, as afirmações ou o desempate.
+// Faixa colorida da etapa: a área da cena ou o desempate.
 function band(kind,text){const b=$('#quiz-eyebrow');b.className=`step-band band-${kind}`;b.textContent=text;}
 function milestone(){const columns=Math.floor(Object.keys(answers).length/(bank.length/7)+1e-9);return columns>0?COLUMN_NOTES[Math.min(7,columns)]:'Leia a cena com calma e pense no que você costuma fazer de verdade.';}
 function renderQuestion(){
- cancelAdvance();duelMode=false;$('#quiz-view').classList.remove('duel-mode');$('#duel-intro').hidden=true;$('#question-form').hidden=false;navigatingRadiosWithArrows=false;const q=bank[index];const areaId=AREA_IDS[q.area]||'trait';band(q.kind==='dilemma'?areaId:'trait',q.kind==='dilemma'?`${AREA_ICON[areaId]||'✦'} ${q.area}`:'✦ Sobre você');lastColumns=Math.floor(Object.keys(answers).length/(bank.length/7)+1e-9);updateProgress();
+ cancelAdvance();duelMode=false;$('#quiz-view').classList.remove('duel-mode');$('#duel-intro').hidden=true;$('#question-form').hidden=false;navigatingRadiosWithArrows=false;const q=bank[index];const areaId=AREA_IDS[q.area];band(areaId,`${AREA_ICON[areaId]||'✦'} ${q.area}`);lastColumns=Math.floor(Object.keys(answers).length/(bank.length/7)+1e-9);updateProgress();
  $('#progress').setAttribute('aria-valuemax',bank.length);$('#milestone').classList.remove('cheer');$('#milestone').textContent=milestone();
  $('#position').textContent='';$('#previous').disabled=index===0;
  $('#next').textContent=index===bank.length-1?'Ver meu mapa →':'Continuar →';$('#next').disabled=false;$('#quiz-error').textContent='';
  $('#scene').textContent=q.scene;
- if(q.kind==='dilemma'){
-  const saved=answers[q.id];pending=saved?{...saved}:{first:undefined,last:undefined};
-  $('#scene-label').textContent=`A SITUAÇÃO · ${q.area.toUpperCase()}`;$('#question-form').dataset.kind='dilemma';
-  $('#prompt-action').hidden=true;$('#pick-tracker').hidden=false;renderDilemma(q);
- }else{
-  pending=null;$('#scene-label').textContent='SOBRE VOCÊ · RESPOSTA RÁPIDA';$('#question-form').dataset.kind='trait';$('#pick-tracker').hidden=true;
-  $('#prompt-action').hidden=true;$('#scene').textContent=q.action;$('#scale-prompt').textContent='O quanto esta frase tem a ver com você?';
-  renderTrait(q);
- }
+ const saved=answers[q.id];pending=saved?{...saved}:{first:undefined,last:undefined};
+ $('#scene-label').textContent=`A SITUAÇÃO · ${q.area.toUpperCase()}`;$('#question-form').dataset.kind='dilemma';
+ $('#prompt-action').hidden=true;$('#pick-tracker').hidden=false;renderDilemma(q);
  $('#question-form legend').tabIndex=-1;$('#question-form legend').focus({preventScroll:true});
  $('#quiz-view').scrollIntoView({block:'start',behavior:'instant'});
-}
-const SCALE_WORDS=['Nada a ver comigo','Pouco a ver','Mais ou menos','Tem a ver','Tudo a ver comigo'];
-function renderTrait(q){
- const selected=Object.hasOwn(answers,q.id)?answers[q.id]:undefined;
- $('#answers').className='likert';
- $('#answers').innerHTML=`<div class="likert-row" role="radiogroup" aria-label="De nada a ver comigo até tudo a ver comigo">${labels.map((label,i)=>`<label class="likert-dot d${i}"><input type="radio" name="response" value="${i}" ${selected===i?'checked':''}><span class="dot" aria-hidden="true"></span><span class="sr">${label}</span></label>`).join('')}</div><div class="likert-ends" aria-hidden="true"><span>Nada a ver comigo</span><span>Tudo a ver comigo</span></div><p class="likert-read" id="likert-read">${selected===undefined?'&nbsp;':selected===null?'Prefiro não responder':SCALE_WORDS[selected]}</p><label class="likert-skip"><input type="radio" name="response" value="na" ${selected===null?'checked':''}><span>Prefiro não responder</span></label>`;
- $('#answers').querySelectorAll('input').forEach(input=>{
-  // Setas do teclado mudam a escolha sem saltar de pergunta. Clique ou espaço avançam.
-  const store=()=>{answers[q.id]=input.value==='na'?null:Number(input.value);$('#likert-read').textContent=input.value==='na'?'Prefiro não responder':SCALE_WORDS[Number(input.value)];persist();updateProgress();};
-  input.addEventListener('change',store);
-  input.addEventListener('click',()=>{store();if(!navigatingRadiosWithArrows)scheduleAdvance();});
- });
 }
 function dilemmaStep(){
  if(pending.first===null)return 'Tudo bem. Esta cena fica de fora do seu mapa.';
@@ -151,10 +136,10 @@ $('#previous').addEventListener('click',()=>{cancelAdvance();if(duelMode){duelBa
 $('#pause').addEventListener('click',()=>{cancelAdvance();if(duelMode)exitDuel();persist();view('setup');$('#resume-notice').hidden=false;$('#resume-notice').textContent=saving?'Seu progresso está salvo. Você pode continuar depois.':'As respostas continuam nesta aba. Mantenha a página aberta para continuar.';$('#save-draft').checked=saving;});
 $('#question-form').addEventListener('submit',e=>{e.preventDefault();if(retry){const f=retry;retry=null;f();return;}if(duelMode){$('#quiz-error').textContent='Escolha a frase que mais combina com você.';return;}advance();});
 function lockQuiz(locked){$('#answers').querySelectorAll('input,button').forEach(i=>i.disabled=locked);}
-const payload=()=>bank.map(q=>q.kind==='trait'?{id:q.id,value:answers[q.id]}:{id:q.id,first:answers[q.id].first,last:answers[q.id].last});
+const payload=()=>bank.map(q=>({id:q.id,first:answers[q.id].first,last:answers[q.id].last}));
 async function advance(){
  if(busy)return;cancelAdvance();const q=bank[index];
- if(!Object.hasOwn(answers,q.id)){$('#quiz-error').textContent=q.kind==='dilemma'?(pending?.first?'Agora escolha o que você menos faria.':'Escolha o que você faria primeiro, ou “não vivi nada parecido”.'):'Escolha uma resposta para continuar.';return;}
+ if(!Object.hasOwn(answers,q.id)){$('#quiz-error').textContent=pending?.first?'Agora escolha o que você menos faria.':'Escolha o que você faria primeiro, ou “não vivi nada parecido”.';return;}
  if(index<bank.length-1){index++;persist();renderQuestion();return;}
  const missing=bank.findIndex(q=>!Object.hasOwn(answers,q.id));if(missing!==-1){index=missing;renderQuestion();status('Esta situação ainda precisa de uma resposta.');return;}
  duel=[];await stepDuel();
@@ -254,7 +239,7 @@ function renderResult(result,report){
  ${videoHtml()}
  ${nextStepHtml()}
  ${shelfHtml()}
- <details class="reading-note"><summary>Como este mapa foi feito</summary><p>${escape(result.methodology)}</p><p>Nas cenas, você escolheu o que faria primeiro e o que menos faria. Nas afirmações, disse o quanto cada uma combina com você. As duas partes se juntam na mesma leitura. Quando duas deusas terminam as cenas quase empatadas, algumas perguntas rápidas de desempate mostram qual delas pesa mais hoje.</p></details>
+ <details class="reading-note"><summary>Como este mapa foi feito</summary><p>${escape(result.methodology)}</p><p>Nas cenas, você escolheu o que faria primeiro e o que menos faria. Quando duas deusas terminam as cenas quase empatadas, algumas perguntas rápidas de desempate mostram qual delas pesa mais hoje.</p></details>
  ${!report&&offerReady()?`<div class="offer-bar" id="offer-bar" hidden><span>Veja quem rege cada área da sua vida</span><button class="primary" type="button" id="offer-bar-go">Ver o relatório</button></div>`:''}`;
  renderSeven();bindResult();updateModCount();
 }
@@ -331,8 +316,7 @@ function resultMods(){
  mods.push({id:'luz',mark:'I',title:'Luz e sombra',teaser:`Na luz: ${rep.capacities.filter(c=>c.scale===1).length}. Na sombra por escassez: ${names(rep.scarcity)}. Na sombra por excesso: ${names(rep.excess)}.`,body:balanceHtml(rep)});
  mods.push({id:'areas',mark:'II',title:'As áreas da sua vida',teaser:rep.areasSummary||'Quem rege, quem ajuda e quem pesa em cada área.',body:areasHtml(rep)});
  mods.push({id:'cuidar',mark:'III',title:'Cuidar é escolha, não dívida',teaser:`Cuidar por obrigação: ${d.levelName.toLowerCase()}.`,body:dependencyHtml(d)});
- mods.push({id:'jeito',mark:'IV',title:'Seu jeito de funcionar',teaser:`${rep.style.length} réguas do seu temperamento, vindas das afirmações.`,body:styleHtml(rep)});
- mods.push({id:'favor',mark:'V',title:'A seu favor e pede cuidado',teaser:`A seu favor: ${rep.favor.length}. Pede cuidado: ${rep.care.length}.`,body:favorHtml(rep)});
+ mods.push({id:'favor',mark:'IV',title:'A seu favor e pede cuidado',teaser:`A seu favor: ${rep.favor.length}. Pede cuidado: ${rep.care.length}.`,body:favorHtml(rep)});
  return mods;
 }
 function modHtml(m){
@@ -425,7 +409,7 @@ function lockedLead(){
 function lockedHtml(){
  const r=currentResult,{head,sub}=lockedLead();
  const shadows=r.toc.shadows;
- const toc=[['Luz e sombra das 7 deusas',shadows?`${plural(shadows,'sinal','sinais')} de sombra para olhar com calma`:'quem está na medida e quem pede ajuste'],['As 7 áreas da sua vida','quem rege, quem ajuda e quem pesa em cada uma'],['Cuidar é escolha, não dívida','como você cuida, cede e se coloca nas relações'],['Seu jeito de funcionar','5 réguas do seu temperamento'],['A seu favor e pede cuidado','seus apoios, suas armadilhas e onde você floresce'],['Sua missão da semana','uma prática pela Regra do Eixo Oposto']];
+ const toc=[['Luz e sombra das 7 deusas',shadows?`${plural(shadows,'sinal','sinais')} de sombra para olhar com calma`:'quem está na medida e quem pede ajuste'],['As 7 áreas da sua vida','quem rege, quem ajuda e quem pesa em cada uma'],['Cuidar é escolha, não dívida','como você cuida, cede e se coloca nas relações'],['A seu favor e pede cuidado','seus apoios, suas armadilhas e onde você floresce'],['Sua missão da semana','uma prática pela Regra do Eixo Oposto']];
  return `<section class="locked-report" id="locked-report"><div class="eyebrow">SEU RELATÓRIO COMPLETO</div><h2>${head}</h2><p class="lead-small">${escape(sub)}</p>${r.sampleArea?sampleHtml(r.sampleArea):''}<ul class="sealed-grid">${r.lockedAreas.map(a=>`<li class="sealed"><span class="tile-icon" aria-hidden="true">${AREA_ICON[a.id]||'✦'}</span><strong>Quem rege ${escape(AREA_ASK[a.id]||a.name)}?</strong>${LOCK}</li>`).join('')}</ul><div class="toc"><div class="eyebrow">O QUE TEM NO RELATÓRIO</div><ol>${toc.map(([t,s],i)=>`<li><span class="roman" aria-hidden="true">${ROMAN[i]}</span><div><strong>${t}</strong><small>${escape(s)}</small></div></li>`).join('')}</ol></div><div class="offer" id="offer">${priceHtml()}${reportCta()}</div></section>`;
 }
 
@@ -446,7 +430,7 @@ function areasHtml(rep){
 }
 function areaDetailHtml(a){
  const chart=a.chart?.some(p=>p.value!==null);
- return `<div class="area-head"><span class="tile-icon" aria-hidden="true">${AREA_ICON[a.id]||'✦'}</span><div><h3>${escape(a.name)}</h3>${confHtml(a)}<small class="subtle">${a.answered} de ${a.total} cenas respondidas nesta área</small></div><button class="text-button area-close" type="button">Fechar ×</button></div><div class="roles">${areaRoles(a)}</div>${a.style?.length?`<div class="area-style"><span class="eyebrow">SEU JEITO AQUI</span>${a.style.map(s=>`<p><strong>${escape(s.name)} ${escape(s.level)}.</strong> ${escape(s.text)}</p>`).join('')}</div>`:''}${a.dependency?`<p class="dep-note">♡ Nesta área, ${plural(a.dependency,'escolha','escolhas')} de cuidar ou ceder por obrigação ${a.dependency===1?'apareceu':'apareceram'} em primeiro lugar.</p>`:''}${chart?`<details class="area-mandala"><summary>Ver a mandala desta área</summary>${radar(a.chart,'area',a.leads?.id,false)}</details>`:''}`;
+ return `<div class="area-head"><span class="tile-icon" aria-hidden="true">${AREA_ICON[a.id]||'✦'}</span><div><h3>${escape(a.name)}</h3>${confHtml(a)}<small class="subtle">${a.answered} de ${a.total} cenas respondidas nesta área</small></div><button class="text-button area-close" type="button">Fechar ×</button></div><div class="roles">${areaRoles(a)}</div>${a.dependency?`<p class="dep-note">♡ Nesta área, ${plural(a.dependency,'escolha','escolhas')} de cuidar ou ceder por obrigação ${a.dependency===1?'apareceu':'apareceram'} em primeiro lugar.</p>`:''}${chart?`<details class="area-mandala"><summary>Ver a mandala desta área</summary>${radar(a.chart,'area',a.leads?.id,false)}</details>`:''}`;
 }
 function toggleArea(id){
  openArea=openArea===id?null:id;
@@ -464,12 +448,9 @@ function dependencyHtml(d){
  const zones=['Pouco presente','Em algumas cenas','Com força'];
  return `<section class="report-section dep-section" id="r-cuidar"><div class="eyebrow">III · CUIDAR É ESCOLHA, NÃO DÍVIDA</div><h2>Quando cuidar vira<br><em>obrigação.</em></h2><p class="dep-definition">${escape(d.definition)}</p><div class="gauge ${d.zone===null?'no-data':''}" role="img" aria-label="${escape(`Nível: ${d.levelName}`)}"><div class="gauge-track">${zones.map((z,i)=>`<span class="zone z${i} ${d.zone===i?'on':''}">${z}</span>`).join('')}</div>${d.zone!==null?`<i class="gauge-pin z${d.zone}" aria-hidden="true"></i>`:''}</div><h3 class="dep-level">${escape(d.levelName)}</h3><p>${escape(d.text)}</p>${d.offered?`<p class="subtle">Em ${plural(d.offered,'cena','cenas')}, uma das reações era desse tipo. Você a escolheu primeiro em ${d.first}.</p>`:''}${d.evidence.length?`<div class="evidence"><span class="eyebrow">${d.level==='baixo'?'ONDE APARECEU, MESMO ASSIM':'O QUE VOCÊ ESCOLHEU PRIMEIRO'}</span>${d.evidence.map(e=>`<blockquote><p>“${escape(e.text)}”</p><footer>${escape(e.label)} · ${escape(e.area)}</footer></blockquote>`).join('')}</div>`:''}${d.goddesses.length?`<div class="dep-gods"><span class="eyebrow">DEUSAS POR TRÁS DESSAS ESCOLHAS</span><div>${d.goddesses.map(g=>`<span class="pair">${bust(g.id)}${escape(g.name)}</span>`).join('')}</div></div>`:''}<blockquote class="principle">${escape(d.principle)}</blockquote><div class="dep-practice"><span class="eyebrow">PARA ESTA SEMANA</span><p>${escape(d.practice)}</p></div>${d.support?'<div class="support"><strong>Se esse padrão estiver pesando muito, você não precisa atravessar isso sozinha.</strong> Converse com alguém de confiança ou procure apoio profissional. CVV: ligue 188, gratuito, 24 horas. Em situação de violência contra a mulher: Ligue 180.</div>':''}<p class="dep-footer">Este é um sinal para reflexão a partir das suas escolhas nas cenas, não um diagnóstico.</p></section>`;
 }
-function styleHtml(rep){
- return `<section class="report-section" id="r-jeito"><div class="eyebrow">IV · SEU JEITO DE FUNCIONAR</div><h2>O temperamento por trás<br>das <em>suas escolhas.</em></h2><p class="lead-small">Este desenho vem das afirmações. Ele ajuda a entender por que algumas deusas aparecem mais.</p><div class="rulers">${rep.style.map(t=>`<div class="ruler"><div class="ruler-head"><strong>${escape(t.name)}</strong>${t.level?`<small>${escape(t.level)}</small>`:''}</div><div class="ruler-track">${t.value!==null?`<i class="ruler-mark" data-v="${Math.round(t.value/4*100)}"></i>`:''}</div><div class="ruler-poles"><span>${escape(t.poles[0])}</span><span>${escape(t.poles[1])}</span></div><p>${escape(t.text)}</p></div>`).join('')}</div></section>`;
-}
 function favorHtml(rep){
  const list=items=>`<ul class="micro-list">${items.map(i=>`<li>${bust(i.id)}<span>${escape(i.text)}</span></li>`).join('')}</ul>`;
- return `<section class="report-section" id="r-favor"><div class="eyebrow">V · A SEU FAVOR E PEDE CUIDADO</div><h2>O que já é seu<br>e o que pede <em>atenção.</em></h2><div class="two-cols"><article class="col-card good"><h3>A seu favor</h3>${list(rep.favor)}${rep.environments.thrive.length?`<h4>Onde você floresce</h4>${list(rep.environments.thrive)}`:''}</article><article class="col-card warn"><h3>Pede cuidado</h3>${rep.care.length?list(rep.care):'<p class="subtle">Nada pediu atenção especial nas suas respostas.</p>'}${rep.environments.drain.length?`<h4>O que te desgasta</h4>${list(rep.environments.drain)}`:''}</article></div></section>`;
+ return `<section class="report-section" id="r-favor"><div class="eyebrow">IV · A SEU FAVOR E PEDE CUIDADO</div><h2>O que já é seu<br>e o que pede <em>atenção.</em></h2><div class="two-cols"><article class="col-card good"><h3>A seu favor</h3>${list(rep.favor)}${rep.environments.thrive.length?`<h4>Onde você floresce</h4>${list(rep.environments.thrive)}`:''}</article><article class="col-card warn"><h3>Pede cuidado</h3>${rep.care.length?list(rep.care):'<p class="subtle">Nada pediu atenção especial nas suas respostas.</p>'}${rep.environments.drain.length?`<h4>O que te desgasta</h4>${list(rep.environments.drain)}`:''}</article></div></section>`;
 }
 const DAYS=['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
 const missionKey=()=>`deusas-missao-${resultId||'local'}`;
@@ -477,7 +458,7 @@ function missionState(){try{const v=JSON.parse(localStorage.getItem(missionKey()
 function missionCount(done){const n=done.filter(Boolean).length;return n?`${n} de 7 dias praticados. ${n>=5?'Que constância bonita.':'Cada dia conta.'}`:'Marque os dias em que você praticou. Fica salvo só neste aparelho.';}
 function missionHtml(rep){
  const e=rep.experiment;if(!e)return '';const done=missionState();
- return `<section class="report-section mission" id="r-missao"><div class="eyebrow">VI · SUA MISSÃO DA SEMANA · ${escape(e.goddess.toUpperCase())}</div><div class="mission-card">${bust(e.id)}<div><p class="mission-text">${escape(e.text)}</p><p class="subtle">${escape(e.why)}</p></div></div><div class="days" role="group" aria-label="Dias em que você praticou">${DAYS.map((d,i)=>`<label class="day"><input type="checkbox" data-day="${i}" ${done[i]?'checked':''}><span>${d}</span></label>`).join('')}</div><p class="subtle" id="mission-count" aria-live="polite">${missionCount(done)}</p></section>`;
+ return `<section class="report-section mission" id="r-missao"><div class="eyebrow">V · SUA MISSÃO DA SEMANA · ${escape(e.goddess.toUpperCase())}</div><div class="mission-card">${bust(e.id)}<div><p class="mission-text">${escape(e.text)}</p><p class="subtle">${escape(e.why)}</p></div></div><div class="days" role="group" aria-label="Dias em que você praticou">${DAYS.map((d,i)=>`<label class="day"><input type="checkbox" data-day="${i}" ${done[i]?'checked':''}><span>${d}</span></label>`).join('')}</div><p class="subtle" id="mission-count" aria-live="polite">${missionCount(done)}</p></section>`;
 }
 function nextStepHtml(){
  return `<section class="consultation-offer"><div><div class="eyebrow">O PRÓXIMO PASSO / COM YASNNAJÁRA ALVES</div><h2>O questionário mostra o caminho.<br>A consulta <em>confirma.</em></h2><p>${escape(currentReport?currentReport.invite:currentResult.note)}</p></div><div>${bullets(['Confirmação da deusa regente','Deusa na sombra por escassez','Deusa na sombra por excesso','Conversa individual sobre o seu momento'])}<button class="primary consult-trigger" type="button">Conhecer a consulta <span aria-hidden="true">↗</span></button><button class="text-button" id="prefer-ebook" type="button">Prefiro começar por um e-book</button></div></section><section id="ebook-offer" class="ebook-offer" hidden></section>`;
@@ -508,7 +489,6 @@ function bindResult(){
  root.querySelectorAll('[data-glance]').forEach(b=>b.addEventListener('click',()=>{selectCapacity(b.dataset.glance);openMod('sete').scrollIntoView({block:'start',behavior:calm()?'auto':'smooth'});}));
  root.querySelectorAll('[data-seven]').forEach(b=>b.addEventListener('click',()=>{sevenMode=b.dataset.seven;renderSeven();}));
  root.querySelectorAll('.area-tile').forEach(t=>t.addEventListener('click',()=>toggleArea(t.dataset.area)));
- root.querySelectorAll('.ruler-mark').forEach(m=>{m.style.left=`${m.dataset.v}%`;});
  root.querySelectorAll('.days input').forEach(box=>box.addEventListener('change',()=>{const done=[...root.querySelectorAll('.days input')].map(i=>i.checked);try{localStorage.setItem(missionKey(),JSON.stringify(done));}catch{}$('#mission-count').textContent=missionCount(done);}));
  root.querySelector('.share-trigger')?.addEventListener('click',shareCard);
  $('#unlock-demo')?.addEventListener('click',unlockDemo);
