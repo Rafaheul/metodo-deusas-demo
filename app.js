@@ -85,13 +85,13 @@ $('#answers').addEventListener('keydown',e=>{navigatingRadiosWithArrows=['ArrowL
 $('#answers').addEventListener('keyup',()=>{navigatingRadiosWithArrows=false;});
 $('#answers').addEventListener('pointerdown',()=>{navigatingRadiosWithArrows=false;});
 // Faixa colorida da etapa: a área da cena ou o desempate.
-function band(kind,text){const b=$('#quiz-eyebrow');b.className=`step-band band-${kind}`;b.textContent=text;}
+function band(kind,html){const b=$('#quiz-eyebrow');b.className=`step-band band-${kind}`;b.innerHTML=html;}
 function milestone(){const columns=Math.floor(Object.keys(answers).length/(bank.length/7)+1e-9);return columns>0?COLUMN_NOTES[Math.min(7,columns)]:'Leia a cena com calma e pense no que você costuma fazer de verdade.';}
 function renderQuestion(){
- cancelAdvance();duelMode=false;$('#quiz-view').classList.remove('duel-mode');$('#duel-intro').hidden=true;$('#question-form').hidden=false;navigatingRadiosWithArrows=false;const q=bank[index];const areaId=AREA_IDS[q.area];band(areaId,`${AREA_ICON[areaId]||'✦'} ${q.area}`);lastColumns=Math.floor(Object.keys(answers).length/(bank.length/7)+1e-9);updateProgress();
+ cancelAdvance();duelMode=false;$('#quiz-view').classList.remove('duel-mode');$('#duel-intro').hidden=true;$('#question-form').hidden=false;navigatingRadiosWithArrows=false;const q=bank[index];const areaId=AREA_IDS[q.area];band(areaId,`${AREA_ICON[areaId]||'✦'} ${escape(q.area)}`);lastColumns=Math.floor(Object.keys(answers).length/(bank.length/7)+1e-9);updateProgress();
  $('#progress').setAttribute('aria-valuemax',bank.length);$('#milestone').classList.remove('cheer');$('#milestone').textContent=milestone();
  $('#position').textContent='';$('#previous').disabled=index===0;
- $('#next').textContent=index===bank.length-1?'Ver meu mapa →':'Continuar →';$('#next').disabled=false;$('#quiz-error').textContent='';
+ $('#next').innerHTML=(index===bank.length-1?'Ver meu mapa ':'Continuar ')+'<span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span>';$('#next').disabled=false;$('#quiz-error').textContent='';
  $('#scene').textContent=q.scene;
  const saved=answers[q.id];pending=saved?{...saved}:{first:undefined,last:undefined};
  $('#scene-label').textContent=`A SITUAÇÃO · ${q.area.toUpperCase()}`;$('#question-form').dataset.kind='dilemma';
@@ -153,7 +153,7 @@ async function stepDuel(){
   busy=false;
   if(r.done)return submitAll();
   duelMode=true;duelQ=r.next;if(!duel.length)showDuelIntro(r.finalists);else renderDuel(r.finalists);
- }catch(e){busy=false;retry=stepDuel;$('#quiz-error').textContent=e.message;$('#next').disabled=false;$('#previous').disabled=false;$('#next').textContent='Tentar novamente →';lockQuiz(false);}
+ }catch(e){busy=false;retry=stepDuel;$('#quiz-error').textContent=e.message;$('#next').disabled=false;$('#previous').disabled=false;$('#next').innerHTML='Tentar novamente <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span>';lockQuiz(false);}
 }
 function showDuelIntro(finalists){
  cancelAdvance();$('#quiz-view').classList.add('duel-mode');band('duel','⚖ Rodada final');$('#question-form').hidden=true;$('#duel-intro').hidden=false;
@@ -168,7 +168,7 @@ function renderDuel(finalists){
  $('#scene-label').innerHTML=`DESEMPATE · ${duelQ.step} DE ATÉ ${duelQ.max} <span class="pips" aria-hidden="true">${[...Array(duelQ.max)].map((_,i)=>`<i class="${i<duelQ.step?'on':''}"></i>`).join('')}</span>`;$('#scene').textContent=duelQ.prompt;
  $('#milestone').textContent=duelQ.step===1?`Suas respostas deixaram ${finalists===3?'três deusas':'duas deusas'} quase empatadas. Mais algumas escolhas rápidas e a regente aparece.`:'Continue: cada escolha tira uma deusa da disputa.';
  $('#scale-prompt').innerHTML='Qual destas é <strong>mais você</strong>?';
- $('#position').textContent=`Desempate ${duelQ.step}`;$('#previous').disabled=false;$('#next').disabled=true;$('#next').textContent='Escolha uma →';
+ $('#position').textContent=`Desempate ${duelQ.step}`;$('#previous').disabled=false;$('#next').disabled=true;$('#next').innerHTML='Escolha uma <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span>';
  $('#answers').className='dilemma-options duel-options';
  $('#answers').innerHTML=shuffled(duelQ).map(o=>`<button type="button" class="dilemma-option" data-duel="${o.id}"><span class="option-text">${escape(o.text)}</span></button>`).join(duelQ.options.length===2?'<span class="duel-or" aria-hidden="true">ou</span>':'');
  $('#answers').querySelectorAll('[data-duel]').forEach(b=>b.addEventListener('click',()=>{if(busy)return;b.classList.add('first');duel.push({id:duelQ.id,pick:b.dataset.duel});$('#auto-hint').textContent='Escolha registrada.';setTimeout(stepDuel,300);}));
@@ -181,7 +181,7 @@ async function submitAll(){
  try{
   const r=await api('/api/results',{method:'POST',body:JSON.stringify({version,adult:$('#adult').checked,consent:$('#consent').checked,answers:payload(),duel})});
   resultId=r.id;forgetDraft();exitDuel();renderResult(r.result,r.report);revealResult();
- }catch(e){$('#quiz-error').textContent=e.message;$('#next').disabled=false;$('#previous').disabled=false;$('#next').textContent='Tentar novamente →';lockQuiz(false);retry=submitAll;}finally{busy=false;}
+ }catch(e){$('#quiz-error').textContent=e.message;$('#next').disabled=false;$('#previous').disabled=false;$('#next').innerHTML='Tentar novamente <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span>';lockQuiz(false);retry=submitAll;}finally{busy=false;}
 }
 
 // ---------- Gráfico polar ----------
@@ -206,7 +206,7 @@ const IDS7=['artemis','atena','hestia','hera','demeter','persefone','afrodite'];
 const BODY_W={artemis:332,atena:280,hestia:320,hera:288,demeter:307,persefone:309,afrodite:355};
 const bust=(id,cls='')=>`<img class="bust ${cls}" src="assets/deusas/${id}-busto.webp" alt="" width="320" height="320" loading="lazy" decoding="async">`;
 const figure=(id,cls='')=>`<img class="figure ${cls}" src="assets/deusas/${id}-corpo.webp" alt="" width="${BODY_W[id]}" height="720" decoding="async">`;
-const AREA_ICON={trabalho:'⚒',dinheiro:'◎',amor:'♡',familia:'⌂',amizades:'✶',pessoal:'☾',mudancas:'↻'};
+const AREA_ICON={trabalho:'⚒',dinheiro:'◎',amor:'♡',familia:'⌂',amizades:'✶',pessoal:'☾',mudancas:'<svg class="ico"><use href="#i-girar"/></svg>'};
 const AREA_IDS={'Trabalho':'trabalho','Dinheiro':'dinheiro','Relação amorosa':'amor','Família':'familia','Amizades e grupos':'amizades','Tempo pessoal e corpo':'pessoal','Mudanças e decisões':'mudancas'};
 const AREA_ASK={trabalho:'o seu trabalho',dinheiro:'o seu dinheiro',amor:'a sua relação amorosa',familia:'a sua família',amizades:'as suas amizades',pessoal:'o seu tempo e o seu corpo',mudancas:'as suas grandes decisões'};
 const ROMAN=['I','II','III','IV','V','VI','VII'];
@@ -285,8 +285,8 @@ function bookFor(id){
 }
 function ebookLink(id,cls='g-ebook'){
  const offer=config.ebooks?.[id]||{},name=currentResult.capacities.find(x=>x.id===id).name,icon='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6c3-1.5 6-1.5 9 0v14c-3-1.5-6-1.5-9 0zM21 6c-3-1.5-6-1.5-9 0v14c3-1.5 6-1.5 9 0z"/></svg>';
- if(offer.checkoutUrl)return `<a class="${cls}" href="${escape(offer.checkoutUrl)}" target="_blank" rel="noopener noreferrer">${icon}Comprar o e-book de ${escape(name)}${offer.priceBRL?` · ${price(offer.priceBRL)}`:''} <span aria-hidden="true">↗</span></a>`;
- return `<button type="button" class="${cls}" data-book="${id}">${icon}E-book de ${escape(name)} · em breve <span aria-hidden="true">→</span></button>`;
+ if(offer.checkoutUrl)return `<a class="${cls}" href="${escape(offer.checkoutUrl)}" target="_blank" rel="noopener noreferrer">${icon}Comprar o e-book de ${escape(name)}${offer.priceBRL?` · ${price(offer.priceBRL)}`:''} <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></a>`;
+ return `<button type="button" class="${cls}" data-book="${id}">${icon}E-book de ${escape(name)} · em breve <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></button>`;
 }
 function shelfHtml(){
  const indicated=new Set(careList().map(c=>c.id));
@@ -340,14 +340,14 @@ function updateModCount(){
 
 // Carta da regente: frente na luz, verso com o excesso e quem equilibra.
 function flipCard(g){
- return `<div class="flip" data-flip><div class="flip-inner"><div class="flip-face front"><div class="eyebrow">${escape(g.symbol)} ${escape(g.name.toUpperCase())} NA LUZ</div><p class="flip-gift">${escape(g.card.gift)}</p><p class="flip-question">${escape(g.card.question)}</p></div><div class="flip-face back" hidden><div class="eyebrow">QUANDO PASSA DO PONTO</div><p>${escape(g.card.excess)}</p><div class="eyebrow">QUEM EQUILIBRA</div><p class="balance-line">${escape(listJoin(g.card.balance))}, pela Regra do Eixo Oposto.</p></div></div><button class="flip-turn" type="button" aria-expanded="false">Virar a carta <span aria-hidden="true">↻</span></button></div>`;
+ return `<div class="flip" data-flip><div class="flip-inner"><div class="flip-face front"><div class="eyebrow">${escape(g.symbol)} ${escape(g.name.toUpperCase())} NA LUZ</div><p class="flip-gift">${escape(g.card.gift)}</p><p class="flip-question">${escape(g.card.question)}</p></div><div class="flip-face back" hidden><div class="eyebrow">QUANDO PASSA DO PONTO</div><p>${escape(g.card.excess)}</p><div class="eyebrow">QUEM EQUILIBRA</div><p class="balance-line">${escape(listJoin(g.card.balance))}, pela Regra do Eixo Oposto.</p></div></div><button class="flip-turn" type="button" aria-expanded="false">Virar a carta <span aria-hidden="true"><svg class="ico"><use href="#i-girar"/></svg></span></button></div>`;
 }
 function heroHtml(){
  const r=currentResult,regs=r.regents,p=r.path;
  const art=regs.length?`<div class="hero-arch ${regs.length>1?'duo':''}" aria-hidden="true">${regs.map(g=>figure(g.id)).join('')}</div>`:`<div class="hero-arch none" aria-hidden="true"><div class="bust-ring">${IDS7.map(id=>bust(id)).join('')}</div></div>`;
  const label=regs.length>1?'QUEM REGE SUAS ESCOLHAS HOJE · REGÊNCIA DIVIDIDA':regs.length?'QUEM REGE SUAS ESCOLHAS HOJE':'UMA LEITURA DE CONJUNTO';
  const title=regs.length?regs.map(g=>escape(g.name)).join('<i> e </i>'):'Seu mapa tem<br>mais de uma voz.';
- return `<section class="regent-hero">${art}<div class="regent-copy"><p class="regent-label">${label}</p><h1>${title}</h1>${regs.length===1?`<p class="capacity-title">${escape(regs[0].capacity)}</p>`:''}${p?.badge&&p.method!=='insuficiente'?`<span class="method-badge method-${p.method}">${escape(p.badge)}</span>`:''}<p class="definition">${escape(r.definition)}</p>${regs.length?regs.map(flipCard).join(''):`<p class="lead">${escape(r.summary)}</p>`}${regs.length===1?'<button class="secondary share-trigger" type="button">Compartilhar minha deusa <span aria-hidden="true">↗</span></button>':''}</div></section>`;
+ return `<section class="regent-hero">${art}<div class="regent-copy"><p class="regent-label">${label}</p><h1>${title}</h1>${regs.length===1?`<p class="capacity-title">${escape(regs[0].capacity)}</p>`:''}${p?.badge&&p.method!=='insuficiente'?`<span class="method-badge method-${p.method}">${escape(p.badge)}</span>`:''}<p class="definition">${escape(r.definition)}</p>${regs.length?regs.map(flipCard).join(''):`<p class="lead">${escape(r.summary)}</p>`}${regs.length===1?'<button class="secondary share-trigger" type="button">Compartilhar minha deusa <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></button>':''}</div></section>`;
 }
 
 // Caminho até a regente, no estilo Akinator: 7 → finalistas → desempate → regente.
@@ -401,8 +401,8 @@ function offerReady(){const r=config.report||{};return !!(r.checkoutUrl||config.
 function priceHtml(){const p=config.report?.priceBRL;return typeof p==='number'&&config.report?.checkoutUrl?`<div class="price"><strong>${price(p)}</strong><small>Pagamento único. Você tem 7 dias para desistir, pelo Código de Defesa do Consumidor.</small></div>`:'';}
 function reportCta(){
  const r=config.report||{};
- if(r.checkoutUrl)return `<a class="primary" href="${escape(r.checkoutUrl)}" target="_blank" rel="noopener noreferrer">Ver minha deusa em cada área ↗</a>`;
- if(config.demoMode)return `<button class="primary" id="unlock-demo" type="button">Ver minha deusa em cada área →</button><p class="subtle">Demonstração local: o relatório abre sem pagamento. Na versão publicada, este botão leva ao pagamento.</p>`;
+ if(r.checkoutUrl)return `<a class="primary" href="${escape(r.checkoutUrl)}" target="_blank" rel="noopener noreferrer">Ver minha deusa em cada área <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></a>`;
+ if(config.demoMode)return `<button class="primary" id="unlock-demo" type="button">Ver minha deusa em cada área <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></button><p class="subtle">Demonstração local: o relatório abre sem pagamento. Na versão publicada, este botão leva ao pagamento.</p>`;
  return `<button class="primary" disabled>Relatório completo · em breve</button><p class="subtle">A venda do relatório será aberta depois da aprovação da autora.</p>`;
 }
 function lockedLead(){
@@ -428,7 +428,7 @@ function balanceHtml(rep){
  return `<section class="report-section" id="r-luz"><div class="eyebrow">I · LUZ E SOMBRA</div><h2>O que está na medida,<br>o que falta e o que <em>sobra.</em></h2><div class="balance"><div class="beam" aria-hidden="true"><i></i></div><div class="pans">${pan(0,'Na sombra','por escassez')}${pan(1,'Na luz','na medida')}${pan(2,'Na sombra','por excesso')}</div>${few.length?`<p class="subtle">Poucos dados para: ${escape(few.map(c=>c.name).join(', '))}.</p>`:''}</div>${rep.allies.length?`<p class="lead-small">Na luz, ao lado da sua regente: <strong>${escape(listJoin(rep.allies))}</strong>.</p>`:''}${cards?`<div class="shadow-grid">${cards}</div>`:'<p class="subtle">Nenhuma deusa apareceu claramente na sombra nas suas respostas.</p>'}</section>`;
 }
 function areaTile(a){
- return `<button type="button" class="area-tile" data-area="${a.id}" aria-expanded="false" aria-controls="area-detail"><span class="tile-top"><span class="tile-icon" aria-hidden="true">${AREA_ICON[a.id]||'✦'}</span><span class="tile-name">${escape(a.name)}</span></span>${a.leads?`${bust(a.leads.id)}<span class="tile-lead">Rege: <strong>${escape(a.leads.name)}</strong></span>`:'<span class="tile-lead">Poucos dados</span>'}${a.confidence?`<small class="conf conf-${a.confidence.kind}">${escape(a.confidence.label)}</small>`:''}<span class="tile-more" aria-hidden="true">Ver <b>›</b></span></button>`;
+ return `<button type="button" class="area-tile" data-area="${a.id}" aria-expanded="false" aria-controls="area-detail"><span class="tile-top"><span class="tile-icon" aria-hidden="true">${AREA_ICON[a.id]||'✦'}</span><span class="tile-name">${escape(a.name)}</span></span>${a.leads?`${bust(a.leads.id)}<span class="tile-lead">Rege: <strong>${escape(a.leads.name)}</strong></span>`:'<span class="tile-lead">Poucos dados</span>'}${a.confidence?`<small class="conf conf-${a.confidence.kind}">${escape(a.confidence.label)}</small>`:''}<span class="tile-more" aria-hidden="true">Ver <svg class="ico"><use href="#i-seta"/></svg></span></button>`;
 }
 function areasHtml(rep){
  return `<section class="report-section" id="r-areas"><div class="eyebrow">II · AS ÁREAS DA SUA VIDA</div><h2>A mesma mulher.<br>Deusas diferentes <em>em cada área.</em></h2><p class="lead-small">${rep.areasSummary?`${escape(rep.areasSummary)} `:''}Cada área tem a sua regente, quem ajuda e quem pesa.</p><span class="g-hint area-hint">${HAND}Toque numa área para ver</span><div class="area-board" id="area-board">${rep.areas.map(areaTile).join('')}<div id="area-detail" class="area-detail" role="region" aria-label="Detalhe da área" hidden></div></div><div class="print-only print-areas" aria-hidden="true">${rep.areas.map(a=>`<article class="area-detail">${areaDetailHtml(a)}</article>`).join('')}</div></section>`;
@@ -458,7 +458,7 @@ function missionHtml(rep){
  return `<section class="report-section mission" id="r-missao"><div class="eyebrow">IV · SUA MISSÃO DA SEMANA · ${escape(e.goddess.toUpperCase())}</div><div class="mission-card">${bust(e.id)}<div><p class="mission-text">${escape(e.text)}</p><p class="subtle">${escape(e.why)}</p></div></div></section>`;
 }
 function nextStepHtml(){
- return `<section class="consultation-offer"><div><div class="eyebrow">O PRÓXIMO PASSO / COM YASNNAJÁRA ALVES</div><h2>O questionário mostra o caminho.<br>A consulta <em>confirma.</em></h2><p>${escape(currentReport?currentReport.invite:currentResult.note)}</p></div><div>${bullets(['Confirmação da deusa regente','Deusa na sombra por escassez','Deusa na sombra por excesso','Conversa individual sobre o seu momento'])}<button class="primary consult-trigger cta cta-light" type="button">Conhecer a consulta <span aria-hidden="true">↗</span></button><button class="ebook-cta" id="prefer-ebook" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6c3-1.5 6-1.5 9 0v14c-3-1.5-6-1.5-9 0zM21 6c-3-1.5-6-1.5-9 0v14c3-1.5 6-1.5 9 0z"/></svg>Prefiro começar por um e‑book <span aria-hidden="true">→</span></button></div></section><section id="ebook-offer" class="ebook-offer" hidden></section>`;
+ return `<section class="consultation-offer"><div><div class="eyebrow">O PRÓXIMO PASSO / COM YASNNAJÁRA ALVES</div><h2>O questionário mostra o caminho.<br>A consulta <em>confirma.</em></h2><p>${escape(currentReport?currentReport.invite:currentResult.note)}</p></div><div>${bullets(['Confirmação da deusa regente','Deusa na sombra por escassez','Deusa na sombra por excesso','Conversa individual sobre o seu momento'])}<button class="primary consult-trigger cta cta-light" type="button">Conhecer a consulta <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></button><button class="ebook-cta" id="prefer-ebook" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6c3-1.5 6-1.5 9 0v14c-3-1.5-6-1.5-9 0zM21 6c-3-1.5-6-1.5-9 0v14c3-1.5 6-1.5 9 0z"/></svg>Prefiro começar por um e‑book <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></button></div></section><section id="ebook-offer" class="ebook-offer" hidden></section>`;
 }
 // O vídeo só aparece quando estiver configurado; sem placeholder "em preparação".
 function videoHtml(){
@@ -469,7 +469,7 @@ function videoHtml(){
 // ---------- Interações do resultado ----------
 function turnCard(card){
  const front=card.querySelector('.front'),back=card.querySelector('.back'),btn=card.querySelector('.flip-turn'),toBack=back.hidden;
- const swap=()=>{front.hidden=toBack;back.hidden=!toBack;btn.setAttribute('aria-expanded',toBack);btn.innerHTML=toBack?'Voltar para a luz <span aria-hidden="true">↺</span>':'Virar a carta <span aria-hidden="true">↻</span>';};
+ const swap=()=>{front.hidden=toBack;back.hidden=!toBack;btn.setAttribute('aria-expanded',toBack);btn.innerHTML=toBack?'Voltar para a luz <span aria-hidden="true"><svg class="ico"><use href="#i-girar-volta"/></svg></span>':'Virar a carta <span aria-hidden="true"><svg class="ico"><use href="#i-girar"/></svg></span>';};
  if(calm()){swap();return;}
  card.classList.add('turning');setTimeout(()=>{swap();card.classList.remove('turning');},180);
 }
@@ -503,7 +503,7 @@ function bindResult(){
 async function unlockDemo(){
  const b=$('#unlock-demo');b.disabled=true;b.textContent='Abrindo…';
  try{const r=await api(`/api/results/${resultId}/unlock`,{method:'POST',body:'{}'});renderResult(r.result,r.report);$('#report-zone').scrollIntoView({block:'start',behavior:calm()?'auto':'smooth'});}
- catch(e){status(e.message);b.disabled=false;b.textContent='Ver minha deusa em cada área →';}
+ catch(e){status(e.message);b.disabled=false;b.innerHTML='Ver minha deusa em cada área <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span>';}
 }
 
 // ---------- Revelação da regente (depois de concluir) ----------
@@ -523,7 +523,7 @@ function revealResult(){
 function showAct(){
  const last=revealAt>=revealActs.length-1;
  $('#reveal-stage').innerHTML=revealActs[revealAt];
- $('#reveal-next').innerHTML=last?'Ver meu mapa <span aria-hidden="true">→</span>':'Continuar <span aria-hidden="true">→</span>';
+ $('#reveal-next').innerHTML=last?'Ver meu mapa <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span>':'Continuar <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span>';
  $('#reveal-skip').hidden=last;if(revealAt===0)$('#reveal-next').focus({preventScroll:true,focusVisible:false});
 }
 function nextAct(){if(revealAt>=revealActs.length-1){view('result');return;}revealAt++;showAct();}
@@ -564,18 +564,18 @@ function renderEbook(){
  const book=selectedBook();$('#ebook-offer').classList.toggle('no-book',!book);
  if(!book){$('#ebook-offer').innerHTML=`<div class="ebook-copy"><div class="eyebrow">UM PASSO MENOR, NO SEU RITMO</div><h2>Nenhum e-book <em>indicado agora.</em></h2><p>Nas suas respostas, nenhuma deusa apareceu na sombra. Os e-books são feitos para quando uma deusa pede ajuste, então nenhum é indicado para você agora. A consulta faz a leitura completa, se quiser confirmar.</p></div>`;return;}
  const offer=config.ebooks?.[book.id]||{},where=book.shadow==='escassez'?'apareceu com pouco espaço nas suas escolhas':'apareceu demais nas suas escolhas';
- $('#ebook-offer').innerHTML=`<div class="ebook-cover"><small>MÉTODO DAS DEUSAS</small>${bust(book.id,'book-bust')}<h3>${escape(book.name)}</h3><p>Para a deusa<br>que pede cuidado.</p><span class="book-author">YASNNAJÁRA ALVES</span></div><div class="ebook-copy"><div class="eyebrow">UM PASSO MENOR, NO SEU RITMO</div><h2>Comece por <em>${escape(book.name)}.</em></h2><p>No seu mapa, ${escape(book.name)} ${where}. Este pequeno e-book mostra como ela aparece quando falta e quando sobra, e traz uma prática simples para a sua semana.</p>${offer.checkoutUrl?`<a class="primary" href="${escape(offer.checkoutUrl)}" target="_blank" rel="noopener noreferrer">Conhecer o e-book${offer.priceBRL?` · ${price(offer.priceBRL)}`:''} ↗</a>`:'<button class="primary" id="ebook-preview" type="button">Ver a proposta do e-book ↗</button><p class="subtle">Conteúdo em preparação. A venda será aberta depois da aprovação da autora.</p>'}</div>`;
+ $('#ebook-offer').innerHTML=`<div class="ebook-cover"><small>MÉTODO DAS DEUSAS</small>${bust(book.id,'book-bust')}<h3>${escape(book.name)}</h3><p>Para a deusa<br>que pede cuidado.</p><span class="book-author">YASNNAJÁRA ALVES</span></div><div class="ebook-copy"><div class="eyebrow">UM PASSO MENOR, NO SEU RITMO</div><h2>Comece por <em>${escape(book.name)}.</em></h2><p>No seu mapa, ${escape(book.name)} ${where}. Este pequeno e-book mostra como ela aparece quando falta e quando sobra, e traz uma prática simples para a sua semana.</p>${offer.checkoutUrl?`<a class="primary" href="${escape(offer.checkoutUrl)}" target="_blank" rel="noopener noreferrer">Conhecer o e-book${offer.priceBRL?` · ${price(offer.priceBRL)}`:''} <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></a>`:'<button class="primary" id="ebook-preview" type="button">Ver a proposta do e-book <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></button><p class="subtle">Conteúdo em preparação. A venda será aberta depois da aprovação da autora.</p>'}</div>`;
  if($('#ebook-preview'))$('#ebook-preview').addEventListener('click',()=>showBook(book));
 }
 
 // ---------- Diálogos e contatos ----------
 function channels(){
  const names={whatsapp:'WhatsApp',instagram:'Instagram',website:'Site pessoal'};
- return `<div class="channel-list">${Object.entries(names).map(([key,label])=>config.contacts?.[key]?`<a class="channel-link" href="${escape(config.contacts[key])}" target="_blank" rel="noopener noreferrer"><span>${label}</span><span aria-hidden="true">↗</span></a>`:`<div class="channel-pending"><span>${label}</span><small>Em breve</small></div>`).join('')}</div>`;
+ return `<div class="channel-list">${Object.entries(names).map(([key,label])=>config.contacts?.[key]?`<a class="channel-link" href="${escape(config.contacts[key])}" target="_blank" rel="noopener noreferrer"><span>${label}</span><span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></a>`:`<div class="channel-pending"><span>${label}</span><small>Em breve</small></div>`).join('')}</div>`;
 }
 function openContent(html){$('#dialog-content').innerHTML=html;const dialog=$('#content-dialog');if(!dialog.open)dialog.showModal();}
 function showConsultation(){
- openContent(`<h2>Um encontro com<br><em>o seu contexto.</em></h2><p>Na consulta radiestésica, Yasnnajára Alves faz a avaliação completa do Método das Deusas: qual deusa rege, qual está na sombra por escassez e qual está na sombra por excesso, considerando a sua história.</p>${config.consultationUrl?`<a class="primary" href="${escape(config.consultationUrl)}" target="_blank" rel="noopener noreferrer">Conhecer a consulta ↗</a>`:''}${config.methodUrl?`<p><a href="${escape(config.methodUrl)}" target="_blank" rel="noopener noreferrer">Conhecer o serviço do método ↗</a></p>`:''}${channels()}${!config.consultationUrl&&!Object.values(config.contacts||{}).some(Boolean)?'<p class="pending-message">Os canais de contato e as inscrições serão divulgados em breve.</p>':''}`);
+ openContent(`<h2>Um encontro com<br><em>o seu contexto.</em></h2><p>Na consulta radiestésica, Yasnnajára Alves faz a avaliação completa do Método das Deusas: qual deusa rege, qual está na sombra por escassez e qual está na sombra por excesso, considerando a sua história.</p>${config.consultationUrl?`<a class="primary" href="${escape(config.consultationUrl)}" target="_blank" rel="noopener noreferrer">Conhecer a consulta <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></a>`:''}${config.methodUrl?`<p><a href="${escape(config.methodUrl)}" target="_blank" rel="noopener noreferrer">Conhecer o serviço do método <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></a></p>`:''}${channels()}${!config.consultationUrl&&!Object.values(config.contacts||{}).some(Boolean)?'<p class="pending-message">Os canais de contato e as inscrições serão divulgados em breve.</p>':''}`);
 }
 function showContacts(){openContent(`<h2>Conheça a<br><em>Yasnnajára Alves.</em></h2><p>Criadora do Método das Deusas.</p>${channels()}${!Object.values(config.contacts||{}).some(Boolean)?'<p class="pending-message">Os canais serão divulgados após a aprovação desta página.</p>':''}`);}
 function showBook(book){openContent(`<div class="eyebrow">PRÉVIA DA PROPOSTA · CONTEÚDO EM PREPARAÇÃO</div><h2>${escape(book.title)}</h2><p>Um guia introdutório do Método das Deusas, de Yasnnajára Alves.</p><div class="book-excerpt"><h3>Quem é ${escape(book.name)} em você</h3><p>${escape(book.excerpt)}</p>${book.practice?`<h3>Um pequeno passo para a semana</h3><p>${escape(book.practice)}</p>`:''}</div><p>O guia não substitui a avaliação individual da regência e das sombras, feita na consulta.</p><button class="secondary" disabled>Disponível em breve</button>`);}

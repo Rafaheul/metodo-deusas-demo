@@ -232,11 +232,11 @@
   .ebook-cta{transition:background .25s,color .25s,transform .3s var(--m-firm)}
   @media (hover:hover){
     .primary.cta:hover{transform:translateY(-3px);box-shadow:0 16px 32px #6a343d55}
-    .primary.cta:hover>span[aria-hidden],.cta-mini:hover>span{transform:rotate(45deg)}
+    .primary.cta:hover>span[aria-hidden],.cta-mini:hover>span{transform:translateX(3px)}
     .ebook-cta:hover{transform:translateY(-2px)}
-    .area-tile:hover .tile-more b{transform:translateX(3px)}
+    .area-tile:hover .tile-more .ico{transform:translateX(3px)}
   }
-  .tile-more b{transition:transform .3s var(--m-firm)}
+  .tile-more .ico{transition:transform .3s var(--m-firm)}
   .kw{animation:m-kw .6s var(--m-firm) backwards}
   .ebook-shelf .shelf-item{transition:transform .35s var(--m-out),box-shadow .35s}
   @media (hover:hover){.ebook-shelf .shelf-item:hover{transform:translateY(-3px);box-shadow:var(--card-shadow)}}

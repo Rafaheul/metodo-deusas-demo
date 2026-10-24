@@ -519,7 +519,7 @@ a.shelf-btn,.shelf-item.pick .shelf-btn{border-color:var(--wine);color:var(--win
 /* Áreas: convite para tocar. */
 .area-hint{margin:2px 0 14px}
 .tile-more{margin-top:2px;font-size:11px;font-weight:600;color:var(--wine)}
-.tile-more b{display:inline-block;font-size:14px;line-height:1}
+
 .area-tile.open .tile-more{visibility:hidden}
 @media (max-width:760px){
   .scale-prompt,.warmup-coach{font-size:17px}
@@ -529,3 +529,12 @@ a.shelf-btn,.shelf-item.pick .shelf-btn{border-color:var(--wine);color:var(--win
   .cta-mini>span{width:22px;height:22px}
 }
 @media print{.tile-more,.area-hint{display:none!important}}
+
+/* Ícones próprios (sprite no index.html): seta com ponta de folha e semente. */
+.ico{display:inline-block;width:1.25em;height:1.25em;vertical-align:-.28em;flex:none;overflow:visible}
+.primary.cta>span[aria-hidden] .ico{width:22px;height:22px;vertical-align:0}
+.cta-mini>span .ico{width:15px;height:15px;vertical-align:0}
+.how-badge .ico{width:18px;height:18px;vertical-align:0}
+.tile-icon .ico{width:1.1em;height:1.1em;vertical-align:-.18em}
+.tile-more .ico{width:15px;height:15px;vertical-align:-.25em}
+#previous .ico,#next .ico{width:18px;height:18px}

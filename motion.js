@@ -100,7 +100,7 @@
   }
   function schedule(){clearTimeout(timer);if(paused||!visible||document.hidden)return;timer=setTimeout(tick,HOLD[k]);}
   function tick(){k++;if(k>=SEQ.length){k=0;setGod((g+1)%gods.length);}setState(SEQ[k]);schedule();}
-  function setPaused(p){paused=p;play.innerHTML=p?'<span aria-hidden="true">▶</span> Ver em sequência':'<span aria-hidden="true">❚❚</span> Pausar';text.setAttribute('aria-live',p?'polite':'off');schedule();}
+  function setPaused(p){paused=p;play.innerHTML=p?'<span aria-hidden="true"><svg class="ico"><use href="#i-play"/></svg></span> Ver em sequência':'<span aria-hidden="true"><svg class="ico"><use href="#i-pausa"/></svg></span> Pausar';text.setAttribute('aria-live',p?'polite':'off');schedule();}
   stateBtns.forEach((b,i)=>b.addEventListener('click',()=>{setPaused(true);k=SEQ.indexOf(i);setState(i);}));
   godBtns.forEach((b,i)=>b.addEventListener('click',()=>{setPaused(true);k=0;setGod(i);setState(1);}));
   play.addEventListener('click',()=>setPaused(!paused));
@@ -152,7 +152,7 @@
   }
   function frame(now){if(!running)return;t+=Math.min(100,now-lastNow);lastNow=now;if(t>=LOOP){loop++;t=0;reset();}apply();requestAnimationFrame(frame);}
   function sync(){const go=!paused&&visible&&!document.hidden;if(go&&!running){running=true;lastNow=performance.now();requestAnimationFrame(frame);}else if(!go)running=false;}
-  function setPaused(p){paused=p;play.innerHTML=p?'<span aria-hidden="true">▶</span> Continuar':'<span aria-hidden="true">❚❚</span> Pausar';sync();}
+  function setPaused(p){paused=p;play.innerHTML=p?'<span aria-hidden="true"><svg class="ico"><use href="#i-play"/></svg></span> Continuar':'<span aria-hidden="true"><svg class="ico"><use href="#i-pausa"/></svg></span> Pausar';sync();}
   // No celular os passos ficam embaixo da animação: ao tocar num deles, a página sobe até ela.
   function jump(n){if(ACTS[n]<t)reset();t=ACTS[n];apply();const r=stage.getBoundingClientRect();if(r.top<0||r.bottom>innerHeight)stage.scrollIntoView({block:'nearest',behavior:'smooth'});}
   items.forEach((li,i)=>li.addEventListener('click',()=>jump(i)));
