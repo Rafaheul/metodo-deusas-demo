@@ -44,7 +44,7 @@ const WARMUP=[['a','Chamo alguém para sair e aproveitar a tarde junto.'],['b','
 let warm={first:undefined,last:undefined};
 function renderWarmup(){
  $('#warmup-options').innerHTML=WARMUP.map(([id,text])=>{const role=id===warm.first?'first':id===warm.last?'last':'';return `<button type="button" class="dilemma-option ${role}" data-warm="${id}" aria-pressed="${!!role}"><span class="option-tag">${role==='first'?'<i>1º</i> Faria primeiro':role==='last'?'<i>✕</i> Menos faria':''}</span><span class="option-text">${escape(text)}</span></button>`;}).join('');
- $('#warmup-coach').innerHTML=!warm.first?'Toque no que você faria <strong>primeiro</strong>.':!warm.last?'Agora, no que você <strong>menos</strong> faria.':'Isso. É assim em todas as cenas. Toque de novo numa reação para trocar.';
+ $('#warmup-coach').innerHTML=!warm.first?'Toque no que você faria <em class="kw kw-first">primeiro</em>.':!warm.last?'Agora, no que você <em class="kw kw-last">menos</em> faria.':'Isso. É assim em todas as cenas. Toque de novo numa reação para trocar.';
  $('#warmup').classList.toggle('done',!!(warm.first&&warm.last));
  $('#warmup-options').querySelectorAll('[data-warm]').forEach(b=>b.addEventListener('click',()=>{const id=b.dataset.warm;if(warm.first===id)warm={first:undefined,last:undefined};else if(warm.last===id)warm.last=undefined;else if(!warm.first)warm.first=id;else warm.last=id;renderWarmup();}));
 }
@@ -101,8 +101,8 @@ function renderQuestion(){
 }
 function dilemmaStep(){
  if(pending.first===null)return 'Tudo bem. Esta cena fica de fora do seu mapa.';
- if(pending.first===undefined)return '<b>1 de 2</b> · O que você faria <strong>primeiro</strong>?';
- if(pending.last===undefined)return '<b>2 de 2</b> · E qual destas você <strong>menos</strong> faria?';
+ if(pending.first===undefined)return '<b>1 de 2</b> Toque no que você faria <em class="kw kw-first">primeiro</em>';
+ if(pending.last===undefined)return '<b>2 de 2</b> E qual dessas você <em class="kw kw-last">menos</em> faria?';
  return 'Pronto. Toque de novo numa opção para trocar.';
 }
 function short(text,n=7){const w=text.split(/\s+/);return w.length>n?w.slice(0,n).join(' ')+'…':text;}
@@ -212,6 +212,7 @@ const AREA_ASK={trabalho:'o seu trabalho',dinheiro:'o seu dinheiro',amor:'a sua 
 const ROMAN=['I','II','III','IV','V','VI','VII'];
 const STATE_ICON={luz:'☀',excesso:'▲',escassez:'▽',insuficiente:'·'};
 const STATE_TAG={luz:'Na luz',excesso:'Sombra por excesso',escassez:'Sombra por escassez',insuficiente:'Poucos dados'};
+const HAND='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V11m0-1.5a1.5 1.5 0 0 1 3 0V12m0-1a1.5 1.5 0 0 1 3 0v4a6 6 0 0 1-6 6h-1a6 6 0 0 1-4.6-2.2L4.2 15a1.6 1.6 0 0 1 2.4-2.1L9 15"/></svg>';
 const LOCK='<svg class="lock" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
 let sevenMode='ranking',openArea=null,revealActs=[],revealAt=0,pageObservers=[],openMods=new Set();
 const isRegent=id=>!!currentResult?.regents.some(r=>r.id===id);
@@ -219,9 +220,11 @@ const plural=(n,one,many)=>`${n} ${n===1?one:many}`;
 // Ordem das sete em todo o mapa: a regente primeiro (ela pode ter vencido no desempate), depois pela força.
 const byForce=list=>[...list].sort((a,b)=>isRegent(b.id)-isRegent(a.id)||(b.value??-1)-(a.value??-1));
 const listJoin=list=>list.length>1?`${list.slice(0,-1).join(', ')} e ${list.at(-1)}`:list.join('');
+// No relatório, cada deusa traz o seu sinal (luz ou sombra). No grátis, só quem pede cuidado tem sinal.
 function capacityPoints(){
- const r=currentResult,rep=currentReport;
- return r.capacities.map(c=>{const s=rep?.capacities.find(x=>x.id===c.id);return {...c,state:s?.state,stateName:s?.stateName,stateText:s?.text};});
+ const r=currentResult,rep=currentReport,care=rep?null:new Map(careList().map(c=>[c.id,c]));
+ return r.capacities.map(c=>{const s=rep?.capacities.find(x=>x.id===c.id),k=care?.get(c.id);
+  return {...c,state:s?.state||k?.state,stateName:s?.stateName||(k?STATE_TAG[k.state]:undefined),stateText:s?.text||k?.text};});
 }
 function renderResult(result,report){
  currentResult=result;currentReport=report||null;openArea=null;
@@ -258,7 +261,7 @@ function glanceHtml(){
  return `<section class="glance" aria-label="Seu mapa em resumo">
   <article class="glance-card g-allies"><div class="eyebrow">${rep?'NA LUZ AO LADO DELA':'TAMBÉM APARECEM MUITO'}</div>${allies.length?`<div class="g-row">${allies.map(god).join('')}</div>`:'<p class="g-none">Nenhuma outra deusa apareceu na luz ao lado dela.</p>'}</article>
   <article class="glance-card g-care"><div class="eyebrow">PEDE CUIDADO</div>${care.length?care.map(careItem).join(''):`<p class="g-none">${noCare}</p>`}</article>
-  <div class="glance-seven"><div class="g-seven-top"><h3 class="g-seven-title">As sete <em>em você</em></h3><span class="g-hint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V11m0-1.5a1.5 1.5 0 0 1 3 0V12m0-1a1.5 1.5 0 0 1 3 0v4a6 6 0 0 1-6 6h-1a6 6 0 0 1-4.6-2.2L4.2 15a1.6 1.6 0 0 1 2.4-2.1L9 15"/></svg>Toque numa para ver</span></div><ol>${byValue.map(c=>`<li><button type="button" class="g-seven ${isRegent(c.id)?'regent':''}" data-glance="${c.id}" aria-label="${escape(`${c.name}: ${c.level}`)}">${bust(c.id)}<strong>${escape(c.name)}</strong><span class="g-bar" aria-hidden="true"><i data-w="${c.value===null?0:Math.round(c.value/4*100)}"></i></span><small>${escape(c.level)}</small></button></li>`).join('')}</ol></div>
+  <div class="glance-seven"><div class="g-seven-top"><h3 class="g-seven-title">As sete <em>em você</em></h3><span class="g-hint">${HAND}Toque numa para ver</span></div><ol>${byValue.map(c=>`<li><button type="button" class="g-seven ${isRegent(c.id)?'regent':''}" data-glance="${c.id}" aria-label="${escape(`${c.name}: ${c.level}`)}">${bust(c.id)}<strong>${escape(c.name)}</strong><span class="g-bar" aria-hidden="true"><i data-w="${c.value===null?0:Math.round(c.value/4*100)}"></i></span><small>${escape(c.level)}</small></button></li>`).join('')}</ol></div>
  </section>`;
 }
 
@@ -312,11 +315,10 @@ function resultMods(){
  if(p&&p.method!=='insuficiente')mods.push({id:'caminho',mark:'★',title:'Como chegamos à sua regente',teaser:p.story,body:pathHtml()});
  mods.push({id:'sete',mark:'✦',title:'As sete deusas em você',teaser:ranked.length?`Mais presente: ${ranked[0].name}. Menos presente: ${ranked.at(-1).name}.`:'Quanto cada deusa apareceu nas suas escolhas.',body:sevenHtml()});
  if(!rep){mods.push({id:'relatorio',mark:'◈',title:'Seu relatório completo',teaser:lockedLead().sub,body:lockedHtml()});return mods;}
- const names=list=>listJoin(list.map(x=>x.name))||'nenhuma',d=rep.dependency;
+ const names=list=>listJoin(list.map(x=>x.name))||'nenhuma';
  mods.push({id:'luz',mark:'I',title:'Luz e sombra',teaser:`Na luz: ${rep.capacities.filter(c=>c.scale===1).length}. Na sombra por escassez: ${names(rep.scarcity)}. Na sombra por excesso: ${names(rep.excess)}.`,body:balanceHtml(rep)});
  mods.push({id:'areas',mark:'II',title:'As áreas da sua vida',teaser:rep.areasSummary||'Quem rege, quem ajuda e quem pesa em cada área.',body:areasHtml(rep)});
- mods.push({id:'cuidar',mark:'III',title:'Cuidar é escolha, não dívida',teaser:`Cuidar por obrigação: ${d.levelName.toLowerCase()}.`,body:dependencyHtml(d)});
- mods.push({id:'favor',mark:'IV',title:'A seu favor e pede cuidado',teaser:`A seu favor: ${rep.favor.length}. Pede cuidado: ${rep.care.length}.`,body:favorHtml(rep)});
+ mods.push({id:'favor',mark:'III',title:'A seu favor e pede cuidado',teaser:`A seu favor: ${rep.favor.length}. Pede cuidado: ${rep.care.length}.`,body:favorHtml(rep)});
  return mods;
 }
 function modHtml(m){
@@ -342,7 +344,7 @@ function flipCard(g){
 }
 function heroHtml(){
  const r=currentResult,regs=r.regents,p=r.path;
- const art=regs.length?`<div class="hero-arch ${regs.length>1?'duo':''}" aria-hidden="true">${regs.map(g=>figure(g.id)).join('')}<span class="arch-star">★</span></div>`:`<div class="hero-arch none" aria-hidden="true"><div class="bust-ring">${IDS7.map(id=>bust(id)).join('')}</div></div>`;
+ const art=regs.length?`<div class="hero-arch ${regs.length>1?'duo':''}" aria-hidden="true">${regs.map(g=>figure(g.id)).join('')}</div>`:`<div class="hero-arch none" aria-hidden="true"><div class="bust-ring">${IDS7.map(id=>bust(id)).join('')}</div></div>`;
  const label=regs.length>1?'QUEM REGE SUAS ESCOLHAS HOJE · REGÊNCIA DIVIDIDA':regs.length?'QUEM REGE SUAS ESCOLHAS HOJE':'UMA LEITURA DE CONJUNTO';
  const title=regs.length?regs.map(g=>escape(g.name)).join('<i> e </i>'):'Seu mapa tem<br>mais de uma voz.';
  return `<section class="regent-hero">${art}<div class="regent-copy"><p class="regent-label">${label}</p><h1>${title}</h1>${regs.length===1?`<p class="capacity-title">${escape(regs[0].capacity)}</p>`:''}${p?.badge&&p.method!=='insuficiente'?`<span class="method-badge method-${p.method}">${escape(p.badge)}</span>`:''}<p class="definition">${escape(r.definition)}</p>${regs.length?regs.map(flipCard).join(''):`<p class="lead">${escape(r.summary)}</p>`}${regs.length===1?'<button class="secondary share-trigger" type="button">Compartilhar minha deusa <span aria-hidden="true">↗</span></button>':''}</div></section>`;
@@ -362,8 +364,11 @@ function pathHtml(){
 }
 
 // As sete deusas: ranking (padrão) ou mandala, com legenda e painel de detalhe.
+// A legenda mostra só os sinais que aparecem no ranking desta versão do mapa.
 function legendHtml(){
- return `<ul class="legend" aria-label="Legenda"><li><b class="lg-regent">★</b> Regente</li><li><b class="state-luz">☀</b> Na luz</li><li><b class="state-excesso">▲</b> Sombra por excesso</li><li><b class="state-escassez">▽</b> Sombra por escassez</li></ul><p class="legend-note">Sombra não é defeito: é uma capacidade pedindo ajuste.${currentReport?'':' No relatório completo, cada deusa recebe o seu sinal.'}</p>`;
+ const states=new Set(capacityPoints().map(c=>c.state).filter(Boolean));
+ const item=(st,label)=>states.has(st)?`<li><b class="state-${st}">${STATE_ICON[st]}</b> ${label}</li>`:'';
+ return `<ul class="legend" aria-label="Legenda"><li><b class="lg-regent">★</b> Regente</li>${item('luz','Na luz')}${item('excesso','Sombra por excesso')}${item('escassez','Sombra por escassez')}</ul><p class="legend-note">Sombra não é defeito: é uma capacidade pedindo ajuste.${currentReport?'':' No relatório completo, cada deusa recebe o seu sinal.'}</p>`;
 }
 function sevenHtml(){
  return `<section class="seven-section" id="sete-deusas"><div class="section-top"><div><div class="eyebrow">AS SETE DEUSAS EM VOCÊ</div><h2>Quem aparece mais<br>nas suas <em>escolhas.</em></h2></div><div class="seg" role="group" aria-label="Forma de ver"><button type="button" class="seg-btn" data-seven="ranking">Ranking</button><button type="button" class="seg-btn" data-seven="mandala">Mandala</button></div></div>${legendHtml()}<div class="seven-layout"><div id="seven-view" class="seven-view"></div><div class="capacity-detail" id="capacity-detail" aria-live="polite"></div></div></section>`;
@@ -409,7 +414,7 @@ function lockedLead(){
 function lockedHtml(){
  const r=currentResult,{head,sub}=lockedLead();
  const shadows=r.toc.shadows;
- const toc=[['Luz e sombra das 7 deusas',shadows?`${plural(shadows,'sinal','sinais')} de sombra para olhar com calma`:'quem está na medida e quem pede ajuste'],['As 7 áreas da sua vida','quem rege, quem ajuda e quem pesa em cada uma'],['Cuidar é escolha, não dívida','como você cuida, cede e se coloca nas relações'],['A seu favor e pede cuidado','seus apoios, suas armadilhas e onde você floresce'],['Sua missão da semana','uma prática pela Regra do Eixo Oposto']];
+ const toc=[['Luz e sombra das 7 deusas',shadows?`${plural(shadows,'sinal','sinais')} de sombra para olhar com calma`:'quem está na medida e quem pede ajuste'],['As 7 áreas da sua vida','quem rege, quem ajuda e quem pesa em cada uma'],['A seu favor e pede cuidado','seus apoios, suas armadilhas e onde você floresce'],['Sua missão da semana','uma prática pela Regra do Eixo Oposto']];
  return `<section class="locked-report" id="locked-report"><div class="eyebrow">SEU RELATÓRIO COMPLETO</div><h2>${head}</h2><p class="lead-small">${escape(sub)}</p>${r.sampleArea?sampleHtml(r.sampleArea):''}<ul class="sealed-grid">${r.lockedAreas.map(a=>`<li class="sealed"><span class="tile-icon" aria-hidden="true">${AREA_ICON[a.id]||'✦'}</span><strong>Quem rege ${escape(AREA_ASK[a.id]||a.name)}?</strong>${LOCK}</li>`).join('')}</ul><div class="toc"><div class="eyebrow">O QUE TEM NO RELATÓRIO</div><ol>${toc.map(([t,s],i)=>`<li><span class="roman" aria-hidden="true">${ROMAN[i]}</span><div><strong>${t}</strong><small>${escape(s)}</small></div></li>`).join('')}</ol></div><div class="offer" id="offer">${priceHtml()}${reportCta()}</div></section>`;
 }
 
@@ -423,14 +428,14 @@ function balanceHtml(rep){
  return `<section class="report-section" id="r-luz"><div class="eyebrow">I · LUZ E SOMBRA</div><h2>O que está na medida,<br>o que falta e o que <em>sobra.</em></h2><div class="balance"><div class="beam" aria-hidden="true"><i></i></div><div class="pans">${pan(0,'Na sombra','por escassez')}${pan(1,'Na luz','na medida')}${pan(2,'Na sombra','por excesso')}</div>${few.length?`<p class="subtle">Poucos dados para: ${escape(few.map(c=>c.name).join(', '))}.</p>`:''}</div>${rep.allies.length?`<p class="lead-small">Na luz, ao lado da sua regente: <strong>${escape(listJoin(rep.allies))}</strong>.</p>`:''}${cards?`<div class="shadow-grid">${cards}</div>`:'<p class="subtle">Nenhuma deusa apareceu claramente na sombra nas suas respostas.</p>'}</section>`;
 }
 function areaTile(a){
- return `<button type="button" class="area-tile" data-area="${a.id}" aria-expanded="false" aria-controls="area-detail"><span class="tile-top"><span class="tile-icon" aria-hidden="true">${AREA_ICON[a.id]||'✦'}</span><span class="tile-name">${escape(a.name)}</span></span>${a.leads?`${bust(a.leads.id)}<span class="tile-lead">Rege: <strong>${escape(a.leads.name)}</strong></span>`:'<span class="tile-lead">Poucos dados</span>'}${a.confidence?`<small class="conf conf-${a.confidence.kind}">${escape(a.confidence.label)}</small>`:''}</button>`;
+ return `<button type="button" class="area-tile" data-area="${a.id}" aria-expanded="false" aria-controls="area-detail"><span class="tile-top"><span class="tile-icon" aria-hidden="true">${AREA_ICON[a.id]||'✦'}</span><span class="tile-name">${escape(a.name)}</span></span>${a.leads?`${bust(a.leads.id)}<span class="tile-lead">Rege: <strong>${escape(a.leads.name)}</strong></span>`:'<span class="tile-lead">Poucos dados</span>'}${a.confidence?`<small class="conf conf-${a.confidence.kind}">${escape(a.confidence.label)}</small>`:''}<span class="tile-more" aria-hidden="true">Ver <b>›</b></span></button>`;
 }
 function areasHtml(rep){
- return `<section class="report-section" id="r-areas"><div class="eyebrow">II · AS ÁREAS DA SUA VIDA</div><h2>A mesma mulher.<br>Deusas diferentes <em>em cada área.</em></h2><p class="lead-small">${rep.areasSummary?`${escape(rep.areasSummary)} `:''}Toque numa área para ver quem rege, quem ajuda e quem pesa.</p><div class="area-board" id="area-board">${rep.areas.map(areaTile).join('')}<div id="area-detail" class="area-detail" role="region" aria-label="Detalhe da área" hidden></div></div><div class="print-only print-areas" aria-hidden="true">${rep.areas.map(a=>`<article class="area-detail">${areaDetailHtml(a)}</article>`).join('')}</div></section>`;
+ return `<section class="report-section" id="r-areas"><div class="eyebrow">II · AS ÁREAS DA SUA VIDA</div><h2>A mesma mulher.<br>Deusas diferentes <em>em cada área.</em></h2><p class="lead-small">${rep.areasSummary?`${escape(rep.areasSummary)} `:''}Cada área tem a sua regente, quem ajuda e quem pesa.</p><span class="g-hint area-hint">${HAND}Toque numa área para ver</span><div class="area-board" id="area-board">${rep.areas.map(areaTile).join('')}<div id="area-detail" class="area-detail" role="region" aria-label="Detalhe da área" hidden></div></div><div class="print-only print-areas" aria-hidden="true">${rep.areas.map(a=>`<article class="area-detail">${areaDetailHtml(a)}</article>`).join('')}</div></section>`;
 }
 function areaDetailHtml(a){
  const chart=a.chart?.some(p=>p.value!==null);
- return `<div class="area-head"><span class="tile-icon" aria-hidden="true">${AREA_ICON[a.id]||'✦'}</span><div><h3>${escape(a.name)}</h3>${confHtml(a)}<small class="subtle">${a.answered} de ${a.total} cenas respondidas nesta área</small></div><button class="text-button area-close" type="button">Fechar ×</button></div><div class="roles">${areaRoles(a)}</div>${a.dependency?`<p class="dep-note">♡ Nesta área, ${plural(a.dependency,'escolha','escolhas')} de cuidar ou ceder por obrigação ${a.dependency===1?'apareceu':'apareceram'} em primeiro lugar.</p>`:''}${chart?`<details class="area-mandala"><summary>Ver a mandala desta área</summary>${radar(a.chart,'area',a.leads?.id,false)}</details>`:''}`;
+ return `<div class="area-head"><span class="tile-icon" aria-hidden="true">${AREA_ICON[a.id]||'✦'}</span><div><h3>${escape(a.name)}</h3>${confHtml(a)}<small class="subtle">${a.answered} de ${a.total} cenas respondidas nesta área</small></div><button class="text-button area-close" type="button">Fechar ×</button></div><div class="roles">${areaRoles(a)}</div>${chart?`<details class="area-mandala"><summary>Ver a mandala desta área</summary>${radar(a.chart,'area',a.leads?.id,false)}</details>`:''}`;
 }
 function toggleArea(id){
  openArea=openArea===id?null:id;
@@ -444,24 +449,16 @@ function toggleArea(id){
  detail.querySelector('.area-close').addEventListener('click',()=>{const was=openArea;toggleArea(was);document.querySelector(`.area-tile[data-area="${was}"]`)?.focus();});
  detail.scrollIntoView({block:'nearest',behavior:calm()?'auto':'smooth'});
 }
-function dependencyHtml(d){
- const zones=['Pouco presente','Em algumas cenas','Com força'];
- return `<section class="report-section dep-section" id="r-cuidar"><div class="eyebrow">III · CUIDAR É ESCOLHA, NÃO DÍVIDA</div><h2>Quando cuidar vira<br><em>obrigação.</em></h2><p class="dep-definition">${escape(d.definition)}</p><div class="gauge ${d.zone===null?'no-data':''}" role="img" aria-label="${escape(`Nível: ${d.levelName}`)}"><div class="gauge-track">${zones.map((z,i)=>`<span class="zone z${i} ${d.zone===i?'on':''}">${z}</span>`).join('')}</div>${d.zone!==null?`<i class="gauge-pin z${d.zone}" aria-hidden="true"></i>`:''}</div><h3 class="dep-level">${escape(d.levelName)}</h3><p>${escape(d.text)}</p>${d.offered?`<p class="subtle">Em ${plural(d.offered,'cena','cenas')}, uma das reações era desse tipo. Você a escolheu primeiro em ${d.first}.</p>`:''}${d.evidence.length?`<div class="evidence"><span class="eyebrow">${d.level==='baixo'?'ONDE APARECEU, MESMO ASSIM':'O QUE VOCÊ ESCOLHEU PRIMEIRO'}</span>${d.evidence.map(e=>`<blockquote><p>“${escape(e.text)}”</p><footer>${escape(e.label)} · ${escape(e.area)}</footer></blockquote>`).join('')}</div>`:''}${d.goddesses.length?`<div class="dep-gods"><span class="eyebrow">DEUSAS POR TRÁS DESSAS ESCOLHAS</span><div>${d.goddesses.map(g=>`<span class="pair">${bust(g.id)}${escape(g.name)}</span>`).join('')}</div></div>`:''}<blockquote class="principle">${escape(d.principle)}</blockquote><div class="dep-practice"><span class="eyebrow">PARA ESTA SEMANA</span><p>${escape(d.practice)}</p></div>${d.support?'<div class="support"><strong>Se esse padrão estiver pesando muito, você não precisa atravessar isso sozinha.</strong> Converse com alguém de confiança ou procure apoio profissional. CVV: ligue 188, gratuito, 24 horas. Em situação de violência contra a mulher: Ligue 180.</div>':''}<p class="dep-footer">Este é um sinal para reflexão a partir das suas escolhas nas cenas, não um diagnóstico.</p></section>`;
-}
 function favorHtml(rep){
  const list=items=>`<ul class="micro-list">${items.map(i=>`<li>${bust(i.id)}<span>${escape(i.text)}</span></li>`).join('')}</ul>`;
- return `<section class="report-section" id="r-favor"><div class="eyebrow">IV · A SEU FAVOR E PEDE CUIDADO</div><h2>O que já é seu<br>e o que pede <em>atenção.</em></h2><div class="two-cols"><article class="col-card good"><h3>A seu favor</h3>${list(rep.favor)}${rep.environments.thrive.length?`<h4>Onde você floresce</h4>${list(rep.environments.thrive)}`:''}</article><article class="col-card warn"><h3>Pede cuidado</h3>${rep.care.length?list(rep.care):'<p class="subtle">Nada pediu atenção especial nas suas respostas.</p>'}${rep.environments.drain.length?`<h4>O que te desgasta</h4>${list(rep.environments.drain)}`:''}</article></div></section>`;
+ return `<section class="report-section" id="r-favor"><div class="eyebrow">III · A SEU FAVOR E PEDE CUIDADO</div><h2>O que já é seu<br>e o que pede <em>atenção.</em></h2><div class="two-cols"><article class="col-card good"><h3>A seu favor</h3>${list(rep.favor)}${rep.environments.thrive.length?`<h4>Onde você floresce</h4>${list(rep.environments.thrive)}`:''}</article><article class="col-card warn"><h3>Pede cuidado</h3>${rep.care.length?list(rep.care):'<p class="subtle">Nada pediu atenção especial nas suas respostas.</p>'}${rep.environments.drain.length?`<h4>O que te desgasta</h4>${list(rep.environments.drain)}`:''}</article></div></section>`;
 }
-const DAYS=['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
-const missionKey=()=>`deusas-missao-${resultId||'local'}`;
-function missionState(){try{const v=JSON.parse(localStorage.getItem(missionKey())||'[]');return Array.isArray(v)?v:[];}catch{return [];}}
-function missionCount(done){const n=done.filter(Boolean).length;return n?`${n} de 7 dias praticados. ${n>=5?'Que constância bonita.':'Cada dia conta.'}`:'Marque os dias em que você praticou. Fica salvo só neste aparelho.';}
 function missionHtml(rep){
- const e=rep.experiment;if(!e)return '';const done=missionState();
- return `<section class="report-section mission" id="r-missao"><div class="eyebrow">V · SUA MISSÃO DA SEMANA · ${escape(e.goddess.toUpperCase())}</div><div class="mission-card">${bust(e.id)}<div><p class="mission-text">${escape(e.text)}</p><p class="subtle">${escape(e.why)}</p></div></div><div class="days" role="group" aria-label="Dias em que você praticou">${DAYS.map((d,i)=>`<label class="day"><input type="checkbox" data-day="${i}" ${done[i]?'checked':''}><span>${d}</span></label>`).join('')}</div><p class="subtle" id="mission-count" aria-live="polite">${missionCount(done)}</p></section>`;
+ const e=rep.experiment;if(!e)return '';
+ return `<section class="report-section mission" id="r-missao"><div class="eyebrow">IV · SUA MISSÃO DA SEMANA · ${escape(e.goddess.toUpperCase())}</div><div class="mission-card">${bust(e.id)}<div><p class="mission-text">${escape(e.text)}</p><p class="subtle">${escape(e.why)}</p></div></div></section>`;
 }
 function nextStepHtml(){
- return `<section class="consultation-offer"><div><div class="eyebrow">O PRÓXIMO PASSO / COM YASNNAJÁRA ALVES</div><h2>O questionário mostra o caminho.<br>A consulta <em>confirma.</em></h2><p>${escape(currentReport?currentReport.invite:currentResult.note)}</p></div><div>${bullets(['Confirmação da deusa regente','Deusa na sombra por escassez','Deusa na sombra por excesso','Conversa individual sobre o seu momento'])}<button class="primary consult-trigger" type="button">Conhecer a consulta <span aria-hidden="true">↗</span></button><button class="text-button" id="prefer-ebook" type="button">Prefiro começar por um e-book</button></div></section><section id="ebook-offer" class="ebook-offer" hidden></section>`;
+ return `<section class="consultation-offer"><div><div class="eyebrow">O PRÓXIMO PASSO / COM YASNNAJÁRA ALVES</div><h2>O questionário mostra o caminho.<br>A consulta <em>confirma.</em></h2><p>${escape(currentReport?currentReport.invite:currentResult.note)}</p></div><div>${bullets(['Confirmação da deusa regente','Deusa na sombra por escassez','Deusa na sombra por excesso','Conversa individual sobre o seu momento'])}<button class="primary consult-trigger cta cta-light" type="button">Conhecer a consulta <span aria-hidden="true">↗</span></button><button class="ebook-cta" id="prefer-ebook" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6c3-1.5 6-1.5 9 0v14c-3-1.5-6-1.5-9 0zM21 6c-3-1.5-6-1.5-9 0v14c3-1.5 6-1.5 9 0z"/></svg>Prefiro começar por um e‑book <span aria-hidden="true">→</span></button></div></section><section id="ebook-offer" class="ebook-offer" hidden></section>`;
 }
 // O vídeo só aparece quando estiver configurado; sem placeholder "em preparação".
 function videoHtml(){
@@ -489,7 +486,6 @@ function bindResult(){
  root.querySelectorAll('[data-glance]').forEach(b=>b.addEventListener('click',()=>{selectCapacity(b.dataset.glance);openMod('sete').scrollIntoView({block:'start',behavior:calm()?'auto':'smooth'});}));
  root.querySelectorAll('[data-seven]').forEach(b=>b.addEventListener('click',()=>{sevenMode=b.dataset.seven;renderSeven();}));
  root.querySelectorAll('.area-tile').forEach(t=>t.addEventListener('click',()=>toggleArea(t.dataset.area)));
- root.querySelectorAll('.days input').forEach(box=>box.addEventListener('change',()=>{const done=[...root.querySelectorAll('.days input')].map(i=>i.checked);try{localStorage.setItem(missionKey(),JSON.stringify(done));}catch{}$('#mission-count').textContent=missionCount(done);}));
  root.querySelector('.share-trigger')?.addEventListener('click',shareCard);
  $('#unlock-demo')?.addEventListener('click',unlockDemo);
  $('#prefer-ebook').addEventListener('click',()=>{renderEbook();$('#ebook-offer').hidden=false;$('#ebook-offer').scrollIntoView({block:'start',behavior:calm()?'auto':'smooth'});});

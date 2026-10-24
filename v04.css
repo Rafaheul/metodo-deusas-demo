@@ -496,3 +496,36 @@ a.shelf-btn,.shelf-item.pick .shelf-btn{border-color:var(--wine);color:var(--win
   .mod{border:0;box-shadow:none}
   .glance>*,.regent-copy>*,.regent-hero .hero-arch,.g-bar i{animation:none!important}
 }
+
+/* Botões principais (24/10): pílula vinho com a seta num círculo dourado; versão clara sobre fundo escuro. */
+.primary.cta{position:relative;overflow:hidden;gap:18px;min-height:56px;padding:8px 8px 8px 28px;border:0;border-radius:999px;background:linear-gradient(135deg,#7d3d49,#5a2a33);color:#fff8ef;font-size:15px;font-weight:600;letter-spacing:.2px;box-shadow:0 10px 26px #6a343d45,inset 0 1px 0 #ffffff26}
+.primary.cta>span[aria-hidden]{display:grid;place-items:center;flex:none;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#efdcae,#b8945a);color:#4a2228;font-size:16px}
+.primary.cta.cta-light{background:linear-gradient(135deg,#fdf6e7,#e8d9b8);color:#3b2e20;box-shadow:0 10px 26px #00000033,inset 0 1px 0 #ffffff80}
+.primary.cta.cta-light>span[aria-hidden]{background:linear-gradient(135deg,#7d3d49,#5a2a33);color:#fff3e6}
+@media (hover:hover){.primary.cta:hover{background:linear-gradient(135deg,#8a4652,#62303a)}.primary.cta.cta-light:hover{background:linear-gradient(135deg,#fffaf0,#efe2c4)}}
+.site-header .text-button.cta-mini{white-space:nowrap;display:inline-flex;align-items:center;gap:8px;padding:6px 6px 6px 16px;border:1px solid var(--wine);border-radius:999px;background:var(--white);color:var(--wine);font-size:13px;font-weight:600;text-decoration:none}
+.cta-mini>span{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--wine);color:#fff8ef;font-size:12px}
+@media (hover:hover){.site-header .text-button.cta-mini:hover{background:var(--wine);color:#fff8ef}.site-header .text-button.cta-mini:hover>span{background:#efdcae;color:var(--wine)}}
+.ebook-cta{display:inline-flex;align-items:center;justify-content:center;gap:10px;width:100%;margin-top:12px;padding:13px 18px;border:1px solid #f6f1e499;border-radius:999px;background:#ffffff14;color:#fff8ef;font-size:14px;font-weight:600;cursor:pointer}
+.ebook-cta svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+@media (hover:hover){.ebook-cta:hover{background:#fff8ef;color:var(--olive)}}
+/* Quiz: "primeiro" e "menos" em destaque. */
+.scale-prompt,.warmup-coach{font:400 19px/1.5 Georgia,'Times New Roman',serif;color:var(--ink)}
+.scale-prompt b{display:inline-block;margin-right:10px;padding:3px 10px;border-radius:999px;background:var(--gold-soft);color:#6b5530;font:600 11px Arial,sans-serif;letter-spacing:1px;vertical-align:3px}
+.kw{display:inline-block;padding:0 .35em;border-radius:7px;font-style:normal;font-weight:700}
+.kw-first{background:#dfe5d4;color:var(--olive);box-shadow:inset 0 -3px 0 var(--olive)}
+.kw-last{background:#f3dfdc;color:var(--wine);box-shadow:inset 0 -3px 0 var(--wine)}
+#quiz-view.duel-mode .scale-prompt{color:#f6f1e4}
+/* Áreas: convite para tocar. */
+.area-hint{margin:2px 0 14px}
+.tile-more{margin-top:2px;font-size:11px;font-weight:600;color:var(--wine)}
+.tile-more b{display:inline-block;font-size:14px;line-height:1}
+.area-tile.open .tile-more{visibility:hidden}
+@media (max-width:760px){
+  .scale-prompt,.warmup-coach{font-size:17px}
+  .primary.cta{font-size:14px}
+  .site-header .text-button.cta-mini{font-size:11px;padding:4px 4px 4px 11px;gap:6px}
+  .ebook-cta{font-size:13px;padding:12px 14px}
+  .cta-mini>span{width:22px;height:22px}
+}
+@media print{.tile-more,.area-hint{display:none!important}}
