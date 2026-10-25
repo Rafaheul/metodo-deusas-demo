@@ -6,7 +6,7 @@
  const $=s=>document.querySelector(s);
 
  function reveals(){
-  const groups=[['.section-heading,.journey-duration,.method-layout>div:first-child,.invitation .wrap>*,.faq>*,.m-scale',90],['.page-mecanismo__card,.page-modulo,.mj-stage,.mj-side',90],['.god-card',80]];
+  const groups=[['.section-heading,.journey-duration,.method-layout>div:first-child,.invitation .wrap>*,.faq>*,.m-scale,.sete-books',90],['.page-mecanismo__card,.page-modulo,.mj-stage,.mj-side',90],['.god-card',80]];
   const step=new Map();
   for(const [sel,ms] of groups)document.querySelectorAll(`#home-view :is(${sel})`).forEach(el=>{el.classList.add('m-r');step.set(el,ms);});
   // Quem entra na tela no mesmo instante sobe em cascata; quem entra depois (arrastando o carrossel) sobe na hora.

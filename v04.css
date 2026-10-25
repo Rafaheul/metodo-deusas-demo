@@ -592,9 +592,6 @@ a.shelf-btn,.shelf-item.pick .shelf-btn{border-color:var(--wine);color:var(--win
 .bk-cta{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:7px 10px;border:1px solid var(--wine);border-radius:999px;color:var(--wine);font-size:12px;font-weight:600}
 .bk-cta .ico{width:15px;height:15px;vertical-align:0}
 @media (hover:hover){.bk-open:hover .bk-cta,.bk-arrow:hover{background:var(--wine);color:#fff8ef}}
-.sete-books{display:flex;align-items:center;justify-content:space-between;gap:12px 24px;flex-wrap:wrap;max-width:780px;margin:22px auto 0;padding:16px 20px;border-radius:14px;background:var(--white);border:1px solid #d2d6c7}
-.sete-books p{margin:0;font:400 16px/1.45 Georgia,'Times New Roman',serif;color:var(--ink)}
-.sete-books-link{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;background:var(--wine);color:#fff8ef;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap}
 .god-book{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:6px 12px;border:1px solid var(--wine);border-radius:999px;background:var(--white);color:var(--wine);font-size:12px;font-weight:600;cursor:pointer}
 .god-book .ico{width:14px;height:14px;vertical-align:0}
 .book-map{margin-top:22px;padding:16px;border-radius:12px;background:#f3efe4}
@@ -602,7 +599,22 @@ a.shelf-btn,.shelf-item.pick .shelf-btn{border-color:var(--wine);color:var(--win
 @media (max-width:760px){
   .bk-track{grid-auto-columns:138px}
   .bk-cover{height:196px}
-  .sete-books{flex-direction:column;align-items:flex-start;padding:14px}
-  .sete-books-link{white-space:normal}
 }
 @media print{.bk-box,.sete-books,.god-book{display:none!important}}
+
+/* Chamada dos e-books em "As sete vozes", em destaque (25/10): faixa vinho, três capas em leque e botão claro. */
+.sete-books{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:18px 28px;max-width:900px;margin:26px auto 0;padding:24px 30px;border-radius:20px;background:radial-gradient(ellipse at 15% 0%,#8a4652,#5a2a33 70%);color:#fff8ef;box-shadow:0 18px 40px #6a343d40}
+.sb-covers{position:relative;width:132px;height:96px}
+.sb-cover{position:absolute;top:6px;left:38px;display:grid;place-items:end center;width:56px;height:80px;padding-bottom:8px;border:1px solid #e9d3a2;border-radius:30px 30px 6px 6px;background:linear-gradient(180deg,#fffaf0,#efe4cc);box-shadow:0 6px 14px #00000040}
+.sb-cover .bust{width:40px;height:40px;border:2px solid var(--gold)}
+.sb-cover:nth-child(1){transform:translateX(-34px) rotate(-12deg)}
+.sb-cover:nth-child(2){z-index:1;transform:translateY(-6px)}
+.sb-cover:nth-child(3){transform:translateX(34px) rotate(12deg)}
+.sb-copy .eyebrow{color:#e9d3a2}
+.sb-copy p{margin:6px 0 0;font:400 21px/1.35 Georgia,'Times New Roman',serif;color:#fff8ef}
+.sete-books .sete-books-link{margin:0;white-space:nowrap;text-decoration:none}
+@media (max-width:900px){
+  .sete-books{grid-template-columns:1fr;justify-items:center;text-align:center;padding:22px 18px}
+  .sb-copy p{font-size:19px}
+  .sete-books .sete-books-link{width:100%;white-space:normal}
+}

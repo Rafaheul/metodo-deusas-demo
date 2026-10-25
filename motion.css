@@ -250,6 +250,12 @@
   .bk-cover{transition:transform .4s var(--m-out),box-shadow .4s}
   .bk-cta,.bk-arrow,.god-book,.sete-books-link{transition:background .25s,color .25s,transform .3s var(--m-firm)}
   @media (hover:hover){.bk-open:hover .bk-cover{transform:translateY(-5px);box-shadow:0 16px 28px #5c493233}.sete-books-link:hover,.god-book:hover{transform:translateY(-2px)}}
+  /* Chamada dos e-books: quando aparece na tela, as três capas se abrem em leque. */
+  @keyframes m-fan{from{transform:none;opacity:0}}
+  .m-js .sete-books.m-in .sb-cover{animation:m-fan .9s var(--m-firm) backwards}
+  .m-js .sete-books.m-in .sb-cover:nth-child(1){animation-delay:.25s}
+  .m-js .sete-books.m-in .sb-cover:nth-child(2){animation-delay:.15s}
+  .m-js .sete-books.m-in .sb-cover:nth-child(3){animation-delay:.35s}
   .ebook-shelf .shelf-item{transition:transform .35s var(--m-out),box-shadow .35s}
   @media (hover:hover){.ebook-shelf .shelf-item:hover{transform:translateY(-3px);box-shadow:var(--card-shadow)}}
 }
