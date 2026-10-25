@@ -538,3 +538,38 @@ a.shelf-btn,.shelf-item.pick .shelf-btn{border-color:var(--wine);color:var(--win
 .tile-icon .ico{width:1.1em;height:1.1em;vertical-align:-.18em}
 .tile-more .ico{width:15px;height:15px;vertical-align:-.25em}
 #previous .ico,#next .ico{width:18px;height:18px}
+
+/* Como ler o seu mapa (25/10): os três termos sempre visíveis, e o "?" que abre a explicação. */
+.read-guide{margin:4px 0 36px;padding:22px 24px;border-radius:16px;background:#f3efe4;border:1px solid #ddd5c0}
+.read-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:12px}
+.read-card{display:grid;grid-template-columns:42px 1fr;gap:12px;align-items:start;padding:16px;border-radius:12px;background:var(--white);border:1px solid var(--line)}
+.rc-icon{display:grid;place-items:center;width:42px;height:42px;border-radius:50%;font-size:19px}
+.rc-regent .rc-icon{background:var(--gold-soft);color:#7d6638}
+.rc-luz .rc-icon{background:#fbf3df;color:var(--gold)}
+.rc-sombra .rc-icon{background:#f3dfdc;color:var(--wine)}
+.read-card h3{display:flex;align-items:center;gap:6px;margin:0 0 4px;font-size:21px}
+.rc-line{margin:0;font:400 16px/1.45 Georgia,'Times New Roman',serif;color:var(--ink)}
+.rc-more{margin:6px 0 0;font-size:12px;line-height:1.55;color:var(--muted)}
+.rc-kinds{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:4px;font-size:12px;color:var(--muted)}
+.rc-kinds b{color:var(--wine);font-weight:400;margin-right:4px}
+.read-note{margin:12px 0 0;font-size:13px;color:var(--olive)}
+.term-q{display:inline-grid;place-items:center;width:20px;height:20px;padding:0;margin:0 0 0 2px;border:1px solid currentColor;border-radius:50%;background:var(--white);color:var(--olive);font:700 11px/1 Arial,sans-serif;letter-spacing:0;vertical-align:2px;cursor:pointer;opacity:.85}
+.term-q[aria-expanded=true]{background:var(--olive);border-color:var(--olive);color:#fff8ef;opacity:1}
+@media (hover:hover){.term-q:hover{opacity:1;background:var(--olive-soft)}}
+.eyebrow .term-q,.regent-label .term-q{width:18px;height:18px;font-size:10px;vertical-align:1px}
+.term-pop{position:absolute;z-index:60;padding:14px 16px;border-radius:12px;background:#30372f;color:#f3efe4;font-size:13px;line-height:1.6;box-shadow:0 16px 40px #00000040}
+.term-pop strong{display:block;margin-bottom:4px;color:var(--gold-soft);font:400 18px Georgia,'Times New Roman',serif}
+.term-pop p{margin:0}
+/* Blocos: etiqueta pequena, a resposta como título e o que tem dentro. */
+.mod-title{grid-column:2}
+.mod-label{grid-column:2;font-size:10px;letter-spacing:1.6px;text-transform:uppercase;color:var(--olive)}
+.mod-mark{grid-row:span 3}
+.mod-more{grid-row:1/span 3}
+@media (max-width:900px){.read-cards{grid-template-columns:1fr}}
+@media (max-width:760px){
+  .read-guide{padding:16px 14px;margin-bottom:28px}
+  .read-card{grid-template-columns:36px 1fr;padding:13px}
+  .rc-icon{width:36px;height:36px;font-size:16px}
+  .mod-more{grid-row:4}
+}
+@media print{.term-q,.term-pop{display:none!important}.read-guide{break-inside:avoid}}

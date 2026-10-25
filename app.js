@@ -235,6 +235,7 @@ function renderResult(result,report){
  $('#result-content').innerHTML=`<div class="result-masthead"><div class="eyebrow">MÉTODO DAS DEUSAS / SEU MAPA</div><div class="masthead-side"><span class="badge">${report?'Relatório completo':'Mapa inicial gratuito'}</span>${pdfButton()}</div></div>
  <p class="print-only print-head">Método das Deusas · Yasnnajára Alves · ${report?'Relatório completo':'Mapa inicial gratuito'} · ${new Date().toLocaleDateString('pt-BR')}</p>
  ${heroHtml()}
+ ${readGuideHtml()}
  ${result.flags.length?`<div class="notice">${result.flags.map(escape).join('<br>')}</div>`:''}
  ${glanceHtml()}
  <div id="report-zone"><section class="mods" aria-labelledby="mods-title"><div class="mods-top"><div><div class="eyebrow">PARA IR MAIS FUNDO</div><h2 id="mods-title">Toque numa parte<br>para <em>entender melhor.</em></h2></div><p class="mod-count" id="mod-count" aria-live="polite"></p></div>${resultMods().map(modHtml).join('')}</section>${report?`${missionHtml(report)}<p class="result-note">${escape(report.note)}</p>`:''}</div>
@@ -245,6 +246,42 @@ function renderResult(result,report){
  <details class="reading-note"><summary>Como este mapa foi feito</summary><p>${escape(result.methodology)}</p><p>Nas cenas, você escolheu o que faria primeiro e o que menos faria. Quando duas deusas terminam as cenas quase empatadas, algumas perguntas rápidas de desempate mostram qual delas pesa mais hoje.</p></details>
  ${!report&&offerReady()?`<div class="offer-bar" id="offer-bar" hidden><span>Veja quem rege cada área da sua vida</span><button class="primary" type="button" id="offer-bar-go">Ver o relatório</button></div>`:''}`;
  renderSeven();bindResult();updateModCount();
+}
+
+// ---------- Termos do método: o "?" ao lado de cada termo abre uma explicação curta ----------
+const TERMS={
+ regente:{title:'Regente',text:'A deusa que mais comanda as suas escolhas hoje: a que você mais escolheu para fazer primeiro e menos deixou por último. Quando duas ou três ficam quase empatadas, perguntas rápidas de desempate decidem.'},
+ luz:{title:'Na luz',text:'A capacidade da deusa trabalhando a seu favor, na medida certa. Uma deusa pode estar na luz mesmo aparecendo pouco: aparecer pouco não é problema.'},
+ sombra:{title:'Na sombra',text:'A capacidade fora do ponto, de um destes dois jeitos. Por escassez: ficou sem espaço, e você quase não recorre a ela mesmo quando a vida pede. Por excesso: passou do ponto e ocupa o lugar de outras. Sombra não é defeito: é uma capacidade pedindo ajuste.'},
+ empate:{title:'Empatou no topo',text:'Quando duas ou três deusas terminam as cenas quase empatadas, perguntas rápidas de desempate escolhem a regente. As outras continuam muito presentes nas suas escolhas.'}
+};
+const termBtn=k=>`<button type="button" class="term-q" data-term="${k}" aria-label="O que é ${TERMS[k].title.toLowerCase()}?" aria-expanded="false">?</button>`;
+let termOpen=null;
+function closeTerm(){const pop=$('#term-pop');if(pop)pop.hidden=true;if(termOpen){termOpen.setAttribute('aria-expanded','false');termOpen=null;}}
+function openTerm(btn){
+ let pop=$('#term-pop');
+ if(!pop){pop=document.createElement('div');pop.id='term-pop';pop.className='term-pop';pop.setAttribute('role','note');document.body.append(pop);}
+ const t=TERMS[btn.dataset.term];pop.innerHTML=`<strong>${escape(t.title)}</strong><p>${escape(t.text)}</p>`;pop.hidden=false;
+ // Abre embaixo do "?"; se não couber, em cima. Nunca sai da tela.
+ const r=btn.getBoundingClientRect(),w=Math.min(320,innerWidth-24);pop.style.width=`${w}px`;
+ pop.style.left=`${Math.max(12,Math.min(innerWidth-w-12,r.left+r.width/2-w/2))+scrollX}px`;
+ const h=pop.offsetHeight,up=r.bottom+10+h>innerHeight-8&&r.top-h-10>8;pop.style.top=`${(up?r.top-h-10:r.bottom+10)+scrollY}px`;
+ btn.setAttribute('aria-expanded','true');termOpen=btn;
+}
+document.addEventListener('click',e=>{
+ const b=e.target.closest('.term-q');
+ if(b){e.preventDefault();e.stopPropagation();const same=termOpen===b;closeTerm();if(!same)openTerm(b);return;}
+ if(!e.target.closest('#term-pop'))closeTerm();
+},true);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&termOpen){const b=termOpen;closeTerm();b.focus();}});
+
+// ---------- Como ler o seu mapa: os três termos, sempre visíveis, logo depois da regente ----------
+function readGuideHtml(){
+ return `<section class="read-guide" aria-labelledby="read-title"><div class="eyebrow" id="read-title">COMO LER O SEU MAPA</div><div class="read-cards">
+  <article class="read-card rc-regent"><span class="rc-icon" aria-hidden="true">★</span><div><h3>Regente ${termBtn('regente')}</h3><p class="rc-line">A voz que fala mais alto quando você decide.</p><p class="rc-more">É a deusa que você mais escolheu para fazer primeiro e menos deixou por último.</p></div></article>
+  <article class="read-card rc-luz"><span class="rc-icon" aria-hidden="true">☀</span><div><h3>Na luz ${termBtn('luz')}</h3><p class="rc-line">A capacidade trabalhando a seu favor.</p><p class="rc-more">Na medida certa. Aparecer pouco também pode ser luz.</p></div></article>
+  <article class="read-card rc-sombra"><span class="rc-icon" aria-hidden="true">☾</span><div><h3>Na sombra ${termBtn('sombra')}</h3><p class="rc-line">A capacidade fora do ponto.</p><ul class="rc-kinds"><li><b aria-hidden="true">▽</b> Por escassez: ficou sem espaço</li><li><b aria-hidden="true">▲</b> Por excesso: passou do ponto</li></ul></div></article>
+ </div><p class="read-note">Sombra não é defeito: é uma capacidade pedindo ajuste.</p></section>`;
 }
 
 // ---------- Topo do mapa: as três respostas ----------
@@ -259,8 +296,8 @@ function glanceHtml(){
  const careItem=c=>`<div class="g-care-item">${bust(c.id)}<div><strong>${escape(c.name)}</strong><span class="state-tag state-${c.state}">${STATE_ICON[c.state]} ${STATE_TAG[c.state]}</span><p>${escape(c.text)}</p>${ebookLink(c.id)}</div></div>`;
  const noCare=rep?'Nenhuma deusa apareceu na sombra nas suas respostas.':'Nenhuma deusa apareceu com pouco espaço no mapa inicial. O relatório completo mostra se alguma passa do ponto.';
  return `<section class="glance" aria-label="Seu mapa em resumo">
-  <article class="glance-card g-allies"><div class="eyebrow">${rep?'NA LUZ AO LADO DELA':'TAMBÉM APARECEM MUITO'}</div>${allies.length?`<div class="g-row">${allies.map(god).join('')}</div>`:'<p class="g-none">Nenhuma outra deusa apareceu na luz ao lado dela.</p>'}</article>
-  <article class="glance-card g-care"><div class="eyebrow">PEDE CUIDADO</div>${care.length?care.map(careItem).join(''):`<p class="g-none">${noCare}</p>`}</article>
+  <article class="glance-card g-allies"><div class="eyebrow">${rep?`NA LUZ AO LADO DELA ${termBtn('luz')}`:'TAMBÉM APARECEM MUITO'}</div>${allies.length?`<div class="g-row">${allies.map(god).join('')}</div>`:'<p class="g-none">Nenhuma outra deusa apareceu na luz ao lado dela.</p>'}</article>
+  <article class="glance-card g-care"><div class="eyebrow">PEDE CUIDADO ${termBtn('sombra')}</div>${care.length?care.map(careItem).join(''):`<p class="g-none">${noCare}</p>`}</article>
   <div class="glance-seven"><div class="g-seven-top"><h3 class="g-seven-title">As sete <em>em você</em></h3><span class="g-hint">${HAND}Toque numa para ver</span></div><ol>${byValue.map(c=>`<li><button type="button" class="g-seven ${isRegent(c.id)?'regent':''}" data-glance="${c.id}" aria-label="${escape(`${c.name}: ${c.level}`)}">${bust(c.id)}<strong>${escape(c.name)}</strong><span class="g-bar" aria-hidden="true"><i data-w="${c.value===null?0:Math.round(c.value/4*100)}"></i></span><small>${escape(c.level)}</small></button></li>`).join('')}</ol></div>
  </section>`;
 }
@@ -309,20 +346,28 @@ function exportPdf(){
 }
 
 // ---------- Blocos que abrem ----------
+// Cada bloco: etiqueta com o nome da parte, a resposta como título (quem tem pressa lê só ela)
+// e, embaixo, o que tem dentro.
 function resultMods(){
  const r=currentResult,rep=currentReport,p=r.path,mods=[];
- const ranked=byForce(r.capacities.filter(c=>c.value!==null));
- if(p&&p.method!=='insuficiente')mods.push({id:'caminho',mark:'★',title:'Como chegamos à sua regente',teaser:p.story,body:pathHtml()});
- mods.push({id:'sete',mark:'✦',title:'As sete deusas em você',teaser:ranked.length?`Mais presente: ${ranked[0].name}. Menos presente: ${ranked.at(-1).name}.`:'Quanto cada deusa apareceu nas suas escolhas.',body:sevenHtml()});
- if(!rep){mods.push({id:'relatorio',mark:'◈',title:'Seu relatório completo',teaser:lockedLead().sub,body:lockedHtml()});return mods;}
- const names=list=>listJoin(list.map(x=>x.name))||'nenhuma';
- mods.push({id:'luz',mark:'I',title:'Luz e sombra',teaser:`Na luz: ${rep.capacities.filter(c=>c.scale===1).length}. Na sombra por escassez: ${names(rep.scarcity)}. Na sombra por excesso: ${names(rep.excess)}.`,body:balanceHtml(rep)});
- mods.push({id:'areas',mark:'II',title:'As áreas da sua vida',teaser:rep.areasSummary||'Quem rege, quem ajuda e quem pesa em cada área.',body:areasHtml(rep)});
- mods.push({id:'favor',mark:'III',title:'A seu favor e pede cuidado',teaser:`A seu favor: ${rep.favor.length}. Pede cuidado: ${rep.care.length}.`,body:favorHtml(rep)});
+ const ranked=byForce(r.capacities.filter(c=>c.value!==null)),cut=t=>t.replace(/\.$/,'');
+ const regNames=listJoin(r.regents.map(g=>g.name));
+ if(p&&p.method!=='insuficiente'){
+  const others=listJoin(p.finalists.filter(f=>!r.regents.some(g=>g.id===f.id)).map(f=>f.name));
+  const title=p.method==='direto'?`${regNames} ficou à frente com folga`:p.method==='desempate'?`${regNames} venceu o desempate contra ${others}`:p.method==='empate'?`${regNames} ficaram lado a lado até o fim`:`${listJoin(p.finalists.map(f=>f.name))} ficaram quase empatadas`;
+  mods.push({id:'caminho',mark:'★',label:'Como chegamos à sua regente',title,teaser:'Veja a eliminação, passo a passo.',body:pathHtml()});
+ }
+ mods.push({id:'sete',mark:'✦',label:'As sete deusas em você',title:ranked.length>1?`${ranked[0].name} aparece mais; ${ranked.at(-1).name}, menos`:'Quanto cada deusa aparece em você',teaser:'Veja quanto cada deusa aparece nas suas escolhas.',body:sevenHtml()});
+ if(!rep){mods.push({id:'relatorio',mark:'◈',label:'Seu relatório completo',title:cut(lockedLead().sub),teaser:'Veja uma área de amostra e tudo o que o relatório traz.',body:lockedHtml()});return mods;}
+ const shadows=[...rep.excess,...rep.scarcity],inLight=rep.capacities.filter(c=>c.scale===1).length;
+ const luzTitle=shadows.length?`${listJoin(shadows.map(x=>x.name))} ${shadows.length>1?'pedem':'pede'} cuidado; ${inLight} na luz`:inLight===7?'As sete estão na luz':`${inLight} na luz, nenhuma na sombra`;
+ mods.push({id:'luz',mark:'I',label:'Luz e sombra',title:luzTitle,teaser:shadows.length?'Veja quem passou do ponto e quem ficou sem espaço.':'Veja como cada deusa aparece, da luz à sombra.',body:balanceHtml(rep)});
+ mods.push({id:'areas',mark:'II',label:'As áreas da sua vida',title:rep.areasSummary?cut(rep.areasSummary):'Cada área tem a sua regente',teaser:'Toque para ver quem rege, quem ajuda e quem pesa em cada área.',body:areasHtml(rep)});
+ mods.push({id:'favor',mark:'III',label:'A seu favor e pede cuidado',title:`${plural(rep.favor.length,'ponto','pontos')} a seu favor e ${rep.care.length} que ${rep.care.length===1?'pede':'pedem'} cuidado`,teaser:'Veja seus apoios e o que vale observar.',body:favorHtml(rep)});
  return mods;
 }
 function modHtml(m){
- return `<section class="mod" id="mod-${m.id}" data-mod="${m.id}"><h3 class="mod-h"><button type="button" class="mod-head" aria-expanded="false" aria-controls="mod-${m.id}-body"><span class="mod-mark ${/^[IVX]+$/.test(m.mark)?'':'sym'}" aria-hidden="true">${m.mark}</span><span class="mod-title">${escape(m.title)}</span><span class="mod-teaser">${escape(m.teaser)}</span><span class="mod-more"><span class="mod-more-text">Entender melhor</span><svg class="mod-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span></button></h3><div class="mod-body" id="mod-${m.id}-body"><div class="mod-inner">${m.body}</div></div></section>`;
+ return `<section class="mod" id="mod-${m.id}" data-mod="${m.id}"><h3 class="mod-h"><button type="button" class="mod-head" aria-expanded="false" aria-controls="mod-${m.id}-body"><span class="mod-mark ${/^[IVX]+$/.test(m.mark)?'':'sym'}" aria-hidden="true">${m.mark}</span><span class="mod-label">${escape(m.label)}</span><span class="mod-title">${escape(m.title)}</span><span class="mod-teaser">${escape(m.teaser)}</span><span class="mod-more"><span class="mod-more-text">Entender melhor</span><svg class="mod-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span></button></h3><div class="mod-body" id="mod-${m.id}-body"><div class="mod-inner">${m.body}</div></div></section>`;
 }
 function setMod(mod,open){
  if(!mod||mod.classList.contains('open')===open)return;
@@ -347,7 +392,7 @@ function heroHtml(){
  const art=regs.length?`<div class="hero-arch ${regs.length>1?'duo':''}" aria-hidden="true">${regs.map(g=>figure(g.id)).join('')}</div>`:`<div class="hero-arch none" aria-hidden="true"><div class="bust-ring">${IDS7.map(id=>bust(id)).join('')}</div></div>`;
  const label=regs.length>1?'QUEM REGE SUAS ESCOLHAS HOJE · REGÊNCIA DIVIDIDA':regs.length?'QUEM REGE SUAS ESCOLHAS HOJE':'UMA LEITURA DE CONJUNTO';
  const title=regs.length?regs.map(g=>escape(g.name)).join('<i> e </i>'):'Seu mapa tem<br>mais de uma voz.';
- return `<section class="regent-hero">${art}<div class="regent-copy"><p class="regent-label">${label}</p><h1>${title}</h1>${regs.length===1?`<p class="capacity-title">${escape(regs[0].capacity)}</p>`:''}${p?.badge&&p.method!=='insuficiente'?`<span class="method-badge method-${p.method}">${escape(p.badge)}</span>`:''}<p class="definition">${escape(r.definition)}</p>${regs.length?regs.map(flipCard).join(''):`<p class="lead">${escape(r.summary)}</p>`}${regs.length===1?'<button class="secondary share-trigger" type="button">Compartilhar minha deusa <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></button>':''}</div></section>`;
+ return `<section class="regent-hero">${art}<div class="regent-copy"><p class="regent-label">${label}${regs.length?` ${termBtn('regente')}`:''}</p><h1>${title}</h1>${regs.length===1?`<p class="capacity-title">${escape(regs[0].capacity)}</p>`:''}${p?.badge&&p.method!=='insuficiente'?`<span class="method-badge method-${p.method}">${escape(p.badge)}</span>`:''}${regs.length?regs.map(flipCard).join(''):`<p class="lead">${escape(r.summary)}</p>`}${regs.length===1?'<button class="secondary share-trigger" type="button">Compartilhar minha deusa <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></button>':''}</div></section>`;
 }
 
 // Caminho até a regente, no estilo Akinator: 7 → finalistas → desempate → regente.
@@ -367,8 +412,8 @@ function pathHtml(){
 // A legenda mostra só os sinais que aparecem no ranking desta versão do mapa.
 function legendHtml(){
  const states=new Set(capacityPoints().map(c=>c.state).filter(Boolean));
- const item=(st,label)=>states.has(st)?`<li><b class="state-${st}">${STATE_ICON[st]}</b> ${label}</li>`:'';
- return `<ul class="legend" aria-label="Legenda"><li><b class="lg-regent">★</b> Regente</li>${item('luz','Na luz')}${item('excesso','Sombra por excesso')}${item('escassez','Sombra por escassez')}</ul><p class="legend-note">Sombra não é defeito: é uma capacidade pedindo ajuste.${currentReport?'':' No relatório completo, cada deusa recebe o seu sinal.'}</p>`;
+ const pts=capacityPoints(),item=(st,label,term)=>states.has(st)?`<li><b class="state-${st}">${STATE_ICON[st]}</b> ${label}${term?` ${termBtn(term)}`:''}</li>`:'';
+ return `<ul class="legend" aria-label="Legenda"><li><b class="lg-regent">★</b> Regente</li>${item('luz','Na luz','luz')}${item('excesso','Sombra por excesso',states.has('escassez')?'':'sombra')}${item('escassez','Sombra por escassez','sombra')}${pts.some(c=>c.nearRegent)?`<li>Empatou no topo ${termBtn('empate')}</li>`:''}</ul><p class="legend-note">Sombra não é defeito: é uma capacidade pedindo ajuste.${currentReport?'':' No relatório completo, cada deusa recebe o seu sinal.'}</p>`;
 }
 function sevenHtml(){
  return `<section class="seven-section" id="sete-deusas"><div class="section-top"><div><div class="eyebrow">AS SETE DEUSAS EM VOCÊ</div><h2>Quem aparece mais<br>nas suas <em>escolhas.</em></h2></div><div class="seg" role="group" aria-label="Forma de ver"><button type="button" class="seg-btn" data-seven="ranking">Ranking</button><button type="button" class="seg-btn" data-seven="mandala">Mandala</button></div></div>${legendHtml()}<div class="seven-layout"><div id="seven-view" class="seven-view"></div><div class="capacity-detail" id="capacity-detail" aria-live="polite"></div></div></section>`;

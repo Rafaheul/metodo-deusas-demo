@@ -238,6 +238,14 @@
   }
   .tile-more .ico{transition:transform .3s var(--m-firm)}
   .kw{animation:m-kw .6s var(--m-firm) backwards}
+  /* Como ler o seu mapa: os três cartões sobem em cascata; a explicação do "?" abre com um pulinho. */
+  @keyframes m-pop{from{opacity:0;transform:translateY(6px) scale(.96)}}
+  .read-guide{animation:m-rise .7s var(--m-out) .55s backwards}
+  .read-card{animation:m-rise .65s var(--m-out) backwards}
+  .read-card:nth-child(1){animation-delay:.65s}.read-card:nth-child(2){animation-delay:.73s}.read-card:nth-child(3){animation-delay:.81s}
+  .term-pop:not([hidden]){animation:m-pop .28s var(--m-out)}
+  .term-q{transition:background .2s,color .2s,opacity .2s,transform .3s var(--m-firm)}
+  @media (hover:hover){.term-q:hover{transform:scale(1.12)}}
   .ebook-shelf .shelf-item{transition:transform .35s var(--m-out),box-shadow .35s}
   @media (hover:hover){.ebook-shelf .shelf-item:hover{transform:translateY(-3px);box-shadow:var(--card-shadow)}}
 }
