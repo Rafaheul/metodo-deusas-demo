@@ -316,21 +316,23 @@ function careList(){
 // Cada e-book trata as duas sombras de uma deusa. Com o link de compra configurado, o botão leva ao checkout;
 // sem ele, abre a prévia da proposta e avisa que está em preparação.
 const bookTitle=id=>config.ebooks?.[id]?.title||'';
+// Capa de verdade do e-book: a primeira página do PDF, em assets/ebooks.
+const coverImg=(id,cls='book-cover-img')=>`<img class="${cls}" src="assets/ebooks/${id}-capa.webp" alt="" width="480" height="679" loading="lazy" decoding="async">`;
 function bookFor(id){
  const c=currentResult.capacities.find(x=>x.id===id),pick=currentResult.ebook?.id===id?currentResult.ebook:null;
  return {id,name:c.name,title:bookTitle(id)?`${c.name}: ${bookTitle(id)}`:`E-book de ${c.name}`,excerpt:c.description,practice:pick?.practice||'',shadow:pick?.shadow};
 }
 // Link de compra com o código de origem (sck): o relatório da Hotmart mostra de qual botão do site veio a venda.
 const buyUrl=(url,origem)=>`${url}${url.includes('?')?'&':'?'}sck=site_${origem}`;
-function ebookLink(id,cls='g-ebook',origem='mapa'){
+function ebookLink(id,cls='g-ebook',origem='mapa',curto=false){
  const offer=config.ebooks?.[id]||{},name=currentResult.capacities.find(x=>x.id===id).name,icon='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6c3-1.5 6-1.5 9 0v14c-3-1.5-6-1.5-9 0zM21 6c-3-1.5-6-1.5-9 0v14c3-1.5 6-1.5 9 0z"/></svg>';
- if(offer.checkoutUrl)return `<a class="${cls}" href="${escape(buyUrl(offer.checkoutUrl,origem))}" target="_blank" rel="noopener noreferrer">${icon}Comprar o e-book de ${escape(name)}${offer.priceBRL?` · ${price(offer.priceBRL)}`:''} <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></a>`;
+ if(offer.checkoutUrl)return `<a class="${cls}" href="${escape(buyUrl(offer.checkoutUrl,origem))}" target="_blank" rel="noopener noreferrer">${icon}${curto?'Comprar':`Comprar o e-book de ${escape(name)}`}${offer.priceBRL?` · ${price(offer.priceBRL)}`:''} <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></a>`;
  return `<button type="button" class="${cls}" data-book="${id}">${icon}E-book de ${escape(name)} · em breve <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></button>`;
 }
 function shelfHtml(){
  const indicated=new Set(careList().map(c=>c.id));
  const order=[...IDS7].sort((a,b)=>indicated.has(b)-indicated.has(a));
- return `<section class="ebook-shelf" id="ebooks"><div class="eyebrow">OS E-BOOKS DO MÉTODO</div><h2>Um e-book para <em>cada deusa.</em></h2><p class="lead-small">Cada e-book fala das duas sombras de uma deusa, a por escassez e a por excesso, e traz práticas para a semana. Se outra deusa chamou a sua atenção, ela também está aqui.</p><ul class="shelf">${order.map(id=>{const c=currentResult.capacities.find(x=>x.id===id);return `<li class="shelf-item ${indicated.has(id)?'pick':''}">${bust(id)}<div class="shelf-copy">${indicated.has(id)?'<span class="shelf-tag">Indicado para você</span>':''}<strong>${escape(c.name)}</strong><small>${escape(bookTitle(id)||c.capacity)}</small></div>${ebookLink(id,'shelf-btn','mapa_lista')}</li>`;}).join('')}</ul></section>`;
+ return `<section class="ebook-shelf" id="ebooks"><div class="eyebrow">OS E-BOOKS DO MÉTODO</div><h2>Um e-book para <em>cada deusa.</em></h2><p class="lead-small">Cada e-book fala das duas sombras de uma deusa, a por escassez e a por excesso, e traz práticas para a semana. Se outra deusa chamou a sua atenção, ela também está aqui.</p><ul class="shelf">${order.map(id=>{const c=currentResult.capacities.find(x=>x.id===id);return `<li class="shelf-item ${indicated.has(id)?'pick':''}">${coverImg(id,'shelf-img')}<div class="shelf-copy">${indicated.has(id)?'<span class="shelf-tag">Indicado para você</span>':''}<strong>${escape(c.name)}</strong><small>${escape(bookTitle(id)||c.capacity)}</small></div>${ebookLink(id,'shelf-btn','mapa_lista',true)}</li>`;}).join('')}</ul></section>`;
 }
 
 // ---------- PDF ----------
@@ -611,7 +613,7 @@ function renderEbook(){
  const book=selectedBook();$('#ebook-offer').classList.toggle('no-book',!book);
  if(!book){$('#ebook-offer').innerHTML=`<div class="ebook-copy"><div class="eyebrow">UM PASSO MENOR, NO SEU RITMO</div><h2>Nenhum e-book <em>indicado agora.</em></h2><p>Nas suas respostas, nenhuma deusa apareceu na sombra. Os e-books são feitos para quando uma deusa pede ajuste, então nenhum é indicado para você agora. A consulta faz a leitura completa, se quiser confirmar.</p></div>`;return;}
  const offer=config.ebooks?.[book.id]||{},where=book.shadow==='escassez'?'apareceu com pouco espaço nas suas escolhas':'apareceu demais nas suas escolhas';
- $('#ebook-offer').innerHTML=`<div class="ebook-cover"><small>MÉTODO DAS DEUSAS</small>${bust(book.id,'book-bust')}<h3>${escape(book.name)}</h3><p>Para a deusa<br>que pede cuidado.</p><span class="book-author">YASNNAJÁRA ALVES</span></div><div class="ebook-copy"><div class="eyebrow">UM PASSO MENOR, NO SEU RITMO</div><h2>Comece por <em>${escape(book.name)}.</em></h2><p>No seu mapa, ${escape(book.name)} ${where}. Este pequeno e-book mostra como ela aparece quando falta e quando sobra, e traz uma prática simples para a sua semana.</p>${offer.checkoutUrl?`<a class="primary" href="${escape(buyUrl(offer.checkoutUrl,'mapa_oferta'))}" target="_blank" rel="noopener noreferrer">Comprar o e-book${offer.priceBRL?` · ${price(offer.priceBRL)}`:''} <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></a>`:'<button class="primary" id="ebook-preview" type="button">Ver a proposta do e-book <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></button><p class="subtle">Conteúdo em preparação. A venda será aberta depois da aprovação da autora.</p>'}</div>`;
+ $('#ebook-offer').innerHTML=`<div class="ebook-cover has-img">${coverImg(book.id,'offer-img')}</div><div class="ebook-copy"><div class="eyebrow">UM PASSO MENOR, NO SEU RITMO</div><h2>Comece por <em>${escape(book.name)}.</em></h2><p>No seu mapa, ${escape(book.name)} ${where}. Este pequeno e-book mostra como ela aparece quando falta e quando sobra, e traz uma prática simples para a sua semana.</p>${offer.checkoutUrl?`<a class="primary" href="${escape(buyUrl(offer.checkoutUrl,'mapa_oferta'))}" target="_blank" rel="noopener noreferrer">Comprar o e-book${offer.priceBRL?` · ${price(offer.priceBRL)}`:''} <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></a>`:'<button class="primary" id="ebook-preview" type="button">Ver a proposta do e-book <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></button><p class="subtle">Conteúdo em preparação. A venda será aberta depois da aprovação da autora.</p>'}</div>`;
  if($('#ebook-preview'))$('#ebook-preview').addEventListener('click',()=>showBook(book));
 }
 
@@ -651,7 +653,7 @@ function landingBooks(){
  const box=$('#metodo-ebooks');
  if(box){
   box.innerHTML=`<div class="bk-top"><span class="eyebrow">OS SETE E-BOOKS</span><div class="bk-nav"><button type="button" class="bk-arrow" data-bk="-1" aria-label="Anterior"><svg class="ico"><use href="#i-voltar"/></svg></button><button type="button" class="bk-arrow" data-bk="1" aria-label="Próximo"><svg class="ico"><use href="#i-seta"/></svg></button></div></div>
-   <ul class="bk-track">${IDS7.map(id=>{const t=config.ebooks?.[id]?.title||'';return `<li class="bk"><button type="button" class="bk-open" data-landing-book="${id}" aria-label="E-book de ${NAMES7[id]}${t?`: ${escape(t)}`:''}"><span class="bk-cover"><small>MÉTODO DAS DEUSAS</small>${bust(id)}<strong>${NAMES7[id]}</strong>${t?`<em>${escape(t)}</em>`:''}</span><span class="bk-cta">${config.ebooks?.[id]?.checkoutUrl?`Comprar${config.ebooks[id].priceBRL?` · ${price(config.ebooks[id].priceBRL)}`:''}`:'Ver o e-book'} <svg class="ico"><use href="#i-seta"/></svg></span></button></li>`;}).join('')}</ul>`;
+   <ul class="bk-track">${IDS7.map(id=>{const t=config.ebooks?.[id]?.title||'';return `<li class="bk"><button type="button" class="bk-open" data-landing-book="${id}" aria-label="E-book de ${NAMES7[id]}${t?`: ${escape(t)}`:''}"><span class="bk-cover">${coverImg(id,'bk-img')}</span><span class="bk-name">${NAMES7[id]}</span><span class="bk-cta">${config.ebooks?.[id]?.checkoutUrl?`Comprar${config.ebooks[id].priceBRL?` · ${price(config.ebooks[id].priceBRL)}`:''}`:'Ver o e-book'} <svg class="ico"><use href="#i-seta"/></svg></span></button></li>`;}).join('')}</ul>`;
   const track=box.querySelector('.bk-track');
   box.querySelectorAll('[data-bk]').forEach(b=>b.addEventListener('click',()=>{const step=track.querySelector('.bk')?.getBoundingClientRect().width||160;track.scrollBy({left:Number(b.dataset.bk)*(step+12),behavior:calm()?'auto':'smooth'});}));
  }

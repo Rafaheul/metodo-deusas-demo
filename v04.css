@@ -638,3 +638,17 @@ a.primary.cta{text-decoration:none}
   .lb-copy p{clear:both}
   .lb-copy>.primary,.lb-copy>.secondary,.book-map{clear:both}
 }
+
+/* Capas de verdade (primeira página do PDF) no carrossel, na lista e na oferta do mapa (25/10). */
+.bk-cover{height:auto;padding:0;border:0;border-radius:6px;background:none;overflow:hidden;box-shadow:0 8px 18px #5c493230,0 0 0 1px #e2d6b8}
+.bk-img{display:block;width:100%;height:auto}
+.bk-name{font:400 17px/1.2 Georgia,'Times New Roman',serif;color:var(--wine)}
+.shelf-item{grid-template-columns:64px 1fr}
+.shelf-img{display:block;width:64px;height:auto;border-radius:4px;box-shadow:0 4px 10px #5c493230,0 0 0 1px #e2d6b8}
+.shelf-item.pick .shelf-img{box-shadow:0 4px 10px #5c493230,0 0 0 2px var(--gold)}
+.ebook-cover.has-img{min-height:0;padding:0;border:0;background:none;aspect-ratio:auto;box-shadow:none}
+.ebook-cover.has-img::before,.ebook-cover.has-img::after{display:none}
+.offer-img{display:block;width:100%;height:auto;border-radius:6px;box-shadow:0 14px 30px #3b2e2038,0 0 0 1px #e2d6b8}
+@media (max-width:760px){.bk-cover{height:auto}}
+.ebook-copy a.primary{text-decoration:none}
+@media (max-width:760px){.bk-cta{white-space:nowrap;font-size:11px;padding:7px 6px;gap:4px}}
