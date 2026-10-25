@@ -623,3 +623,18 @@ a.shelf-btn,.shelf-item.pick .shelf-btn{border-color:var(--wine);color:var(--win
 .god-card .god-book{display:inline-flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:10px;padding:8px 10px;border:0;border-radius:999px;background:var(--wine);color:#fff8ef;font-size:12px;font-weight:600;cursor:pointer}
 .god-book .ico-livro{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;vertical-align:0}
 @media (hover:hover){.god-card .god-book:hover{background:#7d3d49}}
+
+/* Janela do e-book com a capa de verdade (25/10). */
+#content-dialog:has(.lb){width:min(780px,calc(100% - 32px));max-width:780px}
+.lb{display:grid;grid-template-columns:210px minmax(0,1fr);gap:26px;align-items:start}
+.lb-cover{display:block;width:100%;height:auto;border-radius:6px;box-shadow:0 14px 30px #3b2e2038,0 0 0 1px #e2d6b8}
+.lb-copy h2{margin-top:8px}
+a.primary.cta{text-decoration:none}
+/* No celular a capa fica pequena ao lado do título, para o botão de comprar aparecer sem rolar. */
+@media (max-width:640px){
+  .lb{display:block}
+  .lb-cover{float:left;width:92px;margin:2px 14px 8px 0}
+  .lb-copy h2{font-size:24px;margin:6px 0 10px}
+  .lb-copy p{clear:both}
+  .lb-copy>.primary,.lb-copy>.secondary,.book-map{clear:both}
+}

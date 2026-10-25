@@ -256,6 +256,9 @@
   .m-js .sete-books.m-in .sb-cover:nth-child(1){animation-delay:.25s}
   .m-js .sete-books.m-in .sb-cover:nth-child(2){animation-delay:.15s}
   .m-js .sete-books.m-in .sb-cover:nth-child(3){animation-delay:.35s}
+  /* Capa na janela do e-book: chega como um livro posto na mesa. */
+  @keyframes m-lb{from{opacity:0;transform:translateY(14px) rotate(-3deg) scale(.96)}}
+  .lb-cover{animation:m-lb .7s var(--m-out) .05s backwards}
   .ebook-shelf .shelf-item{transition:transform .35s var(--m-out),box-shadow .35s}
   @media (hover:hover){.ebook-shelf .shelf-item:hover{transform:translateY(-3px);box-shadow:var(--card-shadow)}}
 }
