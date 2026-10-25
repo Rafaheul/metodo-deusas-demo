@@ -246,6 +246,10 @@
   .term-pop:not([hidden]){animation:m-pop .28s var(--m-out)}
   .term-q{transition:background .2s,color .2s,opacity .2s,transform .3s var(--m-firm)}
   @media (hover:hover){.term-q:hover{transform:scale(1.12)}}
+  /* E-books da página inicial: a capa sobe um pouco no mouse; os botões trocam de cor. */
+  .bk-cover{transition:transform .4s var(--m-out),box-shadow .4s}
+  .bk-cta,.bk-arrow,.god-book,.sete-books-link{transition:background .25s,color .25s,transform .3s var(--m-firm)}
+  @media (hover:hover){.bk-open:hover .bk-cover{transform:translateY(-5px);box-shadow:0 16px 28px #5c493233}.sete-books-link:hover,.god-book:hover{transform:translateY(-2px)}}
   .ebook-shelf .shelf-item{transition:transform .35s var(--m-out),box-shadow .35s}
   @media (hover:hover){.ebook-shelf .shelf-item:hover{transform:translateY(-3px);box-shadow:var(--card-shadow)}}
 }

@@ -573,3 +573,36 @@ a.shelf-btn,.shelf-item.pick .shelf-btn{border-color:var(--wine);color:var(--win
   .mod-more{grid-row:4}
 }
 @media print{.term-q,.term-pop{display:none!important}.read-guide{break-inside:avoid}}
+
+/* E-books na página inicial (25/10): carrossel em "No seu ritmo", chamada em "As sete vozes"
+   e o e-book de cada deusa no lado da sombra do cartão. */
+.bk-box{margin:16px 0 12px}
+.bk-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.bk-nav{display:flex;gap:8px}
+.bk-arrow{display:grid;place-items:center;width:36px;height:36px;padding:0;border:1px solid var(--wine);border-radius:50%;background:var(--white);color:var(--wine);cursor:pointer}
+.bk-arrow .ico{width:18px;height:18px;vertical-align:0}
+.bk-track{list-style:none;margin:0;padding:4px 2px 12px;display:grid;grid-auto-flow:column;grid-auto-columns:150px;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:thin;overscroll-behavior-x:contain}
+.bk{scroll-snap-align:start}
+.bk-open{display:flex;flex-direction:column;align-items:stretch;gap:8px;width:100%;padding:0;border:0;background:none;color:inherit;font:inherit;text-align:center;cursor:pointer}
+.bk-cover{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:6px;height:210px;padding:16px 10px 12px;border:1px solid #c7ad74;border-radius:80px 80px 8px 8px;background:linear-gradient(180deg,#fffaf0,#efe4cc);box-shadow:0 8px 18px #5c493222}
+.bk-cover small{font-size:7px;letter-spacing:1.6px;color:var(--olive)}
+.bk-cover .bust{width:72px;height:72px;margin-top:6px;border:2px solid var(--gold)}
+.bk-cover strong{font:400 21px/1.1 Georgia,'Times New Roman',serif;color:var(--wine)}
+.bk-cover em{font:italic 400 12px/1.3 Georgia,'Times New Roman',serif;color:var(--ink)}
+.bk-cta{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:7px 10px;border:1px solid var(--wine);border-radius:999px;color:var(--wine);font-size:12px;font-weight:600}
+.bk-cta .ico{width:15px;height:15px;vertical-align:0}
+@media (hover:hover){.bk-open:hover .bk-cta,.bk-arrow:hover{background:var(--wine);color:#fff8ef}}
+.sete-books{display:flex;align-items:center;justify-content:space-between;gap:12px 24px;flex-wrap:wrap;max-width:780px;margin:22px auto 0;padding:16px 20px;border-radius:14px;background:var(--white);border:1px solid #d2d6c7}
+.sete-books p{margin:0;font:400 16px/1.45 Georgia,'Times New Roman',serif;color:var(--ink)}
+.sete-books-link{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;background:var(--wine);color:#fff8ef;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap}
+.god-book{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:6px 12px;border:1px solid var(--wine);border-radius:999px;background:var(--white);color:var(--wine);font-size:12px;font-weight:600;cursor:pointer}
+.god-book .ico{width:14px;height:14px;vertical-align:0}
+.book-map{margin-top:22px;padding:16px;border-radius:12px;background:#f3efe4}
+.book-map p{margin:4px 0 12px}
+@media (max-width:760px){
+  .bk-track{grid-auto-columns:138px}
+  .bk-cover{height:196px}
+  .sete-books{flex-direction:column;align-items:flex-start;padding:14px}
+  .sete-books-link{white-space:normal}
+}
+@media print{.bk-box,.sete-books,.god-book{display:none!important}}

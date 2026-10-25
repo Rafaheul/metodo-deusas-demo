@@ -634,8 +634,32 @@ async function startAgain(force){if(busy)return;if(resultId){if(!await confirmAc
 $('#restart').addEventListener('click',()=>startAgain(true));
 $('#delete-result').addEventListener('click',async()=>{if(!await confirmAction('Apagar seu mapa?','Suas respostas e seu mapa serão excluídos deste aparelho. O progresso salvo neste dispositivo também será apagado.'))return;try{await erase();view('home');status('Mapa apagado.');}catch(e){status(e.message);}});
 $('#print-report').addEventListener('click',()=>{if(currentResult)exportPdf();else window.print();});
+// ---------- E-books na página inicial ----------
+// Carrossel com os sete em "No seu ritmo" e, em cada deusa de "As sete vozes", o e-book dela no lado da sombra.
+// Sem link de compra configurado, abre a prévia e convida a fazer o mapa, que indica o e-book certo.
+const NAMES7={artemis:'Ártemis',atena:'Atena',hestia:'Héstia',hera:'Hera',demeter:'Deméter',persefone:'Perséfone',afrodite:'Afrodite'};
+const SETA_ICO='<span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span>';
+function landingBook(id){
+ const offer=config.ebooks?.[id]||{},name=NAMES7[id],title=offer.title;
+ openContent(`<div class="eyebrow">${offer.checkoutUrl?'E-BOOK DO MÉTODO DAS DEUSAS':'PRÉVIA DA PROPOSTA · CONTEÚDO EM PREPARAÇÃO'}</div><h2>${escape(name)}${title?`: ${escape(title)}`:''}</h2><p>Um guia de ${escape(name)}, do Método das Deusas, de Yasnnajára Alves. Fala das duas sombras dela, quando fica sem espaço e quando passa do ponto, e traz práticas para a semana.</p>${offer.checkoutUrl?`<a class="primary cta" href="${escape(offer.checkoutUrl)}" target="_blank" rel="noopener noreferrer">Comprar o e-book${offer.priceBRL?` · ${price(offer.priceBRL)}`:''} ${SETA_ICO}</a>`:'<button class="secondary" disabled>Disponível em breve</button>'}<div class="book-map"><strong>Não sabe qual deusa pede cuidado em você?</strong><p>O mapa gratuito mostra e indica o e-book certo.</p><button class="primary cta" type="button" id="book-map-go">Fazer meu mapa gratuito ${SETA_ICO}</button></div>`);
+ $('#book-map-go').addEventListener('click',()=>{$('#content-dialog').close();startAgain(false);});
+}
+function landingBooks(){
+ const box=$('#metodo-ebooks');
+ if(box){
+  box.innerHTML=`<div class="bk-top"><span class="eyebrow">OS SETE E-BOOKS</span><div class="bk-nav"><button type="button" class="bk-arrow" data-bk="-1" aria-label="Anterior"><svg class="ico"><use href="#i-voltar"/></svg></button><button type="button" class="bk-arrow" data-bk="1" aria-label="Próximo"><svg class="ico"><use href="#i-seta"/></svg></button></div></div>
+   <ul class="bk-track">${IDS7.map(id=>{const t=config.ebooks?.[id]?.title||'';return `<li class="bk"><button type="button" class="bk-open" data-landing-book="${id}" aria-label="E-book de ${NAMES7[id]}${t?`: ${escape(t)}`:''}"><span class="bk-cover"><small>MÉTODO DAS DEUSAS</small>${bust(id)}<strong>${NAMES7[id]}</strong>${t?`<em>${escape(t)}</em>`:''}</span><span class="bk-cta">${config.ebooks?.[id]?.checkoutUrl?'Comprar':'Ver o e-book'} <svg class="ico"><use href="#i-seta"/></svg></span></button></li>`;}).join('')}</ul>`;
+  const track=box.querySelector('.bk-track');
+  box.querySelectorAll('[data-bk]').forEach(b=>b.addEventListener('click',()=>{const step=track.querySelector('.bk')?.getBoundingClientRect().width||160;track.scrollBy({left:Number(b.dataset.bk)*(step+12),behavior:calm()?'auto':'smooth'});}));
+ }
+ document.querySelectorAll('.god-card').forEach(card=>{
+  const id=card.dataset.god,face=card.querySelector('.god-face.shadow');if(!face||face.querySelector('.god-book'))return;
+  face.insertAdjacentHTML('beforeend',`<button type="button" class="god-book" data-landing-book="${id}">E-book de ${NAMES7[id]} <svg class="ico"><use href="#i-seta"/></svg></button>`);
+ });
+ document.querySelectorAll('#home-view [data-landing-book]').forEach(b=>b.addEventListener('click',()=>landingBook(b.dataset.landingBook)));
+}
 async function initialize(){
- try{const [c,q]=await Promise.all([api('/api/config'),api('/api/questions')]);config=c;bank=q.questions;version=q.version;const current=await api('/api/current');if(current.id){resultId=current.id;const r=await api(`/api/results/${resultId}`);renderResult(r.result,r.report);view('result');}}
+ try{const [c,q]=await Promise.all([api('/api/config'),api('/api/questions')]);config=c;bank=q.questions;version=q.version;landingBooks();const current=await api('/api/current');if(current.id){resultId=current.id;const r=await api(`/api/results/${resultId}`);renderResult(r.result,r.report);view('result');}}
  catch(e){status('As perguntas não carregaram. Confira se a demonstração local está aberta e recarregue a página.');}
 }
 initialize();
