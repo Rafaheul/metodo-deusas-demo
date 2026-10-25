@@ -618,3 +618,8 @@ a.shelf-btn,.shelf-item.pick .shelf-btn{border-color:var(--wine);color:var(--win
   .sb-copy p{font-size:19px}
   .sete-books .sete-books-link{width:100%;white-space:normal}
 }
+
+/* E-book no pé de cada cartão das sete (25/10): sempre visível, abaixo de "Ver a sombra". */
+.god-card .god-book{display:inline-flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:10px;padding:8px 10px;border:0;border-radius:999px;background:var(--wine);color:#fff8ef;font-size:12px;font-weight:600;cursor:pointer}
+.god-book .ico-livro{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;vertical-align:0}
+@media (hover:hover){.god-card .god-book:hover{background:#7d3d49}}

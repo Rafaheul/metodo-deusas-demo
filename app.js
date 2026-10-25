@@ -655,10 +655,11 @@ function landingBooks(){
   box.querySelectorAll('[data-bk]').forEach(b=>b.addEventListener('click',()=>{const step=track.querySelector('.bk')?.getBoundingClientRect().width||160;track.scrollBy({left:Number(b.dataset.bk)*(step+12),behavior:calm()?'auto':'smooth'});}));
  }
  document.querySelectorAll('.god-card').forEach(card=>{
-  const id=card.dataset.god,face=card.querySelector('.god-face.shadow');if(!face||face.querySelector('.god-book'))return;
-  face.insertAdjacentHTML('beforeend',`<button type="button" class="god-book" data-landing-book="${id}">E-book de ${NAMES7[id]} <svg class="ico"><use href="#i-seta"/></svg></button>`);
+  // O e-book fica sempre visível no pé do cartão, na luz e na sombra.
+  const id=card.dataset.god,offer=config.ebooks?.[id]||{};if(card.querySelector('.god-book'))return;
+  card.insertAdjacentHTML('beforeend',`<button type="button" class="god-book" data-landing-book="${id}" aria-label="E-book de ${NAMES7[id]}${offer.priceBRL?`, ${price(offer.priceBRL)}`:''}"><svg class="ico ico-livro" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 6c3-1.5 6-1.5 9 0v14c-3-1.5-6-1.5-9 0zM21 6c-3-1.5-6-1.5-9 0v14c3-1.5 6-1.5 9 0z"/></svg>E-book${offer.priceBRL?` · ${price(offer.priceBRL)}`:''}</button>`);
  });
- document.querySelectorAll('#home-view [data-landing-book]').forEach(b=>b.addEventListener('click',()=>landingBook(b.dataset.landingBook,b.closest('.god-card')?'inicio_sombra':'inicio_carrossel')));
+ document.querySelectorAll('#home-view [data-landing-book]').forEach(b=>b.addEventListener('click',()=>landingBook(b.dataset.landingBook,b.closest('.god-card')?'inicio_card':'inicio_carrossel')));
 }
 async function initialize(){
  try{const [c,q]=await Promise.all([api('/api/config'),api('/api/questions')]);config=c;bank=q.questions;version=q.version;landingBooks();const current=await api('/api/current');if(current.id){resultId=current.id;const r=await api(`/api/results/${resultId}`);renderResult(r.result,r.report);view('result');}}
