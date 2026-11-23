@@ -163,8 +163,9 @@
  }
 
  document.addEventListener('DOMContentLoaded',()=>{
-  balance();
+  // A página inicial agora é a do premium.js; balance, journey, reveals, flips e cover ficam
+  // guardados aqui caso a página antiga volte (sem os elementos dela, cada um sai sem fazer nada).
   if(calm||!watch)return;
-  journey();reveals();quiz();flips();cover();
+  quiz();
  });
 })();
