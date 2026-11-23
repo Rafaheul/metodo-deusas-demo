@@ -232,20 +232,22 @@ function renderResult(result,report){
  activeCapacity=result.regents[0]?.id||ranked[0].id;
  openMods=new Set();
  // O essencial fica aberto no topo (regente e as três respostas); o resto vem em blocos que abrem com um toque.
- $('#result-content').innerHTML=`<div class="result-masthead"><div class="eyebrow">MÉTODO DAS DEUSAS / SEU MAPA</div><div class="masthead-side"><span class="badge">${report?'Relatório completo':'Mapa inicial gratuito'}</span>${pdfButton()}</div></div>
- <p class="print-only print-head">Método das Deusas · Yasnnajára Alves · ${report?'Relatório completo':'Mapa inicial gratuito'} · ${new Date().toLocaleDateString('pt-BR')}</p>
- ${heroHtml()}
+ // Ordem da página, a mesma da revista: capa da regente, como ler, a leitura em um olhar,
+ // a revista (pronta para baixar, no pago; o produto, no grátis) e as partes para ir mais fundo.
+ $('#result-content').innerHTML=`${heroHtml()}
  ${readGuideHtml()}
  ${result.flags.length?`<div class="notice">${result.flags.map(escape).join('<br>')}</div>`:''}
  ${glanceHtml()}
- <div id="report-zone"><section class="mods" aria-labelledby="mods-title"><div class="mods-top"><div><div class="eyebrow">PARA IR MAIS FUNDO</div><h2 id="mods-title">Toque numa parte<br>para <em>entender melhor.</em></h2></div><p class="mod-count" id="mod-count" aria-live="polite"></p></div>${resultMods().map(modHtml).join('')}</section>${report?`${revistaChamada()}${missionHtml(report)}<p class="result-note">${escape(report.note)}</p>`:''}</div>
- ${report?'':'<p class="print-only print-free">Este é o mapa inicial gratuito. O relatório completo, com quem rege cada área da sua vida, luz e sombra das sete deusas e a missão da semana, fica no site do Método das Deusas.</p>'}
+ ${report?revistaPronta():''}
+ <div id="report-zone"><section class="mods" aria-labelledby="mods-title"><div class="mods-top"><div><p class="pr-olho"><i aria-hidden="true"></i>Para ir mais fundo</p><h2 id="mods-title">Toque numa parte<br>para <em>entender melhor.</em></h2></div><p class="mod-count" id="mod-count" aria-live="polite"></p></div>${resultMods().map(modHtml).join('')}</section>${report?`${missionHtml(report)}<p class="result-note">${escape(report.note)}</p>`:''}</div>
+ ${report?'':revistaOferta()}
  ${videoHtml()}
  ${nextStepHtml()}
  ${shelfHtml()}
  <details class="reading-note"><summary>Como este mapa foi feito</summary><p>${escape(result.methodology)}</p><p>Nas cenas, você escolheu o que faria primeiro e o que menos faria. Quando duas deusas terminam as cenas quase empatadas, algumas perguntas rápidas de desempate mostram qual delas pesa mais hoje.</p></details>
- ${!report&&offerReady()?`<div class="offer-bar" id="offer-bar" hidden><span>Veja quem rege cada área da sua vida</span><button class="primary" type="button" id="offer-bar-go">Ver o relatório</button></div>`:''}`;
+ ${!report&&offerReady()?`<div class="offer-bar" id="offer-bar" hidden><span>A sua revista completa${priceTxt()?` · ${escape(priceTxt())}`:''}</span><button class="primary" type="button" id="offer-bar-go">Ver a revista</button></div>`:''}`;
  renderSeven();bindResult();updateModCount();
+ document.querySelectorAll('.rs-poeira').forEach(c=>window.prPoeira?.(c));
 }
 
 // ---------- Termos do método: o "?" ao lado de cada termo abre uma explicação curta ----------
@@ -277,10 +279,10 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&termOpen){const b=t
 
 // ---------- Como ler o seu mapa: os três termos, sempre visíveis, logo depois da regente ----------
 function readGuideHtml(){
- return `<section class="read-guide" aria-labelledby="read-title"><div class="eyebrow" id="read-title">COMO LER O SEU MAPA</div><div class="read-cards">
-  <article class="read-card rc-regent"><span class="rc-icon" aria-hidden="true">★</span><div><h3>Regente ${termBtn('regente')}</h3><p class="rc-line">A voz que fala mais alto quando você decide.</p><p class="rc-more">É a deusa que você mais escolheu para fazer primeiro e menos deixou por último.</p></div></article>
-  <article class="read-card rc-luz"><span class="rc-icon" aria-hidden="true">☀</span><div><h3>Na luz ${termBtn('luz')}</h3><p class="rc-line">A capacidade trabalhando a seu favor.</p><p class="rc-more">Na medida certa. Aparecer pouco também pode ser luz.</p></div></article>
-  <article class="read-card rc-sombra"><span class="rc-icon" aria-hidden="true">☾</span><div><h3>Na sombra ${termBtn('sombra')}</h3><p class="rc-line">A capacidade fora do ponto.</p><ul class="rc-kinds"><li><b aria-hidden="true">▽</b> Por escassez: ficou sem espaço</li><li><b aria-hidden="true">▲</b> Por excesso: passou do ponto</li></ul></div></article>
+ return `<section class="read-guide" aria-labelledby="read-title"><p class="pr-olho pr-olho--meio" id="read-title"><i aria-hidden="true"></i>Como ler o seu mapa<i aria-hidden="true"></i></p><div class="read-cards">
+  <article class="read-card rc-regent"><span class="rc-num" aria-hidden="true">I</span><h3>Deusa regente ${termBtn('regente')}</h3><em>quem comanda</em><p>A voz que fala mais alto quando você decide: a deusa que você mais escolheu para fazer primeiro e menos deixou por último.</p></article>
+  <article class="read-card rc-luz"><span class="rc-num" aria-hidden="true">II</span><h3>Deusas dominantes</h3><em>quem acompanha</em><p>As que mais aparecem na luz logo depois da regente. Elas ajudam a regente e podem mudar com o momento da vida.</p></article>
+  <article class="read-card rc-sombra"><span class="rc-num" aria-hidden="true">III</span><h3>Luz e sombra ${termBtn('sombra')}</h3><em>na medida ou fora dela</em><p>Na luz, a capacidade trabalha a seu favor. Na sombra, ela passou do ponto (<b>▲</b> por excesso) ou ficou sem espaço (<b>▽</b> por escassez).</p></article>
  </div><p class="read-note">Sombra não é defeito: é uma capacidade pedindo ajuste.</p></section>`;
 }
 
@@ -295,8 +297,8 @@ function glanceHtml(){
  const god=c=>`<span class="g-god">${bust(c.id)}<span><strong>${escape(c.name)}</strong><small>${escape(cap(c.id))}</small></span></span>`;
  const careItem=c=>`<div class="g-care-item">${bust(c.id)}<div><strong>${escape(c.name)}</strong><span class="state-tag state-${c.state}">${STATE_ICON[c.state]} ${STATE_TAG[c.state]}</span><p>${escape(c.text)}</p>${ebookLink(c.id,'g-ebook','mapa_pede_cuidado')}</div></div>`;
  const noCare=rep?'Nenhuma deusa apareceu na sombra nas suas respostas.':'Nenhuma deusa apareceu com pouco espaço no mapa inicial. O relatório completo mostra se alguma passa do ponto.';
- return `<section class="glance" aria-label="Seu mapa em resumo">
-  <article class="glance-card g-allies"><div class="eyebrow">${rep?`NA LUZ AO LADO DELA ${termBtn('luz')}`:'TAMBÉM APARECEM MUITO'}</div>${allies.length?`<div class="g-row">${allies.map(god).join('')}</div>`:'<p class="g-none">Nenhuma outra deusa apareceu na luz ao lado dela.</p>'}</article>
+ return `<header class="rs-cabeca"><p class="pr-olho pr-olho--meio"><i aria-hidden="true"></i>A sua leitura em um olhar<i aria-hidden="true"></i></p></header><section class="glance" aria-label="Seu mapa em resumo">
+  <article class="glance-card g-allies"><div class="eyebrow">${rep?`AS SUAS DOMINANTES ${termBtn('luz')}`:'TAMBÉM APARECEM MUITO'}</div>${allies.length?`<div class="g-row">${allies.map(god).join('')}</div>`:'<p class="g-none">Nenhuma outra deusa apareceu na luz ao lado dela.</p>'}</article>
   <article class="glance-card g-care"><div class="eyebrow">PEDE CUIDADO ${termBtn('sombra')}</div>${care.length?care.map(careItem).join(''):`<p class="g-none">${noCare}</p>`}</article>
   <div class="glance-seven"><div class="g-seven-top"><h3 class="g-seven-title">As sete <em>em você</em></h3><span class="g-hint">${HAND}Toque numa para ver</span></div><ol>${byValue.map(c=>`<li><button type="button" class="g-seven ${isRegent(c.id)?'regent':''}" data-glance="${c.id}" aria-label="${escape(`${c.name}: ${c.level}`)}">${bust(c.id)}<strong>${escape(c.name)}</strong><span class="g-bar" aria-hidden="true"><i data-w="${c.value===null?0:Math.round(c.value/4*100)}"></i></span><small>${escape(c.level)}</small></button></li>`).join('')}</ol></div>
  </section>`;
@@ -338,13 +340,44 @@ function shelfHtml(){
 // ---------- PDF ----------
 // O PDF sai pela impressão do navegador ("Salvar como PDF") e leva só o que esta versão mostra:
 // o mapa grátis não carrega nada do relatório pago, e o pago sai com todas as partes e todas as áreas abertas.
-// Chamada da revista em PDF (relatório completo): capa da regente + botão que monta a revista.
-function revistaChamada(){
- const id=currentResult.regents[0]?.id;
- return `<section class="rv-chamada">${id?`<img src="assets/revista/${id}-capa.webp" alt="" loading="lazy">`:''}<div><div class="eyebrow">A SUA REVISTA</div><h2>O seu mapa inteiro,<br><em>para guardar.</em></h2><p>Uma revista em PDF com a sua regente, as dominantes, luz e sombra das sete, as sete áreas da sua vida e a missão da semana.</p><button type="button" class="primary cta" data-pdf>Baixar a minha revista <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></button></div></section>`;
+// A revista é o produto. No grátis, esta parte mostra a revista (capa com a regente da pessoa,
+// páginas de exemplo, sumário e preço); no pago, a revista pronta para baixar.
+const GREGO={artemis:'Ἄρτεμις',atena:'Ἀθηνᾶ',hestia:'Ἑστία',hera:'Ἥρα',demeter:'Δημήτηρ',persefone:'Περσεφόνη',afrodite:'Ἀφροδίτη'};
+const EPITETO={hestia:'o centro interior',artemis:'a direção e a determinação',atena:'a estratégia e a inteligência',hera:'o compromisso e a dignidade',demeter:'o cuidado e a nutrição',persefone:'a receptividade e a transformação',afrodite:'o magnetismo e o prazer'};
+const PAGINAS=[['03','A sua leitura em um olhar'],['05','A sua regente por dentro'],['07','Luz e sombra das sete'],['08','As sete áreas da sua vida'],['11','A sua missão da semana']];
+const priceTxt=()=>typeof config.report?.priceBRL==='number'?price(config.report.priceBRL):'';
+const capaId=()=>currentResult.regents[0]?.id||byForce(currentResult.capacities)[0].id;
+function sumario(){
+ const regs=currentResult.regents,l=regs.map((g,k)=>[ROMAN[k],`${regs.length>1?'Uma das suas regentes':'A sua regente'}: ${g.name}`]);let k=regs.length;
+ l.push([ROMAN[k++],'As suas dominantes'],[ROMAN[k++],'Luz e sombra das sete'],[ROMAN[k++],'As sete áreas da sua vida'],[ROMAN[k++],'A seu favor e pede cuidado'],[ROMAN[k++],'A sua missão da semana'],['Ω','O próximo passo']);
+ return `<ol class="rs-sumario">${l.map(([r,t])=>`<li><span>${r}</span>${escape(t)}</li>`).join('')}</ol>`;
+}
+// Capa da revista em miniatura, com a regente desta pessoa.
+function miniCapa(){
+ const id=capaId(),regs=currentResult.regents,nome=regs.length?regs.map(g=>g.name).join(' e '):currentResult.capacities.find(c=>c.id===id).name;
+ return `<div class="rs-mini"><span class="rs-mini__moldura"></span><b class="rs-mini__mast">DEUSAS</b><img src="assets/revista/${id}-capa.webp" alt="" loading="lazy" decoding="async"><span class="rs-mini__fim"><small>${regs.length>1?'as suas deusas regentes são':regs.length?'a sua deusa regente é':'quem mais aparece em você é'}</small><strong>${escape(nome)}</strong><em>${escape(regs.length===1?EPITETO[id]:'edição de você')}</em></span></div>`;
+}
+function revistaPilha(){
+ return `<div class="rs-pilha" aria-hidden="true"><img class="rs-pilha__pg rs-pilha__pg--2" src="assets/revista/paginas/pagina-08.jpg" alt="" loading="lazy" decoding="async"><img class="rs-pilha__pg rs-pilha__pg--1" src="assets/revista/paginas/pagina-05.jpg" alt="" loading="lazy" decoding="async">${miniCapa()}</div>`;
+}
+function revistaOferta(){
+ const {head,sub}=lockedLead(),r=currentResult,p=priceTxt();
+ return `<section class="rs-produto" id="locked-report"><div class="pr-grega rs-produto__grega" aria-hidden="true"></div>
+  <div class="rs-produto__grade">${revistaPilha()}
+   <div class="rs-produto__texto"><p class="pr-olho pr-olho--claro"><i aria-hidden="true"></i>A sua revista completa</p><h2>${head}</h2><p class="rs-produto__sub">${escape(sub)} A revista mostra quem rege cada uma, com o seu nome na capa.</p>
+    ${sumario()}
+    <div class="rs-preco" id="offer">${p?`<div class="rs-preco__valor"><small>Revista em PDF · 12 páginas</small><strong>${p}</strong><span>pagamento único</span></div>`:''}${reportCta()}${p&&config.report?.checkoutUrl?'<p class="rs-garantia">Você tem 7 dias para desistir, pelo Código de Defesa do Consumidor.</p>':''}</div>
+   </div>
+  </div>
+  <div class="rs-folhear"><p class="pr-olho pr-olho--claro pr-olho--meio"><i aria-hidden="true"></i>Por dentro da revista<i aria-hidden="true"></i></p><ul>${PAGINAS.map(([n,t])=>`<li><figure><img src="assets/revista/paginas/pagina-${n}.jpg" alt="Página de exemplo: ${escape(t)}" width="600" height="849" loading="lazy" decoding="async"><figcaption><span>${Number(n)}</span>${escape(t)}</figcaption></figure></li>`).join('')}</ul><p class="rs-folhear__nota">Páginas de exemplo. A sua revista sai com as suas deusas, as suas áreas e o seu nome.</p></div>
+  ${r.sampleArea?`<div class="rs-amostra"><div class="rs-amostra__cab"><p class="pr-olho pr-olho--claro"><i aria-hidden="true"></i>Uma área aberta, de presente</p><h3>As outras ${r.lockedAreas.length} estão <em>na revista.</em></h3></div>${sampleHtml(r.sampleArea)}<ul class="sealed-grid">${r.lockedAreas.map(a=>`<li class="sealed"><span class="tile-icon" aria-hidden="true">${AREA_ICON[a.id]||'✦'}</span><strong>Quem rege ${escape(AREA_ASK[a.id]||a.name)}?</strong>${LOCK}</li>`).join('')}</ul><div class="rs-amostra__fim">${reportCta(true)}</div></div>`:''}
+ </section>`;
+}
+function revistaPronta(){
+ return `<section class="rs-produto rs-produto--pronta" id="rs-revista"><div class="pr-grega rs-produto__grega" aria-hidden="true"></div><div class="rs-produto__grade">${revistaPilha()}<div class="rs-produto__texto"><p class="pr-olho pr-olho--claro"><i aria-hidden="true"></i>A sua revista está pronta</p><h2>O seu mapa inteiro,<br><em>para guardar.</em></h2><p class="rs-produto__sub">Doze páginas com a sua regente, as dominantes, luz e sombra das sete, as sete áreas da sua vida e a missão da semana. Você escolhe o nome que vai na capa.</p>${sumario()}<div class="rs-preco"><button type="button" class="primary cta cta-light" data-pdf>Baixar a minha revista <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></button></div></div></div></section>`;
 }
 function pdfButton(){
- return `<button type="button" class="pdf-btn" data-pdf><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0-4-4m4 4 4-4M5 19h14"/></svg>${currentReport?'Baixar a minha revista em PDF':'Baixar meu mapa em PDF'}</button>`;
+ return currentReport?`<button type="button" class="pdf-btn" data-pdf><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0-4-4m4 4 4-4M5 19h14"/></svg>Baixar a minha revista</button>`:'';
 }
 function exportPdf(){
  // Relatório completo: sai a revista (revista.js). Mapa grátis: a impressão de sempre.
@@ -369,9 +402,9 @@ function resultMods(){
   mods.push({id:'caminho',mark:'★',label:'Como chegamos à sua regente',title,teaser:'Veja a eliminação, passo a passo.',body:pathHtml()});
  }
  mods.push({id:'sete',mark:'✦',label:'As sete deusas em você',title:ranked.length>1?`${ranked[0].name} aparece mais; ${ranked.at(-1).name}, menos`:'Quanto cada deusa aparece em você',teaser:'Veja quanto cada deusa aparece nas suas escolhas.',body:sevenHtml()});
- if(!rep){mods.push({id:'relatorio',mark:'◈',label:'Seu relatório completo',title:cut(lockedLead().sub),teaser:'Veja uma área de amostra e tudo o que o relatório traz.',body:lockedHtml()});return mods;}
+ if(!rep)return mods;
  const shadows=[...rep.excess,...rep.scarcity],inLight=rep.capacities.filter(c=>c.scale===1).length;
- const luzTitle=shadows.length?`${listJoin(shadows.map(x=>x.name))} ${shadows.length>1?'pedem':'pede'} cuidado; ${inLight} na luz`:inLight===7?'As sete estão na luz':`${inLight} na luz, nenhuma na sombra`;
+ const luzTitle=shadows.length?`${listJoin(shadows.map(x=>x.name))} ${shadows.length>1?'pedem':'pede'} cuidado${inLight?`; ${inLight} na luz`:''}`:inLight===7?'As sete estão na luz':`${inLight} na luz, nenhuma na sombra`;
  mods.push({id:'luz',mark:'I',label:'Luz e sombra',title:luzTitle,teaser:shadows.length?'Veja quem passou do ponto e quem ficou sem espaço.':'Veja como cada deusa aparece, da luz à sombra.',body:balanceHtml(rep)});
  mods.push({id:'areas',mark:'II',label:'As áreas da sua vida',title:rep.areasSummary?cut(rep.areasSummary):'Cada área tem a sua regente',teaser:'Toque para ver quem rege, quem ajuda e quem pesa em cada área.',body:areasHtml(rep)});
  mods.push({id:'favor',mark:'III',label:'A seu favor e pede cuidado',title:`${plural(rep.favor.length,'ponto','pontos')} a seu favor e ${rep.care.length} que ${rep.care.length===1?'pede':'pedem'} cuidado`,teaser:'Veja seus apoios e o que vale observar.',body:favorHtml(rep)});
@@ -399,11 +432,21 @@ function flipCard(g){
  return `<div class="flip" data-flip><div class="flip-inner"><div class="flip-face front"><div class="eyebrow">${escape(g.symbol)} ${escape(g.name.toUpperCase())} NA LUZ</div><p class="flip-gift">${escape(g.card.gift)}</p><p class="flip-question">${escape(g.card.question)}</p></div><div class="flip-face back" hidden><div class="eyebrow">QUANDO PASSA DO PONTO</div><p>${escape(g.card.excess)}</p><div class="eyebrow">QUEM EQUILIBRA</div><p class="balance-line">${escape(listJoin(g.card.balance))}, pela Regra do Eixo Oposto.</p></div></div><button class="flip-turn" type="button" aria-expanded="false">Virar a carta <span aria-hidden="true"><svg class="ico"><use href="#i-girar"/></svg></span></button></div>`;
 }
 function heroHtml(){
- const r=currentResult,regs=r.regents,p=r.path;
- const art=regs.length?`<div class="hero-arch ${regs.length>1?'duo':''}" aria-hidden="true">${regs.map(g=>figure(g.id)).join('')}</div>`:`<div class="hero-arch none" aria-hidden="true"><div class="bust-ring">${IDS7.map(id=>bust(id)).join('')}</div></div>`;
- const label=regs.length>1?'QUEM REGE SUAS ESCOLHAS HOJE · REGÊNCIA DIVIDIDA':regs.length?'QUEM REGE SUAS ESCOLHAS HOJE':'UMA LEITURA DE CONJUNTO';
+ const r=currentResult,regs=r.regents,p=r.path,um=regs.length===1?regs[0]:null;
+ const art=regs.length?`<div class="rs-capa__arte ${regs.length>1?'duo':''}" aria-hidden="true"><span class="rs-capa__arco"></span><span class="rs-capa__luz"></span>${regs.map(g=>figure(g.id)).join('')}</div>`:`<div class="rs-capa__arte none" aria-hidden="true"><div class="bust-ring">${IDS7.map(id=>bust(id)).join('')}</div></div>`;
+ const label=regs.length>1?'As suas deusas regentes':regs.length?'A sua deusa regente':'Uma leitura de conjunto';
  const title=regs.length?regs.map(g=>escape(g.name)).join('<i> e </i>'):'Seu mapa tem<br>mais de uma voz.';
- return `<section class="regent-hero">${art}<div class="regent-copy"><p class="regent-label">${label}${regs.length?` ${termBtn('regente')}`:''}</p><h1>${title}</h1>${regs.length===1?`<p class="capacity-title">${escape(regs[0].capacity)}</p>`:''}${p?.badge&&p.method!=='insuficiente'?`<span class="method-badge method-${p.method}">${escape(p.badge)}</span>`:''}${regs.length?regs.map(flipCard).join(''):`<p class="lead">${escape(r.summary)}</p>`}${regs.length===1?'<button class="secondary share-trigger" type="button">Compartilhar minha deusa <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></button>':''}</div></section>`;
+ return `<section class="rs-capa regent-hero"><canvas class="rs-poeira" aria-hidden="true"></canvas>
+  <div class="rs-capa__topo"><span class="rs-capa__marca">Método das Deusas · o seu mapa</span><span class="rs-capa__selo">${currentReport?'Relatório completo':'Mapa inicial gratuito'}</span>${pdfButton()}</div>
+  <div class="rs-capa__grade">${art}<div class="regent-copy">
+   <p class="regent-label">${label}${regs.length?` ${termBtn('regente')}`:''}</p>
+   <h1>${title}</h1>
+   ${um?`<p class="rs-capa__grego" lang="el">${GREGO[um.id]||''}</p><p class="rs-capa__epiteto">${escape(EPITETO[um.id]||um.capacity)}</p>`:''}
+   ${p?.badge&&p.method!=='insuficiente'?`<span class="method-badge method-${p.method}">${escape(p.badge)}</span>`:''}
+   ${regs.length?regs.map(flipCard).join(''):`<p class="lead">${escape(r.summary)}</p>`}
+   ${um?'<button class="secondary share-trigger" type="button">Compartilhar minha deusa <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></button>':''}
+  </div></div>
+  <div class="pr-grega rs-capa__grega" aria-hidden="true"></div></section>`;
 }
 
 // Caminho até a regente, no estilo Akinator: 7 → finalistas → desempate → regente.
@@ -454,26 +497,18 @@ function sampleHtml(a){
  return `<article class="sample-area"><div class="sample-badge">AMOSTRA GRÁTIS · 1 DE ${currentResult.toc.areas} ÁREAS</div><div class="area-head"><span class="tile-icon" aria-hidden="true">${AREA_ICON[a.id]||'✦'}</span><div><h3>${escape(a.name)}</h3>${confHtml(a)}</div></div><div class="roles">${areaRoles(a)}</div></article>`;
 }
 function offerReady(){const r=config.report||{};return !!(r.checkoutUrl||config.demoMode);}
-function priceHtml(){const p=config.report?.priceBRL;return typeof p==='number'&&config.report?.checkoutUrl?`<div class="price"><strong>${price(p)}</strong><small>Pagamento único. Você tem 7 dias para desistir, pelo Código de Defesa do Consumidor.</small></div>`:'';}
-function reportCta(){
- const r=config.report||{};
- if(r.checkoutUrl)return `<a class="primary" href="${escape(r.checkoutUrl)}" target="_blank" rel="noopener noreferrer">Ver minha deusa em cada área <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></a>`;
- if(config.demoMode)return `<button class="primary" id="unlock-demo" type="button">Ver minha deusa em cada área <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></button><p class="subtle">Demonstração local: o relatório abre sem pagamento. Na versão publicada, este botão leva ao pagamento.</p>`;
- return `<button class="primary" disabled>Relatório completo · em breve</button><p class="subtle">A venda do relatório será aberta depois da aprovação da autora.</p>`;
+function reportCta(segundo=false){
+ const r=config.report||{},seta='<span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span>',rotulo=segundo?'Quero a revista completa':'Quero a minha revista';
+ if(r.checkoutUrl)return `<a class="primary cta cta-light" href="${escape(r.checkoutUrl)}" target="_blank" rel="noopener noreferrer">${rotulo} ${seta}</a>`;
+ if(config.demoMode)return `<button class="primary cta cta-light unlock-demo" type="button">${rotulo} ${seta}</button>${segundo?'':'<p class="rs-demo">Demonstração: a revista abre sem pagamento. Com o link da Hotmart, este botão leva ao pagamento.</p>'}`;
+ return `<button class="primary cta cta-light" disabled>Revista completa · em breve</button>`;
 }
 function lockedLead(){
  const r=currentResult,regs=r.regents,lead=regs.map(g=>escape(g.name)).join(' e '),n=r.othersRule,total=r.toc.areas;
- if(!regs.length)return {head:'Cada área da vida<br>tem a sua <em>regente.</em>',sub:'No relatório completo, veja quem comanda cada área, quem ajuda e quem pesa.'};
+ if(!regs.length)return {head:'Cada área da vida<br>tem a sua <em>regente.</em>',sub:'Cada área tem quem comanda, quem ajuda e quem pesa.'};
  if(n>0)return {head:`${lead} ${regs.length>1?'regem':'rege'} suas escolhas.<br>Mas não <em>todas as áreas.</em>`,sub:`Em ${n} das ${total} áreas da sua vida, outra deusa assume o comando.`};
- return {head:`${lead} ${regs.length>1?'aparecem':'aparece'} à frente<br>em <em>todas as áreas.</em>`,sub:'Mas com aliadas e pesos diferentes em cada uma.'};
+ return {head:`${lead} ${regs.length>1?'aparecem':'aparece'} à frente<br>em <em>todas as áreas.</em>`,sub:'Mas com quem ajuda e quem pesa mudando de uma para outra.'};
 }
-function lockedHtml(){
- const r=currentResult,{head,sub}=lockedLead();
- const shadows=r.toc.shadows;
- const toc=[['Luz e sombra das 7 deusas',shadows?`${plural(shadows,'sinal','sinais')} de sombra para olhar com calma`:'quem está na medida e quem pede ajuste'],['As 7 áreas da sua vida','quem rege, quem ajuda e quem pesa em cada uma'],['A seu favor e pede cuidado','seus apoios, suas armadilhas e onde você floresce'],['Sua missão da semana','uma prática pela Regra do Eixo Oposto'],['Sua revista em PDF','com o seu nome na capa, para baixar e guardar']];
- return `<section class="locked-report" id="locked-report"><div class="eyebrow">SEU RELATÓRIO COMPLETO</div><h2>${head}</h2><p class="lead-small">${escape(sub)}</p>${r.sampleArea?sampleHtml(r.sampleArea):''}<ul class="sealed-grid">${r.lockedAreas.map(a=>`<li class="sealed"><span class="tile-icon" aria-hidden="true">${AREA_ICON[a.id]||'✦'}</span><strong>Quem rege ${escape(AREA_ASK[a.id]||a.name)}?</strong>${LOCK}</li>`).join('')}</ul><div class="toc"><div class="eyebrow">O QUE TEM NO RELATÓRIO</div><ol>${toc.map(([t,s],i)=>`<li><span class="roman" aria-hidden="true">${ROMAN[i]}</span><div><strong>${t}</strong><small>${escape(s)}</small></div></li>`).join('')}</ol></div><div class="offer" id="offer">${priceHtml()}${reportCta()}</div></section>`;
-}
-
 // ---------- Relatório completo ----------
 // Cada parte vira um bloco em resultMods(); o resumo do topo fica em glanceHtml().
 function balanceHtml(rep){
@@ -543,7 +578,7 @@ function bindResult(){
  root.querySelectorAll('[data-seven]').forEach(b=>b.addEventListener('click',()=>{sevenMode=b.dataset.seven;renderSeven();}));
  root.querySelectorAll('.area-tile').forEach(t=>t.addEventListener('click',()=>toggleArea(t.dataset.area)));
  root.querySelector('.share-trigger')?.addEventListener('click',shareCard);
- $('#unlock-demo')?.addEventListener('click',unlockDemo);
+ root.querySelectorAll('.unlock-demo').forEach(b=>b.addEventListener('click',()=>unlockDemo(b)));
  $('#prefer-ebook').addEventListener('click',()=>{renderEbook();$('#ebook-offer').hidden=false;$('#ebook-offer').scrollIntoView({block:'start',behavior:calm()?'auto':'smooth'});});
  root.querySelectorAll('.consult-trigger').forEach(b=>b.addEventListener('click',showConsultation));
  const video=root.querySelector('video');if(video){const failed=()=>{const f=root.querySelector('.video-fallback');if(f)f.hidden=false;};video.addEventListener('error',failed);video.querySelector('source')?.addEventListener('error',failed);}
@@ -554,14 +589,13 @@ function bindResult(){
  const bar=$('#offer-bar');
  if(bar){let pastHero=false,nearOffer=false;const sync=()=>{bar.hidden=!(pastHero&&!nearOffer);};
   observe(root.querySelector('.regent-hero'),on=>{pastHero=!on;sync();});observe($('#locked-report'),on=>{nearOffer=on;sync();});
-  $('#offer-bar-go').addEventListener('click',()=>{openMod('relatorio');setTimeout(()=>$('#offer').scrollIntoView({block:'center',behavior:calm()?'auto':'smooth'}),calm()?0:560);});}
+  $('#offer-bar-go').addEventListener('click',()=>$('#locked-report').scrollIntoView({block:'start',behavior:calm()?'auto':'smooth'}));}
 }
-async function unlockDemo(){
- const b=$('#unlock-demo');b.disabled=true;b.textContent='Abrindo…';
- try{const r=await api(`/api/results/${resultId}/unlock`,{method:'POST',body:'{}'});renderResult(r.result,r.report);$('#report-zone').scrollIntoView({block:'start',behavior:calm()?'auto':'smooth'});}
- catch(e){status(e.message);b.disabled=false;b.innerHTML='Ver minha deusa em cada área <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span>';}
+async function unlockDemo(b){
+ const was=b.innerHTML;document.querySelectorAll('.unlock-demo').forEach(x=>x.disabled=true);b.textContent='Abrindo…';
+ try{const r=await api(`/api/results/${resultId}/unlock`,{method:'POST',body:'{}'});renderResult(r.result,r.report);$('#rs-revista').scrollIntoView({block:'start',behavior:calm()?'auto':'smooth'});}
+ catch(e){status(e.message);document.querySelectorAll('.unlock-demo').forEach(x=>x.disabled=false);b.innerHTML=was;}
 }
-
 // ---------- Revelação da regente (depois de concluir) ----------
 function revealResult(){
  const r=currentResult,p=r.path,regs=r.regents;
@@ -644,7 +678,7 @@ async function erase(){if(resultId)await api(`/api/results/${resultId}`,{method:
 async function startAgain(force){if(busy)return;if(resultId){if(!await confirmAction('Começar um novo mapa?','O mapa atual será apagado deste piloto. Você poderá responder novamente.'))return;try{await erase();}catch(e){status(e.message);return;}}else if(force){answers={};index=0;forgetDraft();}beginSetup();}
 $('#restart').addEventListener('click',()=>startAgain(true));
 $('#delete-result').addEventListener('click',async()=>{if(!await confirmAction('Apagar seu mapa?','Suas respostas e seu mapa serão excluídos deste aparelho. O progresso salvo neste dispositivo também será apagado.'))return;try{await erase();view('home');status('Mapa apagado.');}catch(e){status(e.message);}});
-$('#print-report').addEventListener('click',()=>{if(currentResult)exportPdf();else window.print();});
+
 // ---------- E-books na página inicial ----------
 // Carrossel com os sete em "No seu ritmo" e, em cada deusa de "As sete vozes", o e-book dela no lado da sombra.
 // Sem link de compra configurado, abre a prévia e convida a fazer o mapa, que indica o e-book certo.

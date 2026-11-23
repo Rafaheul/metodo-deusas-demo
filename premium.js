@@ -46,15 +46,19 @@
     }
 
     // ---------- poeira dourada subindo na abertura ----------
-    var tela = document.querySelector('.pr-poeira');
-    if (tela && !calma && tela.getContext) {
+    // (vale para a abertura e para a revelação da regente; cada tela tem a sua poeira)
+    function poeira(tela) {
+      if (calma || !tela.getContext || tela.dataset.poeira) return; tela.dataset.poeira = '1';
       var ctx = tela.getContext('2d'), graos = [], larg = 0, alt = 0, ligado = true, dpr = Math.min(2, devicePixelRatio || 1);
-      function mede() { var r = tela.getBoundingClientRect(); larg = r.width; alt = r.height; tela.width = larg * dpr; tela.height = alt * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
       function novo(inicio) { return { x: Math.random() * larg, y: inicio ? Math.random() * alt : alt + 10, r: .6 + Math.random() * 1.8, v: .15 + Math.random() * .45, f: Math.random() * 6.28, a: .25 + Math.random() * .55 }; }
-      mede(); var n = Math.round(Math.min(70, larg / 18)); for (var i = 0; i < n; i++) graos.push(novo(true));
-      addEventListener('resize', mede);
+      function mede() {
+        var r = tela.getBoundingClientRect(); larg = r.width; alt = r.height; tela.width = larg * dpr; tela.height = alt * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        var n = Math.round(Math.min(70, larg / 18)); graos = []; for (var i = 0; i < n; i++) graos.push(novo(true));
+      }
+      mede();
+      if (window.ResizeObserver) new ResizeObserver(mede).observe(tela); else addEventListener('resize', mede);
       (function quadro() {
-        if (ligado) {
+        if (ligado && larg) {
           ctx.clearRect(0, 0, larg, alt);
           graos.forEach(function (g, k) {
             g.y -= g.v; g.f += .012; var x = g.x + Math.sin(g.f) * 14;
@@ -63,10 +67,12 @@
             ctx.fillStyle = '#f0dca6'; ctx.beginPath(); ctx.arc(x, g.y, g.r, 0, 6.283); ctx.fill();
           });
         }
-        requestAnimationFrame(quadro);
+        if (tela.isConnected) requestAnimationFrame(quadro);
       })();
       if (observa) new IntersectionObserver(function (e) { ligado = e[0].isIntersecting; }).observe(tela);
     }
+    window.prPoeira = poeira; // o resultado (app.js) usa na capa da regente
+    [].slice.call(document.querySelectorAll('.pr-poeira')).forEach(poeira);
 
     // ---------- no computador, o panteão acompanha o mouse de leve ----------
     if (panteao && !calma && matchMedia('(hover:hover) and (pointer:fine)').matches) {

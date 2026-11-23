@@ -432,16 +432,12 @@ footer.pr-rodape{display:block;max-width:none;margin:0;padding:64px var(--gutter
 .pr-reconhece__fim .pr-louro{margin-bottom:0}
 
 /* templo da abertura: frontão com inscrição */
-.pr-panteao__inscricao{position:absolute;left:50%;top:-58px;transform:translateX(-50%);white-space:nowrap;font:400 13px/1 var(--grego);letter-spacing:.42em;color:#cdb98c;opacity:.8}
-.pr-panteao__templo::before{content:"";position:absolute;left:50%;top:-100px;width:72%;height:40px;transform:translateX(-50%);
-  background:linear-gradient(to top right,transparent calc(50% - .6px),#a1875366 50%,transparent calc(50% + .6px)) left/50% 100% no-repeat,
-             linear-gradient(to top left,transparent calc(50% - .6px),#a1875366 50%,transparent calc(50% + .6px)) right/50% 100% no-repeat}
 .pr-panteao__nome i{font:italic 400 18px/1 var(--grego);color:#bda77a;margin-bottom:6px}
 
 /* assinatura "Yasnnajára / ALVES", como nos outros sites */
 .pr-assinatura{margin:0 0 22px;line-height:1}
 .pr-assinatura em{display:block;font:italic 600 clamp(52px,6vw,78px)/1 'Bodoni Moda',Didot,Georgia,serif;font-variation-settings:"opsz" 72;
-  background:linear-gradient(100deg,#6a343d 5%,#a5633f 55%,#b8945a 95%);-webkit-background-clip:text;background-clip:text;color:transparent;padding:0 .08em .06em 0}
+  background:linear-gradient(100deg,#6a343d 5%,#a5633f 55%,#b8945a 95%);-webkit-background-clip:text;background-clip:text;color:transparent;padding:.04em .12em .3em .06em;margin:-.04em 0 -.24em -.06em}
 .pr-assinatura small{display:block;margin-top:10px;font:600 15px/1 var(--grega);letter-spacing:.62em;text-indent:.1em;text-transform:uppercase;color:var(--olive)}
 @media (max-width:760px){.pr-assinatura small{text-indent:.62em}}
 
@@ -500,8 +496,6 @@ footer.pr-rodape{display:block;max-width:none;margin:0;padding:64px var(--gutter
 @media (max-width:380px){.brand{font-size:19px}.brand-mark{display:none}}
 @media (max-width:900px){
   .pr-panteao{margin-top:56px}
-  .pr-panteao__templo::before{display:none}
-  .pr-panteao__inscricao{top:-40px;font-size:12px}
 }
 @media (max-width:760px){
   .pr-anima .pr-palco{padding-bottom:96px}

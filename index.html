@@ -8,8 +8,8 @@
   <link rel="icon" href="muse.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@1,6..96,600&family=Cinzel:wght@500;600&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=EB+Garamond:ital,wght@0,400;1,400&family=Inter:wght@400;500;600&family=Marcellus&display=swap">
-  <link rel="stylesheet" href="styles.css?v=202611232130"><link rel="stylesheet" href="template-elements.css?v=202611232130"><link rel="stylesheet" href="v04.css?v=202611232130"><link rel="stylesheet" href="motion.css?v=202611232130"><link rel="stylesheet" href="premium.css?v=202611232130"><link rel="stylesheet" href="revista.css?v=202611232130">
-  <script src="motion.js?v=202611232130"></script><script src="premium.js?v=202611232130" defer></script><script type="module" src="local-api.js?v=202611232130"></script><script src="app.js?v=202611232130" defer></script><script type="module" src="revista.js?v=202611232130"></script>
+  <link rel="stylesheet" href="styles.css?v=202611232245"><link rel="stylesheet" href="template-elements.css?v=202611232245"><link rel="stylesheet" href="v04.css?v=202611232245"><link rel="stylesheet" href="motion.css?v=202611232245"><link rel="stylesheet" href="premium.css?v=202611232245"><link rel="stylesheet" href="revista.css?v=202611232245"><link rel="stylesheet" href="jornada.css?v=202611232245">
+  <script src="motion.js?v=202611232245"></script><script src="premium.js?v=202611232245" defer></script><script type="module" src="local-api.js?v=202611232245"></script><script src="app.js?v=202611232245" defer></script><script type="module" src="revista.js?v=202611232245"></script>
 </head>
 <body>
   <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
@@ -48,7 +48,7 @@
             </div>
           </div>
           <div class="pr-panteao" id="pr-panteao">
-            <div class="pr-panteao__templo" aria-hidden="true"><i></i><i></i><i></i><span class="pr-panteao__inscricao">ΓΝΩΘΙ ΣΕΑΥΤΟΝ</span></div>
+            <div class="pr-panteao__templo" aria-hidden="true"><i></i><i></i><i></i></div>
             <div class="pr-panteao__fila">
               <button type="button" class="pr-deusa" style="--k:-3;--d:3" data-nome="Ártemis" data-grego="Ἄρτεμις" data-cap="escolher os seus caminhos"><img src="assets/deusas/artemis-corpo.webp" alt="" width="332" height="720" decoding="async"><span class="pr-sr">Ártemis</span></button>
               <button type="button" class="pr-deusa" style="--k:-2;--d:2" data-nome="Perséfone" data-grego="Περσεφόνη" data-cap="ouvir e atravessar mudanças"><img src="assets/deusas/persefone-corpo.webp" alt="" width="309" height="720" decoding="async"><span class="pr-sr">Perséfone</span></button>
@@ -330,7 +330,7 @@
             <h2 class="pr-h2">Para você começar <em>à vontade.</em></h2>
           </header>
           <div class="pr-duvidas__lista" data-pr>
-            <details><summary>Preciso pagar para fazer o mapa?</summary><p>Não. O questionário e o primeiro mapa são gratuitos. A revista completa em PDF, com as sete áreas da vida, é paga à parte, por um preço único, e você só decide depois de ver o seu mapa.</p></details>
+            <details><summary>Preciso pagar para fazer o mapa?</summary><p>Não. O questionário e o primeiro mapa são gratuitos. A revista completa em PDF, com as sete áreas da vida, custa R$ 47,90, em pagamento único, e você só decide depois de ver o seu mapa.</p></details>
             <details><summary>O que aparece no meu mapa?</summary><p>A deusa que está regendo as suas escolhas, o caminho até ela, o lugar de cada uma das sete em você, um primeiro sinal de sombra e uma área da vida aberta como amostra.</p></details>
             <details><summary>Quanto tempo leva?</summary><p>Cerca de 15 minutos. Você pode pausar e voltar depois, e pular uma cena que nunca viveu.</p></details>
             <details><summary>E se duas deusas empatarem?</summary><p>Aparecem algumas perguntas rápidas só com as finalistas. Se o empate continuar, o mapa mostra as duas lado a lado: ter duas regentes também é um resultado.</p></details>
@@ -343,9 +343,17 @@
       <div class="pr-fixo" id="pr-fixo"><button class="primary start-trigger cta">Descobrir minha deusa <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></button></div>
     </div>
 
-    <section id="setup-view" class="journey-view narrow" hidden>
-      <div class="eyebrow">ANTES DO PRIMEIRO PASSO</div><h1>Comece pela vida<br>que você está <em>vivendo.</em></h1>
-      <p class="lead">Você vai ler cenas do dia a dia, cada uma com quatro reações possíveis. Pense no que você faria de verdade, não no que seria o ideal.</p>
+    <section id="setup-view" class="journey-view narrow jr" hidden>
+      <header class="jr-abre">
+        <div class="jr-abre__dentro">
+          <p class="pr-olho pr-olho--claro pr-olho--meio"><i aria-hidden="true"></i>Antes do primeiro passo<i aria-hidden="true"></i></p>
+          <h1>Comece pela vida<br>que você está <em>vivendo.</em></h1>
+          <p class="lead">Você vai ler cenas do dia a dia, cada uma com quatro reações possíveis. Pense no que você faria de verdade, não no que seria o ideal.</p>
+          <ul class="jr-medalhas" aria-hidden="true"><li><img src="assets/deusas/artemis-busto.webp" alt="" width="320" height="320" loading="lazy" decoding="async"></li><li><img src="assets/deusas/persefone-busto.webp" alt="" width="320" height="320" loading="lazy" decoding="async"></li><li><img src="assets/deusas/hera-busto.webp" alt="" width="320" height="320" loading="lazy" decoding="async"></li><li><img src="assets/deusas/atena-busto.webp" alt="" width="320" height="320" loading="lazy" decoding="async"></li><li><img src="assets/deusas/demeter-busto.webp" alt="" width="320" height="320" loading="lazy" decoding="async"></li><li><img src="assets/deusas/afrodite-busto.webp" alt="" width="320" height="320" loading="lazy" decoding="async"></li><li><img src="assets/deusas/hestia-busto.webp" alt="" width="320" height="320" loading="lazy" decoding="async"></li></ul>
+        </div>
+        <div class="pr-grega jr-grega" aria-hidden="true"></div>
+      </header>
+      <p class="jr-titulo"><svg class="jr-louro" aria-hidden="true"><use href="#i-louro"/></svg>Como funciona</p>
       <ol class="how-steps">
         <li><span class="how-badge first" aria-hidden="true">1º</span><div><strong>Toque no que você faria primeiro.</strong><small>Todas as reações são comuns. Não existe resposta certa.</small></div></li>
         <li><span class="how-badge last" aria-hidden="true">✕</span><div><strong>Depois, no que você menos faria.</strong><small>Assim que marcar as duas, a próxima cena aparece.</small></div></li>
@@ -357,10 +365,10 @@
         <p class="warmup-coach" id="warmup-coach" aria-live="polite">Toque no que você faria <strong>primeiro</strong>.</p>
         <div class="dilemma-options" id="warmup-options"></div>
       </section>
-      <form id="setup-form"><label class="check"><input id="adult" type="checkbox" required><span>Tenho 18 anos ou mais.</span></label><label class="check"><input id="consent" type="checkbox" required><span>Li como minhas respostas serão usadas e autorizo o envio para gerar meu mapa inicial. Elas só são enviadas quando eu concluir, e posso apagar o mapa depois.</span></label><label class="check"><input id="save-draft" type="checkbox"><span>Quero salvar o progresso neste dispositivo para continuar depois. Não usarei esta opção em um dispositivo compartilhado.</span></label><p id="resume-notice" class="subtle" hidden></p><button class="primary" type="submit">Começar de verdade <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></button><button type="button" class="text-button" id="back-home">Voltar ao início</button></form>
+      <form id="setup-form"><label class="check"><input id="adult" type="checkbox" required><span>Tenho 18 anos ou mais.</span></label><label class="check"><input id="consent" type="checkbox" required><span>Li como minhas respostas serão usadas e autorizo o envio para gerar meu mapa inicial. Elas só são enviadas quando eu concluir, e posso apagar o mapa depois.</span></label><label class="check"><input id="save-draft" type="checkbox"><span>Quero salvar o progresso neste dispositivo para continuar depois. Não usarei esta opção em um dispositivo compartilhado.</span></label><p id="resume-notice" class="subtle" hidden></p><button class="primary cta" type="submit">Começar de verdade <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></button><button type="button" class="text-button" id="back-home">Voltar ao início</button></form>
     </section>
 
-    <section id="quiz-view" class="journey-view narrow" hidden>
+    <section id="quiz-view" class="journey-view narrow jr" hidden>
       <div class="quiz-top"><span class="eyebrow" id="quiz-eyebrow">UMA CENA DA SUA VIDA POR VEZ</span><button class="text-button" id="pause">Pausar</button></div>
       <div id="progress" class="colonnade" role="progressbar" aria-label="Progresso do questionário" aria-valuemin="0" aria-valuemax="49" aria-valuenow="0"><svg id="colonnade" viewBox="0 0 352 74" aria-hidden="true"></svg></div>
       <div class="progress-label"><span id="progress-count"></span><span id="progress-percent"></span></div>
@@ -370,7 +378,7 @@
         <div class="eyebrow">RODADA FINAL</div><h2>Empate no <em>Olimpo.</em></h2>
         <p id="duel-intro-text">Suas respostas deixaram duas deusas lado a lado. Mais algumas escolhas rápidas decidem quem rege as suas escolhas.</p>
         <small>Responda pelo primeiro impulso. Cada escolha tira uma deusa da disputa.</small>
-        <button class="primary" type="button" id="duel-start">Começar o desempate <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></button>
+        <button class="primary cta" type="button" id="duel-start">Começar o desempate <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></button>
       </div>
       <form id="question-form"><fieldset><legend><span class="prompt-card prompt-scene"><span class="question-label" id="scene-label">A SITUAÇÃO</span><span id="scene" class="scene"></span></span><span class="prompt-card prompt-action" id="prompt-action"><span class="question-label">SOBRE VOCÊ</span><span id="action" class="action"></span></span></legend>
         <div id="pick-tracker" class="pick-tracker" aria-hidden="true"><div class="slot slot-first"><span>1º · Faria primeiro</span><b id="slot-first">toque numa reação</b></div><div class="slot slot-last"><span>✕ · Menos faria</span><b id="slot-last">depois, nesta</b></div></div>
@@ -379,14 +387,15 @@
       </form><p class="privacy-line">Responda pelo que você faz, não pelo que gostaria de fazer.</p>
     </section>
 
-    <section id="reveal-view" class="reveal" hidden aria-live="polite">
+    <section id="reveal-view" class="reveal jr-revela" hidden aria-live="polite">
+      <canvas class="pr-poeira jr-poeira" aria-hidden="true"></canvas>
       <button class="text-button reveal-skip" type="button" id="reveal-skip">Pular a revelação</button>
-      <div class="reveal-frieze" aria-hidden="true"></div>
+      <div class="reveal-frieze pr-grega" aria-hidden="true"></div>
       <div class="reveal-stage" id="reveal-stage"></div>
-      <button class="primary reveal-next" type="button" id="reveal-next">Continuar <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></button>
+      <button class="primary cta cta-light reveal-next" type="button" id="reveal-next">Continuar <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></button>
     </section>
 
-    <section id="result-view" class="journey-view wrap result-dashboard" hidden><div id="result-content"></div><div class="result-actions"><button class="secondary" id="restart">Fazer um novo mapa</button><button class="text-button" id="delete-result">Apagar meu resultado</button><button class="secondary" id="print-report">Baixar em PDF</button></div></section>
+    <section id="result-view" class="journey-view wrap result-dashboard rs" hidden><div id="result-content"></div><div class="result-actions"><button class="secondary" id="restart">Fazer um novo mapa</button><button class="text-button" id="delete-result">Apagar meu resultado</button></div></section>
     <div id="status" class="global-status" role="status" aria-live="polite"></div>
   </main>
   <footer class="pr-rodape">
