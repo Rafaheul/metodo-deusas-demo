@@ -25,7 +25,7 @@
       atual = i;
       deusas.forEach(function (d, k) { d.classList.toggle('is-luz', k === i); d.setAttribute('aria-pressed', k === i); });
       var d = deusas[i];
-      nome.innerHTML = '<b>' + d.dataset.nome + '</b><span>' + d.dataset.cap + '</span>';
+      nome.innerHTML = '<i lang="el">' + (d.dataset.grego || '') + '</i><b>' + d.dataset.nome + '</b><span>' + d.dataset.cap + '</span>';
       if (!calma) { nome.classList.remove('troca'); void nome.offsetWidth; nome.classList.add('troca'); }
     }
     function agenda() {
@@ -100,21 +100,32 @@
       blocos.forEach(function (b) { io.observe(b); });
     } else blocos.forEach(function (b) { b.classList.add('pr-vis'); });
 
-    // ---------- frases: a do meio da tela acende ----------
+    // ---------- palco das frases: a rolagem escolhe a cena (frase + deusa + coluna) ----------
     var frases = [].slice.call(home.querySelectorAll('.pr-frase'));
-    if (calma || !observa) frases.forEach(function (f) { f.classList.add('ativa'); });
+    var trilhoP = home.querySelector('.pr-palco__trilho');
+    var imgsP = [].slice.call(home.querySelectorAll('.pr-palco__img'));
+    var colsP = [].slice.call(home.querySelectorAll('.pr-palco__colunas li'));
+    var cena = -1;
+    function palco() {
+      if (calma || !observa || !trilhoP) return;
+      var r = trilhoP.getBoundingClientRect(), total = r.height - innerHeight;
+      var prog = total > 0 ? Math.min(.999, Math.max(0, -r.top / total)) : 0;
+      var i = Math.floor(prog * frases.length);
+      if (i === cena) return;
+      cena = i;
+      frases.forEach(function (f, k) { f.classList.toggle('is-on', k === i); f.classList.toggle('is-sai', k < i); });
+      imgsP.forEach(function (m, k) { m.classList.toggle('is-on', k === i); if (Math.abs(k - i) <= 1) m.loading = 'eager'; });
+      colsP.forEach(function (c, k) { c.classList.toggle('is-on', k === i); c.classList.toggle('is-feita', k < i); });
+    }
 
-    // conferência pela rolagem: acende as frases do meio da tela e, se algum navegador não avisar
-    // a entrada de um bloco, ele aparece mesmo assim (nada pode ficar invisível)
+    // conferência pela rolagem: move o palco e, se algum navegador não avisar a entrada
+    // de um bloco, ele aparece mesmo assim (nada pode ficar invisível)
     var pedidoR = 0;
     function confere() {
       pedidoR = 0;
       if (home.hidden) return;
       var h = innerHeight;
-      if (!calma && observa) frases.forEach(function (f) {
-        var r = f.getBoundingClientRect(), meio = r.top + r.height / 2;
-        f.classList.toggle('ativa', meio > h * .3 && meio < h * .7);
-      });
+      palco();
       blocos.forEach(function (b) {
         if (!b.classList.contains('pr-vis') && b.getBoundingClientRect().top < h * .9) b.classList.add('pr-vis');
       });
@@ -131,10 +142,19 @@
         trilho.scrollBy({ left: Number(b.getAttribute('data-pr-trilho')) * passoT, behavior: calma ? 'auto' : 'smooth' });
       });
     });
-    // virar a carta: um balanço curto (o app.js troca a luz pela sombra)
+    // virar a carta: tocar em qualquer parte dela vira (o app.js troca .turned; o CSS gira)
     cartas.forEach(function (c) {
       var b = c.querySelector('.god-turn'); if (!b) return;
-      b.addEventListener('click', function () { c.classList.remove('pr-vira'); void c.offsetWidth; c.classList.add('pr-vira'); setTimeout(function () { c.classList.remove('pr-vira'); }, 800); });
+      var frente = c.querySelector('.pr-carta__frente'), verso = c.querySelector('.pr-carta__verso');
+      b.addEventListener('click', function () {
+        var virada = c.classList.contains('turned');
+        if (frente) frente.setAttribute('aria-hidden', virada);
+        if (verso) verso.setAttribute('aria-hidden', !virada);
+      });
+      c.addEventListener('click', function (e) {
+        if (e.target.closest('button, a')) return;
+        b.click();
+      });
     });
 
     // ---------- botão fixo do celular: depois da abertura, some no convite final ----------
