@@ -238,7 +238,7 @@ function renderResult(result,report){
  ${readGuideHtml()}
  ${result.flags.length?`<div class="notice">${result.flags.map(escape).join('<br>')}</div>`:''}
  ${glanceHtml()}
- <div id="report-zone"><section class="mods" aria-labelledby="mods-title"><div class="mods-top"><div><div class="eyebrow">PARA IR MAIS FUNDO</div><h2 id="mods-title">Toque numa parte<br>para <em>entender melhor.</em></h2></div><p class="mod-count" id="mod-count" aria-live="polite"></p></div>${resultMods().map(modHtml).join('')}</section>${report?`${missionHtml(report)}<p class="result-note">${escape(report.note)}</p>`:''}</div>
+ <div id="report-zone"><section class="mods" aria-labelledby="mods-title"><div class="mods-top"><div><div class="eyebrow">PARA IR MAIS FUNDO</div><h2 id="mods-title">Toque numa parte<br>para <em>entender melhor.</em></h2></div><p class="mod-count" id="mod-count" aria-live="polite"></p></div>${resultMods().map(modHtml).join('')}</section>${report?`${revistaChamada()}${missionHtml(report)}<p class="result-note">${escape(report.note)}</p>`:''}</div>
  ${report?'':'<p class="print-only print-free">Este é o mapa inicial gratuito. O relatório completo, com quem rege cada área da sua vida, luz e sombra das sete deusas e a missão da semana, fica no site do Método das Deusas.</p>'}
  ${videoHtml()}
  ${nextStepHtml()}
@@ -338,10 +338,17 @@ function shelfHtml(){
 // ---------- PDF ----------
 // O PDF sai pela impressão do navegador ("Salvar como PDF") e leva só o que esta versão mostra:
 // o mapa grátis não carrega nada do relatório pago, e o pago sai com todas as partes e todas as áreas abertas.
+// Chamada da revista em PDF (relatório completo): capa da regente + botão que monta a revista.
+function revistaChamada(){
+ const id=currentResult.regents[0]?.id;
+ return `<section class="rv-chamada">${id?`<img src="assets/revista/${id}-capa.webp" alt="" loading="lazy">`:''}<div><div class="eyebrow">A SUA REVISTA</div><h2>O seu mapa inteiro,<br><em>para guardar.</em></h2><p>Uma revista em PDF com a sua regente, as dominantes, luz e sombra das sete, as sete áreas da sua vida e a missão da semana.</p><button type="button" class="primary cta" data-pdf>Baixar a minha revista <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></button></div></section>`;
+}
 function pdfButton(){
- return `<button type="button" class="pdf-btn" data-pdf><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0-4-4m4 4 4-4M5 19h14"/></svg>${currentReport?'Baixar o relatório em PDF':'Baixar meu mapa em PDF'}</button>`;
+ return `<button type="button" class="pdf-btn" data-pdf><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0-4-4m4 4 4-4M5 19h14"/></svg>${currentReport?'Baixar a minha revista em PDF':'Baixar meu mapa em PDF'}</button>`;
 }
 function exportPdf(){
+ // Relatório completo: sai a revista (revista.js). Mapa grátis: a impressão de sempre.
+ if(currentReport&&window.Revista){window.Revista.pedir(currentResult,currentReport);return;}
  const old=document.title,regs=currentResult.regents.map(g=>g.name).join(' e ');
  document.title=`${currentReport?'Relatório':'Mapa'} das Deusas${regs?` - ${regs}`:''}`;
  const back=()=>{document.title=old;window.removeEventListener('afterprint',back);};
@@ -463,7 +470,7 @@ function lockedLead(){
 function lockedHtml(){
  const r=currentResult,{head,sub}=lockedLead();
  const shadows=r.toc.shadows;
- const toc=[['Luz e sombra das 7 deusas',shadows?`${plural(shadows,'sinal','sinais')} de sombra para olhar com calma`:'quem está na medida e quem pede ajuste'],['As 7 áreas da sua vida','quem rege, quem ajuda e quem pesa em cada uma'],['A seu favor e pede cuidado','seus apoios, suas armadilhas e onde você floresce'],['Sua missão da semana','uma prática pela Regra do Eixo Oposto']];
+ const toc=[['Luz e sombra das 7 deusas',shadows?`${plural(shadows,'sinal','sinais')} de sombra para olhar com calma`:'quem está na medida e quem pede ajuste'],['As 7 áreas da sua vida','quem rege, quem ajuda e quem pesa em cada uma'],['A seu favor e pede cuidado','seus apoios, suas armadilhas e onde você floresce'],['Sua missão da semana','uma prática pela Regra do Eixo Oposto'],['Sua revista em PDF','com o seu nome na capa, para baixar e guardar']];
  return `<section class="locked-report" id="locked-report"><div class="eyebrow">SEU RELATÓRIO COMPLETO</div><h2>${head}</h2><p class="lead-small">${escape(sub)}</p>${r.sampleArea?sampleHtml(r.sampleArea):''}<ul class="sealed-grid">${r.lockedAreas.map(a=>`<li class="sealed"><span class="tile-icon" aria-hidden="true">${AREA_ICON[a.id]||'✦'}</span><strong>Quem rege ${escape(AREA_ASK[a.id]||a.name)}?</strong>${LOCK}</li>`).join('')}</ul><div class="toc"><div class="eyebrow">O QUE TEM NO RELATÓRIO</div><ol>${toc.map(([t,s],i)=>`<li><span class="roman" aria-hidden="true">${ROMAN[i]}</span><div><strong>${t}</strong><small>${escape(s)}</small></div></li>`).join('')}</ol></div><div class="offer" id="offer">${priceHtml()}${reportCta()}</div></section>`;
 }
 
