@@ -238,9 +238,9 @@ function renderResult(result,report){
  ${readGuideHtml()}
  ${result.flags.length?`<div class="notice">${result.flags.map(escape).join('<br>')}</div>`:''}
  ${glanceHtml()}
- ${report?revistaPronta():''}
+ ${baixarHtml()}
  <div id="report-zone"><section class="mods" aria-labelledby="mods-title"><div class="mods-top"><div><p class="pr-olho"><i aria-hidden="true"></i>Para ir mais fundo</p><h2 id="mods-title">Toque numa parte<br>para <em>entender melhor.</em></h2></div><p class="mod-count" id="mod-count" aria-live="polite"></p></div>${resultMods().map(modHtml).join('')}</section>${report?`${missionHtml(report)}<p class="result-note">${escape(report.note)}</p>`:''}</div>
- ${report?'':revistaOferta()}
+ ${report?revistaPronta():revistaOferta()}
  ${videoHtml()}
  ${nextStepHtml()}
  ${shelfHtml()}
@@ -280,9 +280,9 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&termOpen){const b=t
 // ---------- Como ler o seu mapa: os três termos, sempre visíveis, logo depois da regente ----------
 function readGuideHtml(){
  return `<section class="read-guide" aria-labelledby="read-title"><p class="pr-olho pr-olho--meio" id="read-title"><i aria-hidden="true"></i>Como ler o seu mapa<i aria-hidden="true"></i></p><div class="read-cards">
-  <article class="read-card rc-regent"><span class="rc-num" aria-hidden="true">I</span><h3>Deusa regente ${termBtn('regente')}</h3><em>quem comanda</em><p>A voz que fala mais alto quando você decide: a deusa que você mais escolheu para fazer primeiro e menos deixou por último.</p></article>
+  <article class="read-card rc-regent"><span class="rc-num" aria-hidden="true">I</span><h3>Deusa regente</h3><em>quem comanda</em><p>A voz que fala mais alto quando você decide: a deusa que você mais escolheu para fazer primeiro e menos deixou por último.</p></article>
   <article class="read-card rc-luz"><span class="rc-num" aria-hidden="true">II</span><h3>Deusas dominantes</h3><em>quem acompanha</em><p>As que mais aparecem na luz logo depois da regente. Elas ajudam a regente e podem mudar com o momento da vida.</p></article>
-  <article class="read-card rc-sombra"><span class="rc-num" aria-hidden="true">III</span><h3>Luz e sombra ${termBtn('sombra')}</h3><em>na medida ou fora dela</em><p>Na luz, a capacidade trabalha a seu favor. Na sombra, ela passou do ponto (<b>▲</b> por excesso) ou ficou sem espaço (<b>▽</b> por escassez).</p></article>
+  <article class="read-card rc-sombra"><span class="rc-num" aria-hidden="true">III</span><h3>Luz e sombra</h3><em>na medida ou fora dela</em><p>Na luz, a capacidade trabalha a seu favor. Na sombra, ela passou do ponto (<b>▲</b> por excesso) ou ficou sem espaço (<b>▽</b> por escassez).</p></article>
  </div><p class="read-note">Sombra não é defeito: é uma capacidade pedindo ajuste.</p></section>`;
 }
 
@@ -367,7 +367,7 @@ function revistaOferta(){
   <div class="rs-produto__grade">${revistaPilha()}
    <div class="rs-produto__texto"><p class="pr-olho pr-olho--claro"><i aria-hidden="true"></i>A sua revista completa</p><h2>${head}</h2><p class="rs-produto__sub">${escape(sub)} A revista mostra quem rege cada uma, com o seu nome na capa.</p>
     ${sumario()}
-    <div class="rs-preco" id="offer">${p?`<div class="rs-preco__valor"><small>Revista em PDF · 12 páginas</small><strong>${p}</strong><span>pagamento único</span></div>`:''}${reportCta()}${p&&config.report?.checkoutUrl?'<p class="rs-garantia">Você tem 7 dias para desistir, pelo Código de Defesa do Consumidor.</p>':''}</div>
+    <div class="rs-preco" id="offer">${p?`<div class="rs-preco__valor"><small>Revista em PDF</small><strong>${p}</strong><span>pagamento único</span></div>`:''}${reportCta()}${p&&config.report?.checkoutUrl?'<p class="rs-garantia">Você tem 7 dias para desistir, pelo Código de Defesa do Consumidor.</p>':''}</div>
    </div>
   </div>
   <div class="rs-folhear"><p class="pr-olho pr-olho--claro pr-olho--meio"><i aria-hidden="true"></i>Por dentro da revista<i aria-hidden="true"></i></p><ul>${PAGINAS.map(([n,t])=>`<li><figure><img src="assets/revista/paginas/pagina-${n}.jpg" alt="Página de exemplo: ${escape(t)}" width="600" height="849" loading="lazy" decoding="async"><figcaption><span>${Number(n)}</span>${escape(t)}</figcaption></figure></li>`).join('')}</ul><p class="rs-folhear__nota">Páginas de exemplo. A sua revista sai com as suas deusas, as suas áreas e o seu nome.</p></div>
@@ -375,7 +375,23 @@ function revistaOferta(){
  </section>`;
 }
 function revistaPronta(){
- return `<section class="rs-produto rs-produto--pronta" id="rs-revista"><div class="pr-grega rs-produto__grega" aria-hidden="true"></div><div class="rs-produto__grade">${revistaPilha()}<div class="rs-produto__texto"><p class="pr-olho pr-olho--claro"><i aria-hidden="true"></i>A sua revista está pronta</p><h2>O seu mapa inteiro,<br><em>para guardar.</em></h2><p class="rs-produto__sub">Doze páginas com a sua regente, as dominantes, luz e sombra das sete, as sete áreas da sua vida e a missão da semana. Você escolhe o nome que vai na capa.</p>${sumario()}<div class="rs-preco"><button type="button" class="primary cta cta-light" data-pdf>Baixar a minha revista <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></button></div></div></div></section>`;
+ return `<section class="rs-produto rs-produto--pronta" id="rs-revista"><div class="pr-grega rs-produto__grega" aria-hidden="true"></div><div class="rs-produto__grade">${revistaPilha()}<div class="rs-produto__texto"><p class="pr-olho pr-olho--claro"><i aria-hidden="true"></i>A sua revista está pronta</p><h2>O seu mapa inteiro,<br><em>para guardar.</em></h2><p class="rs-produto__sub">A história da sua regente e das suas dominantes, luz e sombra das sete, as sete áreas da sua vida e a missão da semana. Você escolhe o nome que vai na capa.</p>${sumario()}<div class="rs-preco"><button type="button" class="primary cta cta-light" data-pdf>Baixar a minha revista <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></button></div></div></div></section>`;
+}
+// Botão grego logo abaixo das deusas: no pago, baixa a revista; no grátis, leva à compra.
+function baixarHtml(){
+ const r=config.report||{},p=priceTxt(),pago=!!currentReport,louro='<svg class="rs-baixar__louro" viewBox="0 0 80 24" aria-hidden="true"><use href="#i-louro"/></svg>',coluna='<svg class="rs-baixar__coluna" viewBox="0 0 16 32" aria-hidden="true"><use href="#i-coluna"/></svg>';
+ const icone=`<span class="rs-baixar__ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 4v11m0 0-4-4m4 4 4-4M5 19h14"/></svg></span>`;
+ let botao;
+ if(pago)botao=`<button type="button" class="rs-baixar__btn" data-pdf>${icone}<span>Baixar a minha revista</span></button>`;
+ else if(r.checkoutUrl)botao=`<a class="rs-baixar__btn" href="${escape(r.checkoutUrl)}" target="_blank" rel="noopener noreferrer">${icone}<span>Quero a minha revista</span></a>`;
+ else if(config.demoMode)botao=`<button type="button" class="rs-baixar__btn unlock-demo">${icone}<span>Quero a minha revista</span></button>`;
+ else return '';
+ const nota=pago?'Com as suas deusas, as sete áreas da sua vida e o seu nome na capa.':`Em PDF, com o seu nome na capa${p?` · ${escape(p)}, pagamento único`:''}.`;
+ return `<section class="rs-baixar" id="rs-baixar" aria-label="A sua revista em PDF"><div class="rs-baixar__moldura">
+  ${louro}<p class="rs-baixar__olho">${pago?'A sua revista está pronta':'A sua revista em PDF'}</p>
+  <div class="rs-baixar__linha">${coluna}${botao}${coluna}</div>
+  <p class="rs-baixar__nota">${nota}</p>
+ </div></section>`;
 }
 function pdfButton(){
  return currentReport?`<button type="button" class="pdf-btn" data-pdf><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0-4-4m4 4 4-4M5 19h14"/></svg>Baixar a minha revista</button>`:'';
@@ -594,7 +610,7 @@ function bindResult(){
 }
 async function unlockDemo(b){
  const was=b.innerHTML;document.querySelectorAll('.unlock-demo').forEach(x=>x.disabled=true);b.textContent='Abrindo…';
- try{const r=await api(`/api/results/${resultId}/unlock`,{method:'POST',body:'{}'});renderResult(r.result,r.report);$('#rs-revista').scrollIntoView({block:'start',behavior:calm()?'auto':'smooth'});}
+ try{const r=await api(`/api/results/${resultId}/unlock`,{method:'POST',body:'{}'});renderResult(r.result,r.report);$('#rs-baixar').scrollIntoView({block:'start',behavior:calm()?'auto':'smooth'});}
  catch(e){status(e.message);document.querySelectorAll('.unlock-demo').forEach(x=>x.disabled=false);b.innerHTML=was;}
 }
 // ---------- Revelação da regente (depois de concluir) ----------
@@ -660,15 +676,18 @@ function renderEbook(){
 }
 
 // ---------- Diálogos e contatos ----------
+// Ícones simples de traço para os canais (no estilo das colunas e do louro do site).
+const CANAL_ICO={whatsapp:'<path d="M5 19l1.2-3.6A7.5 7.5 0 1 1 9 18.3z"/><path d="M9.5 9.5c.3 2 2 3.7 4 4l1-1.2 1.8.8c-.3 1.2-1.3 1.9-2.6 1.7-3-.5-5.2-2.8-5.6-5.7-.2-1.3.5-2.3 1.7-2.6l.8 1.8z"/>',instagram:'<rect x="4" y="4" width="16" height="16" rx="5"/><circle cx="12" cy="12" r="3.6"/><circle cx="16.8" cy="7.2" r=".6"/>',website:'<circle cx="12" cy="12" r="8"/><path d="M4 12h16M12 4c2.4 2.3 3.4 5 3.4 8s-1 5.7-3.4 8c-2.4-2.3-3.4-5-3.4-8s1-5.7 3.4-8z"/>'};
 function channels(){
  const names={whatsapp:'WhatsApp',instagram:'Instagram',website:'Site pessoal'};
- return `<div class="channel-list">${Object.entries(names).map(([key,label])=>config.contacts?.[key]?`<a class="channel-link" href="${escape(config.contacts[key])}" target="_blank" rel="noopener noreferrer"><span>${label}</span><span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></a>`:`<div class="channel-pending"><span>${label}</span><small>Em breve</small></div>`).join('')}</div>`;
+ const ico=k=>`<span class="channel-ico" aria-hidden="true"><svg viewBox="0 0 24 24">${CANAL_ICO[k]}</svg></span>`;
+ return `<div class="channel-list">${Object.entries(names).map(([key,label])=>config.contacts?.[key]?`<a class="channel-link" href="${escape(config.contacts[key])}" target="_blank" rel="noopener noreferrer">${ico(key)}<span class="channel-nome">${label}</span><span class="channel-seta" aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></a>`:`<div class="channel-pending">${ico(key)}<span class="channel-nome">${label}</span><small>Em breve</small></div>`).join('')}</div>`;
 }
 function openContent(html){$('#dialog-content').innerHTML=html;const dialog=$('#content-dialog');if(!dialog.open)dialog.showModal();}
 function showConsultation(){
- openContent(`<h2>Um encontro com<br><em>o seu contexto.</em></h2><p>Na consulta radiestésica, Yasnnajára Alves faz a avaliação completa do Método das Deusas: qual deusa rege, qual está na sombra por escassez e qual está na sombra por excesso, considerando a sua história.</p>${config.consultationUrl?`<a class="primary" href="${escape(config.consultationUrl)}" target="_blank" rel="noopener noreferrer">Conhecer a consulta <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></a>`:''}${config.methodUrl?`<p><a href="${escape(config.methodUrl)}" target="_blank" rel="noopener noreferrer">Conhecer o serviço do método <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></a></p>`:''}${channels()}${!config.consultationUrl&&!Object.values(config.contacts||{}).some(Boolean)?'<p class="pending-message">Os canais de contato e as inscrições serão divulgados em breve.</p>':''}`);
+ openContent(`<p class="cd-olho">A consulta radiestésica</p><h2>Um encontro com<br><em>o seu contexto.</em></h2><p>Na consulta radiestésica, Yasnnajára Alves faz a avaliação completa do Método das Deusas: qual deusa rege, qual está na sombra por escassez e qual está na sombra por excesso, considerando a sua história.</p><div class="cd-grega" aria-hidden="true"></div>${config.consultationUrl?`<a class="primary cta" href="${escape(config.consultationUrl)}" target="_blank" rel="noopener noreferrer">Conhecer a consulta <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></a>`:''}${config.methodUrl?`<p><a href="${escape(config.methodUrl)}" target="_blank" rel="noopener noreferrer">Conhecer o serviço do método <span aria-hidden="true"><svg class="ico"><use href="#i-seta"/></svg></span></a></p>`:''}${Object.values(config.contacts||{}).some(Boolean)?'<p class="cd-ou">ou fale direto com ela</p>':''}${channels()}${!config.consultationUrl&&!Object.values(config.contacts||{}).some(Boolean)?'<p class="pending-message">Os canais de contato e as inscrições serão divulgados em breve.</p>':''}`);
 }
-function showContacts(){openContent(`<h2>Conheça a<br><em>Yasnnajára Alves.</em></h2><p>Criadora do Método das Deusas.</p>${channels()}${!Object.values(config.contacts||{}).some(Boolean)?'<p class="pending-message">Os canais serão divulgados após a aprovação desta página.</p>':''}`);}
+function showContacts(){openContent(`<p class="cd-olho">Fale com ela</p><h2>Conheça a<br><em>Yasnnajára Alves.</em></h2><p>Criadora do Método das Deusas.</p>${channels()}${!Object.values(config.contacts||{}).some(Boolean)?'<p class="pending-message">Os canais serão divulgados após a aprovação desta página.</p>':''}`);}
 function showBook(book){openContent(`<div class="eyebrow">PRÉVIA DA PROPOSTA · CONTEÚDO EM PREPARAÇÃO</div><h2>${escape(book.title)}</h2><p>Um guia introdutório do Método das Deusas, de Yasnnajára Alves.</p><div class="book-excerpt"><h3>Quem é ${escape(book.name)} em você</h3><p>${escape(book.excerpt)}</p>${book.practice?`<h3>Um pequeno passo para a semana</h3><p>${escape(book.practice)}</p>`:''}</div><p>O guia não substitui a avaliação individual da regência e das sombras, feita na consulta.</p><button class="secondary" disabled>Disponível em breve</button>`);}
 document.querySelectorAll('.consult-trigger').forEach(b=>b.addEventListener('click',showConsultation));
 document.querySelectorAll('.contact-trigger').forEach(b=>b.addEventListener('click',showContacts));
