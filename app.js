@@ -344,12 +344,13 @@ function shelfHtml(){
 // páginas de exemplo, sumário e preço); no pago, a revista pronta para baixar.
 const GREGO={artemis:'Ἄρτεμις',atena:'Ἀθηνᾶ',hestia:'Ἑστία',hera:'Ἥρα',demeter:'Δημήτηρ',persefone:'Περσεφόνη',afrodite:'Ἀφροδίτη'};
 const EPITETO={hestia:'o centro interior',artemis:'a direção e a determinação',atena:'a estratégia e a inteligência',hera:'o compromisso e a dignidade',demeter:'o cuidado e a nutrição',persefone:'a receptividade e a transformação',afrodite:'o magnetismo e o prazer'};
-const PAGINAS=[['03','A sua leitura em um olhar'],['05','A sua regente por dentro'],['07','Luz e sombra das sete'],['08','As sete áreas da sua vida'],['11','A sua missão da semana']];
+const PAGINAS=[['05','O mito da sua regente'],['06','Um retrato para você se ler'],['08','Quando ela sai da medida'],['10','As suas dominantes'],['13','As sete áreas da sua vida']];
 const priceTxt=()=>typeof config.report?.priceBRL==='number'?price(config.report.priceBRL):'';
 const capaId=()=>currentResult.regents[0]?.id||byForce(currentResult.capacities)[0].id;
 function sumario(){
- const regs=currentResult.regents,l=regs.map((g,k)=>[ROMAN[k],`${regs.length>1?'Uma das suas regentes':'A sua regente'}: ${g.name}`]);let k=regs.length;
- l.push([ROMAN[k++],'As suas dominantes'],[ROMAN[k++],'Luz e sombra das sete'],[ROMAN[k++],'As sete áreas da sua vida'],[ROMAN[k++],'A seu favor e pede cuidado'],[ROMAN[k++],'A sua missão da semana'],['Ω','O próximo passo']);
+ const regs=currentResult.regents,l=regs.map((g,k)=>[ROMAN[k],`${regs.length>1?'Uma das suas regentes':'A sua regente'}: ${g.name}, o mito e o retrato`]);let k=regs.length;
+ // igual ao sumário da revista (revista.js): com regente, a revista conta a história e não tem a parte "A seu favor"
+ l.push([ROMAN[k++],'As suas dominantes'],[ROMAN[k++],'Luz e sombra das sete'],[ROMAN[k++],'As sete áreas da sua vida']);if(!regs.length)l.push([ROMAN[k++],'A seu favor e pede cuidado']);l.push([ROMAN[k++],'A sua missão da semana'],['Ω','O próximo passo']);
  return `<ol class="rs-sumario">${l.map(([r,t])=>`<li><span>${r}</span>${escape(t)}</li>`).join('')}</ol>`;
 }
 // Capa da revista em miniatura, com a regente desta pessoa.

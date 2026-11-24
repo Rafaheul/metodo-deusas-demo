@@ -286,3 +286,76 @@ html.rv-imprimindo body{margin:0;background:#fff}
 .rv-fecho::before,.rv-fecho::after{content:"";display:block;width:40mm;height:3.6mm;margin:0 auto;background:var(--rv-meandro) repeat-x left center/3.6mm 3.6mm;opacity:.7}
 .rv-fecho::before{margin-bottom:6mm}.rv-fecho::after{margin-top:6mm}
 .rv-dom__vida{font-size:10pt!important;color:#59604f}
+
+/* ---------- revista contada como história (rascunho de 23/11/2026) ---------- */
+.rv-escura__epigrafe{max-width:118mm;margin:7mm auto 0;font:italic 500 15pt/1.45 var(--rv-serif);color:var(--rv-ouro-claro);text-align:center}
+.rv-escura__epigrafe::before,.rv-escura__epigrafe::after{content:"“";font-size:20pt;line-height:0;color:#a18753}
+.rv-escura__epigrafe::after{content:"”"}
+/* mito: figura de corpo inteiro numa coluna, texto ao lado */
+.rv-mito__grade{display:grid;grid-template-columns:50mm 1fr;gap:9mm;align-items:start}
+.rv-mito__fig{margin:0;position:relative;padding:4mm 0 0;text-align:center;border-radius:999px 999px 0 0;background:radial-gradient(70% 45% at 50% 40%,#efe2c2,transparent 75%)}
+.rv-mito__fig img{display:block;width:100%;height:auto;max-height:190mm;object-fit:contain}
+.rv-mito__fig figcaption{margin-top:3mm;font:italic 400 14pt var(--rv-grego);color:var(--rv-ouro)}
+.rv-mito__texto p{font-size:10.6pt!important;line-height:1.62!important}
+.rv-mito__texto .rv-citacao{margin:4mm 0 0;font-size:13pt}
+.rv-mito__leitura{margin-top:6mm;padding:5mm 7mm;background:var(--rv-creme);border-left:2px solid var(--rv-ouro)}
+.rv-mito__leitura small{display:block;font:600 7.4pt var(--rv-cinzel);letter-spacing:.2em;text-transform:uppercase;color:var(--rv-vinho);margin-bottom:2mm}
+.rv-mito__leitura p{margin:0!important;font:italic 500 12.5pt/1.5 var(--rv-serif)!important;color:var(--rv-tinta)}
+/* retrato em fases */
+.rv-fases{display:grid;grid-template-columns:repeat(3,1fr);gap:6mm;margin:2mm 0 8mm}
+.rv-fase{padding-top:4mm;border-top:1px solid var(--rv-ouro)}
+.rv-fase b{display:block;font:600 10pt var(--rv-cinzel);letter-spacing:.14em;text-transform:uppercase;color:var(--rv-vinho);margin-bottom:2mm}
+.rv-fase p{font-size:10pt!important;line-height:1.58!important;margin:0!important}
+.rv-marque{padding:6mm 7mm;border:1px solid #a1875366;background:#fffdf8}
+.rv-marque .rv-rotulo{margin-top:0!important}
+.rv-marque ul{list-style:none;margin:0;padding:0;columns:2;column-gap:9mm}
+.rv-marque li{display:flex;gap:3mm;align-items:flex-start;padding:2mm 0;break-inside:avoid;font:500 12pt/1.35 var(--rv-serif);color:var(--rv-tinta)}
+.rv-marque li i{flex:none;width:4mm;height:4mm;margin-top:.8mm;border:1px solid var(--rv-ouro);border-radius:.6mm}
+.rv-marque__fim{margin:4mm 0 0!important;text-align:center;font:italic 500 12pt var(--rv-serif)!important;color:var(--rv-vinho)}
+/* a regente nas sete áreas */
+.rv-areas-h{display:grid;grid-template-columns:1fr 1fr;gap:8mm 8mm}
+.rv-areas-h article{padding:4mm 0 0;border-top:1px solid #a1875377}
+.rv-areas-h header{display:flex;align-items:baseline;gap:3mm;margin-bottom:1.5mm}
+.rv-areas-h header small{font:500 13pt var(--rv-serif);color:var(--rv-ouro)}
+.rv-areas-h h3{margin:0;font:600 10pt var(--rv-cinzel);letter-spacing:.06em}
+.rv-areas-h header span{margin-left:auto;padding:.6mm 2.4mm;border-radius:99px;background:var(--rv-oliva);color:#f3ead4;font:600 6.4pt var(--rv-cinzel);letter-spacing:.14em;text-transform:uppercase}
+.rv-areas-h article.is-rege{border-top:2px solid var(--rv-oliva)}
+.rv-areas-h p{font-size:10.8pt!important;line-height:1.6!important;margin:0!important}
+.rv-areas-h__nota{align-self:center;padding:5mm!important;background:var(--rv-creme);border:0!important}
+.rv-areas-h__nota p{font:italic 500 11pt/1.45 var(--rv-serif)!important}
+.rv-areas-h__nota b{font:600 7pt var(--rv-cinzel);letter-spacing:.12em;text-transform:uppercase;color:var(--rv-oliva)}
+/* estado: a cena */
+.rv-cena{margin:0 0 7mm;padding:7mm 9mm;background:radial-gradient(80% 90% at 50% 0%,#3d4836,var(--rv-noite2));color:#f3ead4}
+.rv-cena small{display:block;font:600 7.4pt var(--rv-cinzel);letter-spacing:.22em;text-transform:uppercase;color:var(--rv-ouro-claro);margin-bottom:3mm}
+.rv-cena p{margin:0!important;font:italic 500 13.4pt/1.55 var(--rv-serif)!important;color:#f3ead4}
+.rv-volta{margin-top:6mm;padding:5mm 7mm;background:#eef0e6;border-left:2px solid var(--rv-oliva)}
+.rv-volta .rv-rotulo{margin-top:0!important;color:var(--rv-oliva)}
+.rv-volta__eixo{display:flex;flex-wrap:wrap;align-items:center;gap:3mm 6mm;margin-top:3mm}
+.rv-volta__eixo span{display:flex;align-items:center;gap:2mm;font:600 9pt var(--rv-cinzel)}
+.rv-volta__eixo img{width:11mm;height:11mm;border-radius:50%;object-fit:cover;box-shadow:0 0 0 .35mm var(--rv-ouro)}
+.rv-volta__eixo p{flex-basis:100%;margin:0!important;font-size:10pt!important}
+.rv-forcas{margin-top:7mm;text-align:center}
+.rv-forcas p:last-child{font:italic 500 12pt var(--rv-serif)!important;color:var(--rv-tinta)}
+/* caderno */
+.rv-pergunta{margin:0 0 9mm}
+.rv-pergunta p{margin:0 0 1mm!important;font:italic 500 13.5pt/1.4 var(--rv-serif)!important;color:var(--rv-vinho)}
+.rv-pergunta i{display:block;height:9.5mm;border-bottom:1px solid #a1875377}
+/* página de cada dominante */
+.rv-dompg__cab{display:grid;grid-template-columns:50mm 1fr;gap:9mm;align-items:center;margin-bottom:7mm}
+.rv-dompg__cab .rv-arco{width:50mm}
+.rv-dompg__cab .rv-rotulo{margin:0 0 1mm!important;display:block}
+.rv-dompg__cab .rv-h2{margin:0}
+.rv-dompg__epi{display:block;font:italic 500 13pt var(--rv-serif);color:var(--rv-ouro);margin:1mm 0 5mm}
+.rv-dompg__empresta{margin:0!important;padding:4mm 5mm;background:var(--rv-creme);font:italic 500 13pt/1.35 var(--rv-serif)!important}
+.rv-dompg__empresta small{display:block;font:600 7pt var(--rv-cinzel);letter-spacing:.18em;text-transform:uppercase;color:var(--rv-vinho);font-style:normal;margin-bottom:1.5mm}
+.rv-dompg .rv-h3{margin-bottom:3mm}
+.rv-par{margin:5mm 0 6mm;padding:5mm 7mm;border-top:1px solid #a1875377;border-bottom:1px solid #a1875377;text-align:center}
+.rv-par small{display:block;font:600 7.4pt var(--rv-cinzel);letter-spacing:.2em;text-transform:uppercase;color:var(--rv-ouro);margin-bottom:2mm}
+.rv-par p{margin:0!important;font:italic 500 13pt/1.5 var(--rv-serif)!important;color:var(--rv-tinta)}
+.rv-marque--curto ul{columns:2}
+
+/* luz e sombra com muitas deusas na sombra (5 ou mais): duas colunas para caber na página */
+.rv-sombras--densa{display:grid;grid-template-columns:1fr 1fr;gap:0 9mm}
+.rv-sombras--densa .rv-sombra{padding:3mm 0}
+.rv-sombras--densa .rv-sombra p{font-size:9.8pt!important;line-height:1.5!important}
+.rv-sombras--densa .rv-sombra__eixo{font-size:9pt!important}

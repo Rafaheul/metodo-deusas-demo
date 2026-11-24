@@ -3,6 +3,7 @@
 // nenhuma API, nenhum servidor, custo zero por revista. O PDF sai pela janela de impressão.
 import { CONTENT, SHADOWS, OPPOSITE } from './lib/reports.js';
 import { GODDESSES } from './lib/questions.js';
+import { HISTORIAS } from './lib/historias.js';
 
 const GREGO = { artemis: 'Ἄρτεμις', atena: 'Ἀθηνᾶ', hestia: 'Ἑστία', hera: 'Ἥρα', demeter: 'Δημήτηρ', persefone: 'Περσεφόνη', afrodite: 'Ἀφροδίτη' };
 const EPITETO = { hestia: 'o centro interior', artemis: 'a direção e a determinação', atena: 'a estratégia e a inteligência',
@@ -18,10 +19,11 @@ const idPorNome = n => Object.keys(GODDESSES).find(id => GODDESSES[id].name === 
 const lista = a => a.length > 1 ? `${a.slice(0, -1).join(', ')} e ${a.at(-1)}` : (a[0] || '');
 const grega = '<div class="rv-grega" aria-hidden="true"></div>';
 const ORDINAL = ['Primeira', 'Segunda', 'Terceira'];
-function SUMARIO(regentes, missao) {
-  const l = regentes.map((id, k) => [ROMANO[k], `${regentes.length > 1 ? 'Uma das suas regentes' : 'A sua regente'}: ${nome(id)}`]);
+function SUMARIO(regentes, missao, historia) {
+  const l = regentes.map((id, k) => [ROMANO[k], `${regentes.length > 1 ? 'Uma das suas regentes' : 'A sua regente'}: ${nome(id)}${historia ? ', o mito e o retrato' : ''}`]);
   let k = regentes.length;
-  l.push([ROMANO[k++], 'As suas dominantes'], [ROMANO[k++], 'Luz e sombra das sete'], [ROMANO[k++], 'As sete áreas da sua vida'], [ROMANO[k++], 'A seu favor e pede cuidado']);
+  l.push([ROMANO[k++], 'As suas dominantes'], [ROMANO[k++], 'Luz e sombra das sete'], [ROMANO[k++], 'As sete áreas da sua vida']);
+  if (!historia) l.push([ROMANO[k++], 'A seu favor e pede cuidado']);
   if (missao) l.push([ROMANO[k++], 'A sua missão da semana']);
   l.push(['Ω', 'O próximo passo']);
   return l;
@@ -49,6 +51,7 @@ export function montar(result, report, dono) {
   const data = new Date().toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
   const titulo = dono ? `Edição de ${dono}` : 'A sua edição';
   const regNomes = lista(regentes.map(nome));
+  const historia = regentes.length > 0 && regentes.every(id => HISTORIAS[id]?.estados) && dominantes.every(id => HISTORIAS[id]?.dom);
   let n = 1; const pags = [];
 
   // ---------- capa ----------
@@ -72,15 +75,16 @@ export function montar(result, report, dono) {
   pags.push(`<section class="rv-pg rv-papel">
     <header class="rv-topo"><span>Proêmio</span>${grega}</header>
     <div class="rv-ficha"><div><small>Leitura de</small><em>${esc(dono || 'você')}</em></div><div><small>Data</small><em>${esc(data)}</em></div><div><small>Regente</small><em>${esc(regNomes || 'em aberto')}</em></div></div>
-    <p class="rv-lead">Esta revista mostra como as sete deusas aparecem nas suas escolhas de hoje: quem rege, quem ajuda, quem passou do ponto e quem ficou sem espaço, em cada área da sua vida.</p>
-    <p>As deusas dão nome a capacidades que toda mulher tem. Você não é uma deusa só: elas se revezam, e o desenho muda com o momento da vida.</p>
+    ${historia ? `<p class="rv-lead">Esta revista conta a história das deusas que mais falam em você hoje: de onde elas vêm, como costumam aparecer na vida de uma mulher e o que pedem de você agora.</p>
+    <p>Leia com uma caneta na mão. Marque as frases que forem suas, escreva nas margens, volte a ela daqui a alguns meses. Foi feita para isso. As deusas dão nome a capacidades que toda mulher tem, e você não é uma deusa só: elas se revezam, e o desenho muda com o momento da vida.</p>` : `<p class="rv-lead">Esta revista mostra como as sete deusas aparecem nas suas escolhas de hoje: quem rege, quem ajuda, quem passou do ponto e quem ficou sem espaço, em cada área da sua vida.</p>
+    <p>As deusas dão nome a capacidades que toda mulher tem. Você não é uma deusa só: elas se revezam, e o desenho muda com o momento da vida.</p>`}
     <h2 class="rv-h2">Entendendo a sua leitura</h2><div class="rv-traco"></div>
     <div class="rv-conceitos">
       <div><h3>Deusa regente</h3><em>quem comanda</em><p>${esc(result.definition)}</p></div>
       <div><h3>Deusas dominantes</h3><em>quem acompanha</em><p>As que mais aparecem na luz logo depois da regente. Elas ajudam a regente e podem mudar com o momento da vida.</p></div>
       <div><h3>Luz e sombra</h3><em>na medida ou fora dela</em><p>Na luz, a capacidade trabalha a seu favor. Na sombra, ela passou do ponto (por excesso) ou ficou sem espaço (por escassez). Sombra não é defeito: é uma capacidade pedindo ajuste.</p></div>
     </div>
-    <div class="rv-sumario"><p class="rv-rotulo">Nesta edição</p><ol>${SUMARIO(regentes, !!report.experiment).map(([r, t]) => `<li><span>${r}</span>${esc(t)}</li>`).join('')}</ol></div>
+    <div class="rv-sumario"><p class="rv-rotulo">Nesta edição</p><ol>${SUMARIO(regentes, !!report.experiment, historia).map(([r, t]) => `<li><span>${r}</span>${esc(t)}</li>`).join('')}</ol></div>
     <p class="rv-miudo">${esc(report.note)}</p>
     ${rodape(n, titulo)}
   </section>`);
@@ -106,10 +110,12 @@ export function montar(result, report, dono) {
         ${arco(id, 'is-escuro')}
         <h2 class="rv-escura__nome">${esc(nome(id))}</h2><p class="rv-grego">${GREGO[id]}</p><p class="rv-escura__epi">${esc(EPITETO[id])}</p>
         <p class="rv-escura__estado">${esc(ESTADO[est])}</p>
+        ${historia && HISTORIAS[id].epigrafe ? `<p class="rv-escura__epigrafe">${esc(HISTORIAS[id].epigrafe)}</p>` : ''}
         ${result.path?.story && k === 0 ? `<p class="rv-escura__caminho">${esc(result.path.story)}</p>` : ''}
         ${grega}
       </div>
     </section>`);
+    if (historia) { paginasHistoria(id, k, est); return; }
     n++;
     const sombra = est === 'excesso' ? SHADOWS[id].excess : est === 'escassez' ? SHADOWS[id].scarcity : null;
     pags.push(`<section class="rv-pg rv-papel">
@@ -128,9 +134,86 @@ export function montar(result, report, dono) {
     </section>`);
   });
 
+  // ---------- a regente contada como história: mito, retrato, áreas, estado e caderno ----------
+  function paginasHistoria(id, k, est) {
+    const H = HISTORIAS[id], nm = esc(nome(id)), sec0 = ROMANO[k];
+    n++;
+    pags.push(`<section class="rv-pg rv-papel rv-mito">
+      <header class="rv-topo"><span>${sec0} · ${nm} · O mito</span>${grega}</header>
+      <div class="rv-mito__grade">
+        <figure class="rv-mito__fig"><img src="assets/deusas/${id}-corpo.webp" alt=""><figcaption>${GREGO[id]}</figcaption></figure>
+        <div class="rv-mito__texto">
+          <p class="rv-rotulo">O mito</p><h2 class="rv-h2">${esc(H.mito.titulo)}</h2><div class="rv-traco"></div>
+          ${H.mito.texto.map((t, i) => `<p class="${i === 0 ? 'rv-capitular' : ''}">${esc(t)}</p>`).join('')}
+          <blockquote class="rv-citacao">${esc(H.mito.destaque)}</blockquote>
+        </div>
+      </div>
+      <div class="rv-mito__leitura"><small>O que o mito conta sobre você</small><p>${esc(H.mito.leitura)}</p></div>
+      ${rodape(n, titulo)}
+    </section>`);
+    n++;
+    pags.push(`<section class="rv-pg rv-papel">
+      <header class="rv-topo"><span>${sec0} · ${nm} em você</span>${grega}</header>
+      <h2 class="rv-h2">${nm} em você</h2><p class="rv-sub">um retrato para você se ler</p>
+      <p class="rv-lead">${esc(H.retrato.abre)}</p>
+      <div class="rv-fases">${H.retrato.fases.map(([t, x]) => `<div class="rv-fase"><b>${esc(t)}</b><p>${esc(x)}</p></div>`).join('')}</div>
+      <div class="rv-marque"><p class="rv-rotulo">Marque o que for seu</p><ul>${H.retrato.reconhece.map(t => `<li><i></i>${esc(t)}</li>`).join('')}</ul><p class="rv-marque__fim">${esc(H.retrato.fecha)}</p></div>
+      ${rodape(n, titulo)}
+    </section>`);
+    n++;
+    const rege = new Set(report.areas.filter(a => a.leads?.id === id).map(a => a.id));
+    pags.push(`<section class="rv-pg rv-papel">
+      <header class="rv-topo"><span>${sec0} · ${nm} na sua vida</span>${grega}</header>
+      <h2 class="rv-h2">${nm} nas sete áreas</h2><p class="rv-sub">como ela costuma aparecer em cada parte da vida</p>
+      <div class="rv-areas-h">${report.areas.map((a, i) => `<article class="${rege.has(a.id) ? 'is-rege' : ''}"><header><small>${ROMANO[i]}</small><h3>${esc(a.name)}</h3>${rege.has(a.id) ? '<span>rege aqui</span>' : ''}</header><p>${esc(H.areas[a.id] || '')}</p></article>`).join('')}
+        <article class="rv-areas-h__nota"><p>${rege.size ? `As áreas marcadas com <b>rege aqui</b> são as que ${nm} comanda nas suas respostas.` : `Nas suas respostas, ${nm} aparece em todas as áreas, mas outras deusas assumem o comando de cada uma.`} O quadro da parte das áreas mostra quem rege cada uma.</p></article>
+      </div>
+      ${rodape(n, titulo)}
+    </section>`);
+    n++;
+    const E = H.estados[est] || H.estados.luz, contra = (OPPOSITE[id] || []);
+    pags.push(`<section class="rv-pg rv-papel">
+      <header class="rv-topo"><span>${sec0} · ${nm} ${esc(ESTADO[est])}</span>${grega}</header>
+      <p class="rv-rotulo">${nm} ${esc(ESTADO[est])}</p><h2 class="rv-h2">${esc(E.titulo)}</h2><div class="rv-traco"></div>
+      <div class="rv-cena"><small>Uma cena</small><p>${esc(E.cena)}</p></div>
+      <div class="rv-duas"><div><p class="rv-rotulo">O que ela protege</p><p>${esc(E.protege)}</p></div><div><p class="rv-rotulo">O que ela custa</p><p>${esc(E.custa)}</p></div></div>
+      <div class="rv-volta"><p class="rv-rotulo">Como ela volta à medida</p><p>${esc(E.volta)}</p>
+        ${est === 'excesso' && contra.length ? `<div class="rv-volta__eixo">${contra.map(c => `<span><img src="assets/deusas/${c}-busto.webp" alt="">${esc(nome(c))}</span>`).join('')}<p>Pela Regra do Eixo Oposto, quem ${contra.length > 1 ? 'ajudam' : 'ajuda'} ${nm} a voltar à medida ${contra.length > 1 ? 'são' : 'é'} ${esc(lista(contra.map(nome)))}. A missão da semana, no fim da revista, começa por aí.</p></div>` : ''}
+      </div>
+      <div class="rv-forcas"><p class="rv-rotulo">As forças de ${nm}</p><p>${CONTENT[id].strengths.map(esc).join(' · ')}</p></div>
+      ${rodape(n, titulo)}
+    </section>`);
+    n++;
+    pags.push(`<section class="rv-pg rv-papel rv-caderno">
+      <header class="rv-topo"><span>${sec0} · Caderno</span>${grega}</header>
+      <h2 class="rv-h2">Para escrever</h2><p class="rv-sub">perguntas de ${nm} para você, sem pressa e sem resposta certa</p>
+      ${H.perguntas.map(q => `<div class="rv-pergunta"><p>${esc(q)}</p><i></i><i></i><i></i><i></i></div>`).join('')}
+      ${rodape(n, titulo)}
+    </section>`);
+  }
+
   // ---------- dominantes ----------
-  n++;
   let sec = regentes.length;
+  if (historia && dominantes.length) {
+    dominantes.forEach((id, i) => {
+      const H = HISTORIAS[id].dom, nm = esc(nome(id)), regN = esc(regNomes);
+      n++;
+      pags.push(`<section class="rv-pg rv-papel rv-dompg">
+        <header class="rv-topo"><span>${ROMANO[sec]} · As suas dominantes</span>${grega}</header>
+        <div class="rv-dompg__cab">${arco(id)}<div>
+          <small class="rv-rotulo">${ORDINAL[i]} dominante · ${esc(ESTADO[estadoDe(id)])}</small>
+          <h2 class="rv-h2">${nm}</h2><p class="rv-grego">${GREGO[id]}</p><em class="rv-dompg__epi">${esc(EPITETO[id])}</em>
+          <p class="rv-dompg__empresta"><small>O que ela empresta à sua regente</small>${esc(H.empresta)}</p>
+        </div></div>
+        <p class="rv-rotulo">O mito</p><h3 class="rv-h3">${esc(H.titulo)}</h3>
+        <p class="rv-capitular">${esc(H.texto)}</p>
+        <div class="rv-par"><small>Ao lado de ${regN}</small><p>${esc(H.par?.[reg] || `${nome(id)} acompanha ${nome(reg)} e empresta ${H.empresta}.`)}</p></div>
+        <div class="rv-marque rv-marque--curto"><p class="rv-rotulo">Talvez você se reconheça</p><ul>${H.reconhece.map(t => `<li><i></i>${esc(t)}</li>`).join('')}</ul></div>
+        ${rodape(n, titulo)}
+      </section>`);
+    });
+  } else {
+  n++;
   pags.push(`<section class="rv-pg rv-papel">
     <header class="rv-topo"><span>${ROMANO[sec]} · As dominantes</span>${grega}</header>
     <h2 class="rv-h2">As suas dominantes</h2><p class="rv-sub">quem caminha ao lado de ${esc(regNomes || 'você')}</p>
@@ -142,6 +225,7 @@ export function montar(result, report, dono) {
       : '<p class="rv-lead">Nenhuma outra deusa se destacou na luz ao lado da regente. As suas escolhas se apoiam sobretudo nela, e a consulta ajuda a ver quem pode ganhar espaço.</p>'}
     ${rodape(n, titulo)}
   </section>`);
+  }
 
   // ---------- luz e sombra das sete ----------
   n++; sec++;
@@ -150,7 +234,7 @@ export function montar(result, report, dono) {
     <header class="rv-topo"><span>${ROMANO[sec]} · Luz e sombra</span>${grega}</header>
     <h2 class="rv-h2">Luz e sombra das sete</h2><p class="rv-sub">quem está na medida, quem passou do ponto e quem ficou sem espaço</p>
     <div class="rv-balanca">${prato(0, 'Na sombra', 'por escassez')}${prato(1, 'Na luz', 'na medida')}${prato(2, 'Na sombra', 'por excesso')}</div>
-    ${sombras.length ? sombras.map(s => `<article class="rv-sombra"><h3>${esc(s.name)} <em>${esc(ESTADO[s.tipo])}</em></h3><p>${esc(s.text)}</p>${s.tipo === 'excesso' && s.balance?.length ? `<p class="rv-sombra__eixo"><b>Para equilibrar:</b> desenvolver ${esc(lista(s.balance.map(b => b.name)))}, e não combater ${esc(s.name)} de frente (Regra do Eixo Oposto).</p>` : ''}</article>`).join('')
+    ${sombras.length ? `<div class="rv-sombras ${sombras.length > 4 ? 'rv-sombras--densa' : ''}">` + sombras.map(s => `<article class="rv-sombra"><h3>${esc(s.name)} <em>${esc(ESTADO[s.tipo])}</em></h3><p>${esc(s.text)}</p>${s.tipo === 'excesso' && s.balance?.length ? `<p class="rv-sombra__eixo"><b>Para equilibrar:</b> desenvolver ${esc(lista(s.balance.map(b => b.name)))}, e não combater ${esc(s.name)} de frente (Regra do Eixo Oposto).</p>` : ''}</article>`).join('') + '</div>'
       : '<p class="rv-lead">Nenhuma deusa apareceu na sombra nas suas escolhas. As sete estão na medida, cada uma com o seu peso.</p>'}
     ${rodape(n, titulo)}
   </section>`);
@@ -178,16 +262,16 @@ export function montar(result, report, dono) {
   areas.forEach(a => { junta('rege', 'rege', a.leads, a.name); junta('ajuda', 'ajuda', a.helps, a.name); if (a.hinders) junta('pesa', 'pesa', a.hinders, a.name); else junta('falta', 'pede espaço', a.lacks, a.name); });
   const ordem = { rege: 0, ajuda: 1, pesa: 2, falta: 3 };
   papeis.sort((x, y) => ordem[x.tipo] - ordem[y.tipo] || y.areas.length - x.areas.length);
-  n++;
+  if (!historia) { n++;
   pags.push(`<section class="rv-pg rv-papel">
     <header class="rv-topo"><span>${ROMANO[sec]} · As áreas da sua vida</span>${grega}</header>
     <h2 class="rv-h2">O que cada papel quer dizer</h2><p class="rv-sub">o mesmo papel pode se repetir em várias áreas</p>
     <div class="rv-papeis">${papeis.slice(0, 9).map(p => `<article class="rv-papelzinho is-${p.tipo}"><img src="assets/deusas/${p.id}-busto.webp" alt=""><div><small>Quando ${esc(p.name)} ${esc(p.rot)}</small><p>${esc(p.text)}</p><em>${esc(lista(p.areas))}</em></div></article>`).join('')}</div>
     ${rodape(n, titulo)}
-  </section>`);
+  </section>`); }
 
   // ---------- a seu favor e pede cuidado ----------
-  n++; sec++;
+  if (!historia) { n++; sec++;
   const thrive = report.environments.thrive || [], areasBoas = report.environments.thriveAreas || [];
   pags.push(`<section class="rv-pg rv-papel">
     <header class="rv-topo"><span>${ROMANO[sec]} · A seu favor</span>${grega}</header>
@@ -198,7 +282,7 @@ export function montar(result, report, dono) {
     </div>
     ${thrive.length ? `<div class="rv-floresce"><p class="rv-rotulo">Onde você floresce</p><ul class="rv-lista">${thrive.map(f => `<li>${esc(f.text)}</li>`).join('')}</ul>${areasBoas.length ? `<p class="rv-miudo">Áreas em que uma deusa na luz está no comando: ${esc(lista(areasBoas))}.</p>` : ''}</div>` : ''}
     ${rodape(n, titulo)}
-  </section>`);
+  </section>`); }
 
   // ---------- missão da semana ----------
   if (report.experiment) {
