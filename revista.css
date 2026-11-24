@@ -359,3 +359,8 @@ html.rv-imprimindo body{margin:0;background:#fff}
 .rv-sombras--densa .rv-sombra{padding:3mm 0}
 .rv-sombras--densa .rv-sombra p{font-size:9.8pt!important;line-height:1.5!important}
 .rv-sombras--densa .rv-sombra__eixo{font-size:9pt!important}
+
+/* página de estado: o e-book da regente é o passo a passo (a revista é o espelho, o e-book a ferramenta) */
+.rv-volta__livro{margin:4mm 0 0!important;padding-top:3mm;border-top:1px dotted #a1875399;font-size:9.8pt!important;color:var(--rv-oliva)}
+.rv-volta__livro b{font-family:var(--rv-cinzel);font-weight:600;font-size:8pt;letter-spacing:.12em;text-transform:uppercase;color:var(--rv-vinho,#6a343d)}
+.rv-volta__livro i{color:var(--rv-vinho,#6a343d)}

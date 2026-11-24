@@ -3,7 +3,7 @@
 // nenhuma API, nenhum servidor, custo zero por revista. O PDF sai pela janela de impressão.
 import { CONTENT, SHADOWS, OPPOSITE } from './lib/reports.js';
 import { GODDESSES } from './lib/questions.js';
-import { HISTORIAS } from './lib/historias.js';
+import { HISTORIAS, EBOOKS } from './lib/historias.js';
 
 const GREGO = { artemis: 'Ἄρτεμις', atena: 'Ἀθηνᾶ', hestia: 'Ἑστία', hera: 'Ἥρα', demeter: 'Δημήτηρ', persefone: 'Περσεφόνη', afrodite: 'Ἀφροδίτη' };
 const EPITETO = { hestia: 'o centro interior', artemis: 'a direção e a determinação', atena: 'a estratégia e a inteligência',
@@ -179,6 +179,7 @@ export function montar(result, report, dono) {
       <div class="rv-duas"><div><p class="rv-rotulo">O que ela protege</p><p>${esc(E.protege)}</p></div><div><p class="rv-rotulo">O que ela custa</p><p>${esc(E.custa)}</p></div></div>
       <div class="rv-volta"><p class="rv-rotulo">Como ela volta à medida</p><p>${esc(E.volta)}</p>
         ${est === 'excesso' && contra.length ? `<div class="rv-volta__eixo">${contra.map(c => `<span><img src="assets/deusas/${c}-busto.webp" alt="">${esc(nome(c))}</span>`).join('')}<p>Pela Regra do Eixo Oposto, quem ${contra.length > 1 ? 'ajudam' : 'ajuda'} ${nm} a voltar à medida ${contra.length > 1 ? 'são' : 'é'} ${esc(lista(contra.map(nome)))}. A missão da semana, no fim da revista, começa por aí.</p></div>` : ''}
+        ${est !== 'luz' && EBOOKS[id] ? `<p class="rv-volta__livro"><b>O passo a passo</b> para trazer ${nm} de volta à medida, com experimentos para sete dias, está no e-book <i>${esc(EBOOKS[id])}</i>.</p>` : ''}
       </div>
       <div class="rv-forcas"><p class="rv-rotulo">As forças de ${nm}</p><p>${CONTENT[id].strengths.map(esc).join(' · ')}</p></div>
       ${rodape(n, titulo)}
